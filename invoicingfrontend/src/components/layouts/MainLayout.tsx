@@ -31,6 +31,7 @@ const MainLayout: React.FC = () => {
     { label: 'Setup Kurs Pajak', path: '/setup/kurs-pajak' },
     { label: 'Setup Tanda Tangan', path: '/setup/tanda-tangan' },
     { label: 'Setup Gudang', path: '/setup/gudang' },
+    { label: 'Setup Group Barang', path: '/setup/group-barang' },
     { label: 'Setup Item', path: '/setup/item' },
     { label: 'Setup Cara Pembayaran', path: '/setup/pembayaran' },
     { label: 'Setup Pelanggan', path: '/setup/pelanggan' },

@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
-import { setupApi, MataUangData } from '../api';
+import { setupApi, GudangData } from '../api';
 
-const SetupMataUang: React.FC = () => {
-  const [mataUangList, setMataUangList] = useState<MataUangData[]>([]);
+const SetupGudang: React.FC = () => {
+  const [list, setList] = useState<GudangData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   
   const [editingId, setEditingId] = useState<number | 'new' | null>(null);
-  const [editForm, setEditForm] = useState<MataUangData>({ kode: '', nama: '', per: '' });
+  const [editForm, setEditForm] = useState<GudangData>({
+    kode_gudang: '',
+    nama_gudang: '',
+    lokasi: '',
+    is_default: false
+  });
 
   useEffect(() => {
     fetchData();
@@ -17,65 +22,64 @@ const SetupMataUang: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const data = await setupApi.getMataUang();
-      setMataUangList(data || []);
+      const data = await setupApi.getGudang();
+      setList(data || []);
     } catch (error) {
-      setMessage({ text: 'Gagal memuat data mata uang dari server.', type: 'error' });
+      showMessage('Gagal memuat data gudang.', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAddNew = () => {
-    setEditingId('new');
-    setEditForm({ kode: '', nama: '', per: '' });
+  const showMessage = (text: string, type: 'success' | 'error') => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3000);
   };
 
-  const handleEdit = (item: MataUangData) => {
+  const handleAddNew = () => {
+    setEditingId('new');
+    setEditForm({
+      kode_gudang: '',
+      nama_gudang: '',
+      lokasi: '',
+      is_default: false
+    });
+  };
+
+  const handleEdit = (item: GudangData) => {
     setEditingId(item.id!);
     setEditForm({ ...item });
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    setEditForm({ kode: '', nama: '', per: '' });
   };
 
   const handleSave = async () => {
-    if (!editForm.kode || !editForm.nama) {
-      setMessage({ text: 'Kode dan Mata Uang harus diisi!', type: 'error' });
+    if (!editForm.kode_gudang || !editForm.nama_gudang) {
+      showMessage('Kode Gudang dan Nama Gudang harus diisi!', 'error');
       return;
     }
 
     try {
-      await setupApi.saveMataUang(editForm);
-      setMessage({ text: 'Data mata uang berhasil disimpan!', type: 'success' });
+      await setupApi.saveGudang(editForm);
+      showMessage('Data gudang berhasil disimpan!', 'success');
       setEditingId(null);
       fetchData();
-      
-      // Auto-hide message after 3 seconds
-      setTimeout(() => {
-        setMessage(null);
-      }, 3000);
     } catch (error) {
-      setMessage({ text: 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
+      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus mata uang ini?')) return;
+    if (!window.confirm('Apakah Anda yakin ingin menghapus gudang ini?')) return;
     
     try {
-      await setupApi.deleteMataUang(id);
-      setMessage({ text: 'Data mata uang berhasil dihapus!', type: 'success' });
+      await setupApi.deleteGudang(id);
+      showMessage('Data berhasil dihapus!', 'success');
       fetchData();
-      
-      // Auto-hide message after 3 seconds
-      setTimeout(() => {
-        setMessage(null);
-      }, 3000);
     } catch (error) {
-      setMessage({ text: 'Terjadi kesalahan saat menghapus data.', type: 'error' });
+      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
     }
   };
 
@@ -86,8 +90,8 @@ const SetupMataUang: React.FC = () => {
       {/* Header Form */}
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-semibold text-white">Setup Mata Uang</h2>
-          <p className="text-xs text-slate-300 mt-1">Konfigurasi jenis mata uang yang digunakan dalam sistem.</p>
+          <h2 className="text-lg font-semibold text-white">Setup Gudang</h2>
+          <p className="text-xs text-slate-300 mt-1">Kelola data gudang (warehouse) penyimpanan barang.</p>
         </div>
         <button 
           onClick={handleAddNew}
@@ -126,9 +130,10 @@ const SetupMataUang: React.FC = () => {
               <thead>
                 <tr className="bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   <th className="px-4 py-3 w-12 text-center">No</th>
-                  <th className="px-4 py-3 w-32">Kode</th>
-                  <th className="px-4 py-3">Mata Uang</th>
-                  <th className="px-4 py-3 w-32">Per</th>
+                  <th className="px-4 py-3 w-32">Kode Gudang</th>
+                  <th className="px-4 py-3">Nama Gudang</th>
+                  <th className="px-4 py-3">Lokasi</th>
+                  <th className="px-4 py-3 w-24 text-center">Default</th>
                   <th className="px-4 py-3 w-28 text-center">Aksi</th>
                 </tr>
               </thead>
@@ -139,29 +144,37 @@ const SetupMataUang: React.FC = () => {
                     <td className="px-4 py-2">
                       <input 
                         type="text" 
-                        value={editForm.kode} 
-                        onChange={e => setEditForm({...editForm, kode: e.target.value.toUpperCase()})} 
+                        value={editForm.kode_gudang} 
+                        onChange={e => setEditForm({...editForm, kode_gudang: e.target.value.toUpperCase()})} 
                         className={inputClass}
-                        placeholder="IDR"
+                        placeholder="Contoh: KP"
                         autoFocus
                       />
                     </td>
                     <td className="px-4 py-2">
                       <input 
                         type="text" 
-                        value={editForm.nama} 
-                        onChange={e => setEditForm({...editForm, nama: e.target.value})} 
+                        value={editForm.nama_gudang} 
+                        onChange={e => setEditForm({...editForm, nama_gudang: e.target.value})} 
                         className={inputClass}
-                        placeholder="Indonesia Rupiah"
+                        placeholder="Contoh: Kapuk"
                       />
                     </td>
                     <td className="px-4 py-2">
                       <input 
                         type="text" 
-                        value={editForm.per} 
-                        onChange={e => setEditForm({...editForm, per: e.target.value.toUpperCase()})} 
+                        value={editForm.lokasi} 
+                        onChange={e => setEditForm({...editForm, lokasi: e.target.value})} 
                         className={inputClass}
-                        placeholder="1 RP"
+                        placeholder="Contoh: Jakarta"
+                      />
+                    </td>
+                    <td className="px-4 py-2 text-center">
+                      <input 
+                        type="checkbox" 
+                        checked={editForm.is_default} 
+                        onChange={e => setEditForm({...editForm, is_default: e.target.checked})} 
+                        className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
                       />
                     </td>
                     <td className="px-4 py-2 flex justify-center gap-2">
@@ -171,20 +184,23 @@ const SetupMataUang: React.FC = () => {
                   </tr>
                 )}
 
-                {mataUangList.map((item, index) => (
+                {list.map((item, index) => (
                   <tr key={item.id} className="hover:bg-slate-50 transition-colors">
                     {editingId === item.id ? (
                       // Edit Mode
                       <>
                         <td className="px-4 py-3 text-center">{index + 1}</td>
                         <td className="px-4 py-2">
-                          <input type="text" value={editForm.kode} onChange={e => setEditForm({...editForm, kode: e.target.value.toUpperCase()})} className={inputClass} />
+                          <input type="text" value={editForm.kode_gudang} onChange={e => setEditForm({...editForm, kode_gudang: e.target.value.toUpperCase()})} className={inputClass} />
                         </td>
                         <td className="px-4 py-2">
-                          <input type="text" value={editForm.nama} onChange={e => setEditForm({...editForm, nama: e.target.value})} className={inputClass} />
+                          <input type="text" value={editForm.nama_gudang} onChange={e => setEditForm({...editForm, nama_gudang: e.target.value})} className={inputClass} />
                         </td>
                         <td className="px-4 py-2">
-                          <input type="text" value={editForm.per} onChange={e => setEditForm({...editForm, per: e.target.value.toUpperCase()})} className={inputClass} />
+                          <input type="text" value={editForm.lokasi} onChange={e => setEditForm({...editForm, lokasi: e.target.value})} className={inputClass} />
+                        </td>
+                        <td className="px-4 py-2 text-center">
+                          <input type="checkbox" checked={editForm.is_default} onChange={e => setEditForm({...editForm, is_default: e.target.checked})} className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" />
                         </td>
                         <td className="px-4 py-2 flex justify-center gap-2">
                           <button onClick={handleSave} className="p-1 text-emerald-600 hover:bg-emerald-100 rounded" title="Simpan"><Save size={16} /></button>
@@ -195,9 +211,12 @@ const SetupMataUang: React.FC = () => {
                       // View Mode
                       <>
                         <td className="px-4 py-3 text-center text-slate-500">{index + 1}</td>
-                        <td className="px-4 py-3 font-medium">{item.kode}</td>
-                        <td className="px-4 py-3">{item.nama}</td>
-                        <td className="px-4 py-3">{item.per}</td>
+                        <td className="px-4 py-3 font-medium">{item.kode_gudang}</td>
+                        <td className="px-4 py-3">{item.nama_gudang}</td>
+                        <td className="px-4 py-3">{item.lokasi || '-'}</td>
+                        <td className="px-4 py-3 text-center">
+                          <input type="checkbox" checked={item.is_default} readOnly className="w-4 h-4 text-slate-400 border-slate-300 rounded opacity-70 cursor-not-allowed" />
+                        </td>
                         <td className="px-4 py-3 flex justify-center gap-2">
                           <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
                             <Edit2 size={14} />
@@ -211,10 +230,10 @@ const SetupMataUang: React.FC = () => {
                   </tr>
                 ))}
                 
-                {mataUangList.length === 0 && editingId !== 'new' && (
+                {list.length === 0 && editingId !== 'new' && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-slate-500 text-sm">
-                      Belum ada data mata uang. Klik "Tambah Baru" untuk memulai.
+                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500 text-sm">
+                      Belum ada data gudang. Klik "Tambah Baru" untuk memulai.
                     </td>
                   </tr>
                 )}
@@ -227,4 +246,4 @@ const SetupMataUang: React.FC = () => {
   );
 };
 
-export default SetupMataUang;
+export default SetupGudang;

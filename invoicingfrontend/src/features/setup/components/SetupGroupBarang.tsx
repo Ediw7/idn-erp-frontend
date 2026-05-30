@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
-import { setupApi, MataUangData } from '../api';
+import { setupApi, GroupBarangData } from '../api';
 
-const SetupMataUang: React.FC = () => {
-  const [mataUangList, setMataUangList] = useState<MataUangData[]>([]);
+const SetupGroupBarang: React.FC = () => {
+  const [list, setList] = useState<GroupBarangData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   
   const [editingId, setEditingId] = useState<number | 'new' | null>(null);
-  const [editForm, setEditForm] = useState<MataUangData>({ kode: '', nama: '', per: '' });
+  const [editForm, setEditForm] = useState<GroupBarangData>({
+    nama: ''
+  });
 
   useEffect(() => {
     fetchData();
@@ -17,65 +19,61 @@ const SetupMataUang: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const data = await setupApi.getMataUang();
-      setMataUangList(data || []);
+      const data = await setupApi.getGroupBarang();
+      setList(data || []);
     } catch (error) {
-      setMessage({ text: 'Gagal memuat data mata uang dari server.', type: 'error' });
+      showMessage('Gagal memuat data group barang.', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAddNew = () => {
-    setEditingId('new');
-    setEditForm({ kode: '', nama: '', per: '' });
+  const showMessage = (text: string, type: 'success' | 'error') => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3000);
   };
 
-  const handleEdit = (item: MataUangData) => {
+  const handleAddNew = () => {
+    setEditingId('new');
+    setEditForm({
+      nama: ''
+    });
+  };
+
+  const handleEdit = (item: GroupBarangData) => {
     setEditingId(item.id!);
     setEditForm({ ...item });
   };
 
   const handleCancel = () => {
     setEditingId(null);
-    setEditForm({ kode: '', nama: '', per: '' });
   };
 
   const handleSave = async () => {
-    if (!editForm.kode || !editForm.nama) {
-      setMessage({ text: 'Kode dan Mata Uang harus diisi!', type: 'error' });
+    if (!editForm.nama) {
+      showMessage('Nama Group Barang harus diisi!', 'error');
       return;
     }
 
     try {
-      await setupApi.saveMataUang(editForm);
-      setMessage({ text: 'Data mata uang berhasil disimpan!', type: 'success' });
+      await setupApi.saveGroupBarang(editForm);
+      showMessage('Group Barang berhasil disimpan!', 'success');
       setEditingId(null);
       fetchData();
-      
-      // Auto-hide message after 3 seconds
-      setTimeout(() => {
-        setMessage(null);
-      }, 3000);
     } catch (error) {
-      setMessage({ text: 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
+      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus mata uang ini?')) return;
+    if (!window.confirm('Apakah Anda yakin ingin menghapus group barang ini?')) return;
     
     try {
-      await setupApi.deleteMataUang(id);
-      setMessage({ text: 'Data mata uang berhasil dihapus!', type: 'success' });
+      await setupApi.deleteGroupBarang(id);
+      showMessage('Data berhasil dihapus!', 'success');
       fetchData();
-      
-      // Auto-hide message after 3 seconds
-      setTimeout(() => {
-        setMessage(null);
-      }, 3000);
     } catch (error) {
-      setMessage({ text: 'Terjadi kesalahan saat menghapus data.', type: 'error' });
+      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
     }
   };
 
@@ -86,8 +84,8 @@ const SetupMataUang: React.FC = () => {
       {/* Header Form */}
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-semibold text-white">Setup Mata Uang</h2>
-          <p className="text-xs text-slate-300 mt-1">Konfigurasi jenis mata uang yang digunakan dalam sistem.</p>
+          <h2 className="text-lg font-semibold text-white">Setup Group Barang</h2>
+          <p className="text-xs text-slate-300 mt-1">Kelola kategori atau pengelompokan barang untuk mempermudah laporan.</p>
         </div>
         <button 
           onClick={handleAddNew}
@@ -125,11 +123,9 @@ const SetupMataUang: React.FC = () => {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  <th className="px-4 py-3 w-12 text-center">No</th>
-                  <th className="px-4 py-3 w-32">Kode</th>
-                  <th className="px-4 py-3">Mata Uang</th>
-                  <th className="px-4 py-3 w-32">Per</th>
-                  <th className="px-4 py-3 w-28 text-center">Aksi</th>
+                  <th className="px-4 py-3 w-16 text-center">No</th>
+                  <th className="px-4 py-3">Nama Group Barang</th>
+                  <th className="px-4 py-3 w-32 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
@@ -139,29 +135,11 @@ const SetupMataUang: React.FC = () => {
                     <td className="px-4 py-2">
                       <input 
                         type="text" 
-                        value={editForm.kode} 
-                        onChange={e => setEditForm({...editForm, kode: e.target.value.toUpperCase()})} 
-                        className={inputClass}
-                        placeholder="IDR"
-                        autoFocus
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input 
-                        type="text" 
                         value={editForm.nama} 
                         onChange={e => setEditForm({...editForm, nama: e.target.value})} 
                         className={inputClass}
-                        placeholder="Indonesia Rupiah"
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input 
-                        type="text" 
-                        value={editForm.per} 
-                        onChange={e => setEditForm({...editForm, per: e.target.value.toUpperCase()})} 
-                        className={inputClass}
-                        placeholder="1 RP"
+                        placeholder="Contoh: Baju Anak-Anak"
+                        autoFocus
                       />
                     </td>
                     <td className="px-4 py-2 flex justify-center gap-2">
@@ -171,20 +149,19 @@ const SetupMataUang: React.FC = () => {
                   </tr>
                 )}
 
-                {mataUangList.map((item, index) => (
+                {list.map((item, index) => (
                   <tr key={item.id} className="hover:bg-slate-50 transition-colors">
                     {editingId === item.id ? (
                       // Edit Mode
                       <>
                         <td className="px-4 py-3 text-center">{index + 1}</td>
                         <td className="px-4 py-2">
-                          <input type="text" value={editForm.kode} onChange={e => setEditForm({...editForm, kode: e.target.value.toUpperCase()})} className={inputClass} />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input type="text" value={editForm.nama} onChange={e => setEditForm({...editForm, nama: e.target.value})} className={inputClass} />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input type="text" value={editForm.per} onChange={e => setEditForm({...editForm, per: e.target.value.toUpperCase()})} className={inputClass} />
+                          <input 
+                            type="text" 
+                            value={editForm.nama} 
+                            onChange={e => setEditForm({...editForm, nama: e.target.value})} 
+                            className={inputClass} 
+                          />
                         </td>
                         <td className="px-4 py-2 flex justify-center gap-2">
                           <button onClick={handleSave} className="p-1 text-emerald-600 hover:bg-emerald-100 rounded" title="Simpan"><Save size={16} /></button>
@@ -195,9 +172,7 @@ const SetupMataUang: React.FC = () => {
                       // View Mode
                       <>
                         <td className="px-4 py-3 text-center text-slate-500">{index + 1}</td>
-                        <td className="px-4 py-3 font-medium">{item.kode}</td>
-                        <td className="px-4 py-3">{item.nama}</td>
-                        <td className="px-4 py-3">{item.per}</td>
+                        <td className="px-4 py-3 font-medium">{item.nama}</td>
                         <td className="px-4 py-3 flex justify-center gap-2">
                           <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
                             <Edit2 size={14} />
@@ -211,10 +186,10 @@ const SetupMataUang: React.FC = () => {
                   </tr>
                 ))}
                 
-                {mataUangList.length === 0 && editingId !== 'new' && (
+                {list.length === 0 && editingId !== 'new' && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-slate-500 text-sm">
-                      Belum ada data mata uang. Klik "Tambah Baru" untuk memulai.
+                    <td colSpan={3} className="px-4 py-8 text-center text-slate-500 text-sm">
+                      Belum ada data group barang. Klik "Tambah Baru" untuk memulai.
                     </td>
                   </tr>
                 )}
@@ -227,4 +202,4 @@ const SetupMataUang: React.FC = () => {
   );
 };
 
-export default SetupMataUang;
+export default SetupGroupBarang;

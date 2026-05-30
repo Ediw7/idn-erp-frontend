@@ -6,6 +6,10 @@ import SetupMataUang from './features/setup/components/SetupMataUang';
 import SetupKursPajak from './features/setup/components/SetupKursPajak';
 import SetupTandaTangan from './features/setup/components/SetupTandaTangan';
 import SetupPerkiraan from './features/setup/components/SetupPerkiraan';
+import SetupGudang from './features/setup/components/SetupGudang';
+import SetupGroupBarang from './features/setup/components/SetupGroupBarang';
+import SetupItem from './features/setup/components/SetupItem';
+import SetupPembayaran from './features/setup/components/SetupPembayaran';
 
 function App() {
   return (
@@ -24,6 +28,10 @@ function App() {
             <Route path="kurs-pajak" element={<SetupKursPajak />} />
             <Route path="tanda-tangan" element={<SetupTandaTangan />} />
             <Route path="perkiraan" element={<SetupPerkiraan />} />
+            <Route path="gudang" element={<SetupGudang />} />
+            <Route path="group-barang" element={<SetupGroupBarang />} />
+            <Route path="item" element={<SetupItem />} />
+            <Route path="pembayaran" element={<SetupPembayaran />} />
             <Route path="pelanggan" element={<div>Setup Pelanggan (Coming Soon)</div>} />
             <Route index element={<Navigate to="perusahaan" replace />} />
           </Route>

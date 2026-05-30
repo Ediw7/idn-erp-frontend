@@ -103,6 +103,44 @@ export interface PerkiraanData {
   kas_bank: boolean;
 }
 
+export interface GudangData {
+  id?: number;
+  kode_gudang: string;
+  nama_gudang: string;
+  lokasi: string;
+  is_default: boolean;
+}
+
+export interface GroupBarangData {
+  id?: number;
+  nama: string;
+}
+
+export interface ItemData {
+  id?: number;
+  kode: string;
+  nama: string;
+  group_barang_id?: number | null;
+  group_barang_nama?: string;
+  satuan: string;
+  harga_jual_1: number;
+  harga_jual_2: number;
+  harga_jual_3: number;
+  supplier_utama: string;
+  perk_penjualan_id?: number | null;
+  perk_penjualan_nama?: string;
+  perk_hpp_id?: number | null;
+  perk_hpp_nama?: string;
+  is_inventory: boolean;
+}
+
+export interface PembayaranData {
+  id?: number;
+  kode: string;
+  nama: string;
+  hari_jatuh_tempo: number;
+}
+
 export const setupApi = {
   getPerusahaan: async (): Promise<CompanyData> => {
     const response = await axiosClient.post('/api/setup/perusahaan/get', {
@@ -278,5 +316,137 @@ export const setupApi = {
       return response.data.result;
     }
     throw new Error(response.data.result?.message || 'Failed to delete perkiraan');
+  },
+
+  getGudang: async (): Promise<GudangData[]> => {
+    const response = await axiosClient.post('/api/setup/gudang/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch gudang');
+  },
+
+  saveGudang: async (data: GudangData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/gudang/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save gudang');
+  },
+
+  deleteGudang: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/gudang/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete gudang');
+  },
+
+  getGroupBarang: async (): Promise<GroupBarangData[]> => {
+    const response = await axiosClient.post('/api/setup/groupbarang/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch group barang');
+  },
+
+  saveGroupBarang: async (data: GroupBarangData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/groupbarang/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save group barang');
+  },
+
+  deleteGroupBarang: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/groupbarang/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete group barang');
+  },
+
+  getItem: async (filters?: { kode?: string; nama?: string; group_barang_id?: number | string }): Promise<ItemData[]> => {
+    const response = await axiosClient.post('/api/setup/item/get', {
+      jsonrpc: '2.0',
+      params: filters || {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch item');
+  },
+
+  saveItem: async (data: ItemData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/item/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save item');
+  },
+
+  deleteItem: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/item/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete item');
+  },
+
+  getPembayaran: async (): Promise<PembayaranData[]> => {
+    const response = await axiosClient.post('/api/setup/pembayaran/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch pembayaran');
+  },
+
+  savePembayaran: async (data: PembayaranData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/pembayaran/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save pembayaran');
+  },
+
+  deletePembayaran: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/pembayaran/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete pembayaran');
   }
 };
