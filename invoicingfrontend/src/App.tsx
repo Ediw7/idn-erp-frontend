@@ -1,6 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/layouts/MainLayout';
 import SetupPerusahaan from './features/setup/components/SetupPerusahaan';
+import SetupPreferensi from './features/setup/components/SetupPreferensi';
+import SetupMataUang from './features/setup/components/SetupMataUang';
+import SetupKursPajak from './features/setup/components/SetupKursPajak';
+import SetupTandaTangan from './features/setup/components/SetupTandaTangan';
+import SetupPerkiraan from './features/setup/components/SetupPerkiraan';
 
 function App() {
   return (
@@ -13,8 +18,12 @@ function App() {
           {/* Setup Routes */}
           <Route path="setup">
             <Route path="perusahaan" element={<SetupPerusahaan />} />
+            <Route path="preferensi" element={<SetupPreferensi />} />
             {/* Add other setup routes here later */}
-            <Route path="mata-uang" element={<div>Setup Mata Uang (Coming Soon)</div>} />
+            <Route path="mata-uang" element={<SetupMataUang />} />
+            <Route path="kurs-pajak" element={<SetupKursPajak />} />
+            <Route path="tanda-tangan" element={<SetupTandaTangan />} />
+            <Route path="perkiraan" element={<SetupPerkiraan />} />
             <Route path="pelanggan" element={<div>Setup Pelanggan (Coming Soon)</div>} />
             <Route index element={<Navigate to="perusahaan" replace />} />
           </Route>

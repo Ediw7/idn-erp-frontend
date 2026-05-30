@@ -25,7 +25,11 @@ const MainLayout: React.FC = () => {
   // Submenus for Setup Awal
   const setupItems = [
     { label: 'Setup Perusahaan', path: '/setup/perusahaan' },
+    { label: 'Setup Preferensi', path: '/setup/preferensi' },
+    { label: 'Setup Perkiraan', path: '/setup/perkiraan' },
     { label: 'Setup Mata Uang', path: '/setup/mata-uang' },
+    { label: 'Setup Kurs Pajak', path: '/setup/kurs-pajak' },
+    { label: 'Setup Tanda Tangan', path: '/setup/tanda-tangan' },
     { label: 'Setup Gudang', path: '/setup/gudang' },
     { label: 'Setup Item', path: '/setup/item' },
     { label: 'Setup Cara Pembayaran', path: '/setup/pembayaran' },

@@ -2,8 +2,7 @@ import axios from 'axios';
 
 // Configure Axios with defaults for Odoo API
 const axiosClient = axios.create({
-  // Fallback to local Odoo if environment variable is not set
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8069', 
+  baseURL: import.meta.env.VITE_API_BASE_URL || '', 
   // CRITICAL: withCredentials ensures the frontend automatically sends and 
   // receives the Odoo `session_id` cookie on every request.
   // Temporarily set to false to ignore old odoo_produksi cookie.
