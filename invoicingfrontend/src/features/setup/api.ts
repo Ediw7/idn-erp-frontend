@@ -141,6 +141,127 @@ export interface PembayaranData {
   hari_jatuh_tempo: number;
 }
 
+export interface PelangganData {
+  id?: number;
+  kode: string;
+  nama: string;
+  alamat?: string;
+  telepon?: string;
+  fax?: string;
+  alamat_kirim?: string;
+  telepon_kirim?: string;
+  fax_kirim?: string;
+  nama_wp?: string;
+  npwp?: string;
+  nik?: string;
+  alamat_wp?: string;
+  jenis_transaksi?: string;
+  email?: string;
+  contact_person?: string;
+  no_hp?: string;
+  jabatan?: string;
+  pembayaran_id?: number | null;
+  pembayaran_nama?: string;
+  tingkat_harga?: string;
+  diskon?: number;
+  perk_piutang_id?: number | null;
+  perk_piutang_nama?: string;
+  keterangan?: string;
+}
+
+export interface SupplierData {
+  id?: number;
+  kode: string;
+  nama: string;
+  alamat?: string;
+  telepon?: string;
+  fax?: string;
+  email?: string;
+  contact_person?: string;
+  no_hp?: string;
+  nama_wp?: string;
+  alamat_wp?: string;
+  npwp?: string;
+  tgl_pengukuhan?: string;
+  no_seri_fp_masukan?: string;
+  is_pkp: boolean;
+  jenis_transaksi?: string;
+  pembayaran_id?: number | null;
+  pembayaran_nama?: string;
+  keterangan?: string;
+}
+
+export interface ProyekData {
+  id?: number;
+  kode: string;
+  nama: string;
+}
+
+export interface SalesmanData {
+  id?: number;
+  kode: string;
+  nama: string;
+}
+
+export interface JenisPotonganData {
+  id?: number;
+  kode: string;
+  nama: string;
+  perkiraan_id?: number | null;
+  perkiraan_nama?: string;
+}
+
+export interface FormatBuktiData {
+  id?: number;
+  periode: string;
+  inv_vat_prefiks?: string; inv_vat_digit?: string; inv_vat_sufiks?: string;
+  inv_non_vat_prefiks?: string; inv_non_vat_digit?: string; inv_non_vat_sufiks?: string;
+  kwi_vat_prefiks?: string; kwi_vat_digit?: string; kwi_vat_sufiks?: string;
+  kwi_non_vat_prefiks?: string; kwi_non_vat_digit?: string; kwi_non_vat_sufiks?: string;
+  pem_inv_prefiks?: string; pem_inv_digit?: string; pem_inv_sufiks?: string;
+  nota_kredit_prefiks?: string; nota_kredit_digit?: string; nota_kredit_sufiks?: string;
+  so_prefiks?: string; so_digit?: string; so_sufiks?: string;
+  sj_prefiks?: string; sj_digit?: string; sj_sufiks?: string;
+  retur_jual_prefiks?: string; retur_jual_digit?: string; retur_jual_sufiks?: string;
+  retur_beli_prefiks?: string; retur_beli_digit?: string; retur_beli_sufiks?: string;
+  terima_brg_prefiks?: string; terima_brg_digit?: string; terima_brg_sufiks?: string;
+  adj_inv_prefiks?: string; adj_inv_digit?: string; adj_inv_sufiks?: string;
+  tf_brg_prefiks?: string; tf_brg_digit?: string; tf_brg_sufiks?: string;
+}
+
+export interface FakturPajakData {
+  id?: number;
+  no_surat: string;
+  tgl_surat: string;
+  tgl_awal: string;
+  tgl_akhir: string;
+  no_seri_awal: string;
+  no_seri_akhir: string;
+}
+
+export interface JenisPajakData {
+  id?: number;
+  kode: string;
+  nama: string;
+}
+
+export interface JenisSetoranData {
+  id?: number;
+  jenis_pajak_id?: number | null;
+  jenis_pajak_kode?: string;
+  jenis_pajak_nama?: string;
+  kode: string;
+  nama: string;
+}
+
+export interface BahasaData {
+  id?: number;
+  jenis_objek: string;
+  nama_objek: string;
+  default_sistem: string;
+  judul_kustom: string;
+}
+
 export const setupApi = {
   getPerusahaan: async (): Promise<CompanyData> => {
     const response = await axiosClient.post('/api/setup/perusahaan/get', {
@@ -448,5 +569,346 @@ export const setupApi = {
       return response.data.result;
     }
     throw new Error(response.data.result?.message || 'Failed to delete pembayaran');
+  },
+
+  getPelanggan: async (): Promise<PelangganData[]> => {
+    const response = await axiosClient.post('/api/setup/pelanggan/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch pelanggan');
+  },
+
+  savePelanggan: async (data: PelangganData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/pelanggan/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save pelanggan');
+  },
+
+  deletePelanggan: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/pelanggan/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete pelanggan');
+  },
+
+  importBatchPelanggan: async (items: Partial<PelangganData>[]): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/pelanggan/import_batch', {
+      jsonrpc: '2.0',
+      params: { items }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to import pelanggan');
+  },
+
+  getSupplier: async (): Promise<SupplierData[]> => {
+    const response = await axiosClient.post('/api/setup/supplier/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch supplier');
+  },
+
+  saveSupplier: async (data: SupplierData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/supplier/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save supplier');
+  },
+
+  deleteSupplier: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/supplier/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete supplier');
+  },
+
+  getProyek: async (): Promise<ProyekData[]> => {
+    const response = await axiosClient.post('/api/setup/proyek/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch proyek');
+  },
+
+  saveProyek: async (data: ProyekData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/proyek/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save proyek');
+  },
+
+  deleteProyek: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/proyek/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete proyek');
+  },
+
+  getSalesman: async (): Promise<SalesmanData[]> => {
+    const response = await axiosClient.post('/api/setup/salesman/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch salesman');
+  },
+
+  saveSalesman: async (data: SalesmanData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/salesman/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save salesman');
+  },
+
+  deleteSalesman: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/salesman/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete salesman');
+  },
+
+  getJenisPotongan: async (): Promise<JenisPotonganData[]> => {
+    const response = await axiosClient.post('/api/setup/jenis_potongan/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch jenis potongan');
+  },
+
+  saveJenisPotongan: async (data: JenisPotonganData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/jenis_potongan/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save jenis potongan');
+  },
+
+  deleteJenisPotongan: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/jenis_potongan/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete jenis potongan');
+  },
+
+  getFormatBukti: async (): Promise<FormatBuktiData[]> => {
+    const response = await axiosClient.post('/api/setup/format_bukti/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch format bukti');
+  },
+
+  saveFormatBukti: async (data: FormatBuktiData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/format_bukti/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save format bukti');
+  },
+
+  deleteFormatBukti: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/format_bukti/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete format bukti');
+  },
+
+  getFakturPajak: async (): Promise<FakturPajakData[]> => {
+    const response = await axiosClient.post('/api/setup/faktur_pajak/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch faktur pajak');
+  },
+
+  saveFakturPajak: async (data: FakturPajakData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/faktur_pajak/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save faktur pajak');
+  },
+
+  deleteFakturPajak: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/faktur_pajak/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete faktur pajak');
+  },
+
+  getJenisPajak: async (): Promise<JenisPajakData[]> => {
+    const response = await axiosClient.post('/api/setup/jenis_pajak/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch jenis pajak');
+  },
+
+  saveJenisPajak: async (data: JenisPajakData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/jenis_pajak/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save jenis pajak');
+  },
+
+  deleteJenisPajak: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/jenis_pajak/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete jenis pajak');
+  },
+
+  getJenisSetoran: async (): Promise<JenisSetoranData[]> => {
+    const response = await axiosClient.post('/api/setup/jenis_setoran/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch jenis setoran');
+  },
+
+  saveJenisSetoran: async (data: JenisSetoranData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/jenis_setoran/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save jenis setoran');
+  },
+
+  deleteJenisSetoran: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/jenis_setoran/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete jenis setoran');
+  },
+
+  getBahasa: async (): Promise<BahasaData[]> => {
+    const response = await axiosClient.post('/api/setup/bahasa/get', {
+      jsonrpc: '2.0',
+      params: {}
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result.data;
+    }
+    throw new Error(response.data.result?.message || 'Failed to fetch setup bahasa');
+  },
+
+  saveBahasa: async (data: BahasaData): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/bahasa/save', {
+      jsonrpc: '2.0',
+      params: data
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to save setup bahasa');
+  },
+
+  deleteBahasa: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/setup/bahasa/delete', {
+      jsonrpc: '2.0',
+      params: { id }
+    });
+    if (response.data.result && response.data.result.status === 'success') {
+      return response.data.result;
+    }
+    throw new Error(response.data.result?.message || 'Failed to delete setup bahasa');
   }
 };

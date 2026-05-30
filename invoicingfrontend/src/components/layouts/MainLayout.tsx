@@ -35,9 +35,15 @@ const MainLayout: React.FC = () => {
     { label: 'Setup Item', path: '/setup/item' },
     { label: 'Setup Cara Pembayaran', path: '/setup/pembayaran' },
     { label: 'Setup Pelanggan', path: '/setup/pelanggan' },
+    { label: 'Setup Supplier', path: '/setup/supplier' },
     { label: 'Setup Proyek', path: '/setup/proyek' },
     { label: 'Setup Salesman', path: '/setup/salesman' },
     { label: 'Setup Nomor Seri Faktur Pajak', path: '/setup/faktur-pajak' },
+    { label: 'Setup Jenis Potongan', path: '/setup/jenis-potongan' },
+    { label: 'Setup Format No Bukti', path: '/setup/format-bukti' },
+    { label: 'Setup Kode Jenis Pajak', path: '/setup/jenis-pajak' },
+    { label: 'Setup Kode Jenis Setoran', path: '/setup/jenis-setoran' },
+    { label: 'Setup Bahasa', path: '/setup/bahasa' },
   ];
 
   // Check if current route starts with a specific path to highlight active state
@@ -71,7 +77,7 @@ const MainLayout: React.FC = () => {
               </button>
               
               {/* Animated Expandable Submenu */}
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isSetupOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isSetupOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                 <ul className="bg-slate-950 py-1">
                   {setupItems.map((item, idx) => (
                     <li key={idx}>

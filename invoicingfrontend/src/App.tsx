@@ -10,6 +10,16 @@ import SetupGudang from './features/setup/components/SetupGudang';
 import SetupGroupBarang from './features/setup/components/SetupGroupBarang';
 import SetupItem from './features/setup/components/SetupItem';
 import SetupPembayaran from './features/setup/components/SetupPembayaran';
+import SetupPelanggan from './features/setup/components/SetupPelanggan';
+import SetupSupplier from './features/setup/components/SetupSupplier';
+import SetupProyek from './features/setup/components/SetupProyek';
+import SetupSalesman from './features/setup/components/SetupSalesman';
+import SetupJenisPotongan from './features/setup/components/SetupJenisPotongan';
+import SetupFormatBukti from './features/setup/components/SetupFormatBukti';
+import SetupFakturPajak from './features/setup/components/SetupFakturPajak';
+import SetupJenisPajak from './features/setup/components/SetupJenisPajak';
+import SetupJenisSetoran from './features/setup/components/SetupJenisSetoran';
+import SetupBahasa from './features/setup/components/SetupBahasa';
 
 function App() {
   return (
@@ -32,7 +42,16 @@ function App() {
             <Route path="group-barang" element={<SetupGroupBarang />} />
             <Route path="item" element={<SetupItem />} />
             <Route path="pembayaran" element={<SetupPembayaran />} />
-            <Route path="pelanggan" element={<div>Setup Pelanggan (Coming Soon)</div>} />
+            <Route path="pelanggan" element={<SetupPelanggan />} />
+            <Route path="supplier" element={<SetupSupplier />} />
+            <Route path="proyek" element={<SetupProyek />} />
+            <Route path="salesman" element={<SetupSalesman />} />
+            <Route path="jenis-potongan" element={<SetupJenisPotongan />} />
+            <Route path="format-bukti" element={<SetupFormatBukti />} />
+            <Route path="faktur-pajak" element={<SetupFakturPajak />} />
+            <Route path="jenis-pajak" element={<SetupJenisPajak />} />
+            <Route path="jenis-setoran" element={<SetupJenisSetoran />} />
+            <Route path="bahasa" element={<SetupBahasa />} />
             <Route index element={<Navigate to="perusahaan" replace />} />
           </Route>
 
