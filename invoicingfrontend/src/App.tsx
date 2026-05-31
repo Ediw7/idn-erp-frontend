@@ -1,5 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import MainLayout from './components/layouts/MainLayout';
+import { AuthProvider, useAuth } from './features/auth/contexts/AuthContext';
+import Login from './features/auth/components/Login';
 import SetupPerusahaan from './features/setup/components/SetupPerusahaan';
 import SetupPreferensi from './features/setup/components/SetupPreferensi';
 import SetupMataUang from './features/setup/components/SetupMataUang';
@@ -21,46 +23,66 @@ import SetupJenisPajak from './features/setup/components/SetupJenisPajak';
 import SetupJenisSetoran from './features/setup/components/SetupJenisSetoran';
 import SetupBahasa from './features/setup/components/SetupBahasa';
 
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          {/* Default redirect for dashboard */}
-          <Route index element={<div className="p-8"><h1 className="text-2xl font-bold">Selamat Datang di IDN ERP</h1><p className="mt-2 text-gray-600">Pilih menu di sebelah kiri untuk memulai.</p></div>} />
-          
-          {/* Setup Routes */}
-          <Route path="setup">
-            <Route path="perusahaan" element={<SetupPerusahaan />} />
-            <Route path="preferensi" element={<SetupPreferensi />} />
-            {/* Add other setup routes here later */}
-            <Route path="mata-uang" element={<SetupMataUang />} />
-            <Route path="kurs-pajak" element={<SetupKursPajak />} />
-            <Route path="tanda-tangan" element={<SetupTandaTangan />} />
-            <Route path="perkiraan" element={<SetupPerkiraan />} />
-            <Route path="gudang" element={<SetupGudang />} />
-            <Route path="group-barang" element={<SetupGroupBarang />} />
-            <Route path="item" element={<SetupItem />} />
-            <Route path="pembayaran" element={<SetupPembayaran />} />
-            <Route path="pelanggan" element={<SetupPelanggan />} />
-            <Route path="supplier" element={<SetupSupplier />} />
-            <Route path="proyek" element={<SetupProyek />} />
-            <Route path="salesman" element={<SetupSalesman />} />
-            <Route path="jenis-potongan" element={<SetupJenisPotongan />} />
-            <Route path="format-bukti" element={<SetupFormatBukti />} />
-            <Route path="faktur-pajak" element={<SetupFakturPajak />} />
-            <Route path="jenis-pajak" element={<SetupJenisPajak />} />
-            <Route path="jenis-setoran" element={<SetupJenisSetoran />} />
-            <Route path="bahasa" element={<SetupBahasa />} />
-            <Route index element={<Navigate to="perusahaan" replace />} />
-          </Route>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Route */}
+          <Route path="/login" element={<Login />} />
 
-          {/* Placeholder for other main menus */}
-          <Route path="invoice" element={<div>Menu Invoice (Coming Soon)</div>} />
-          <Route path="sales-order" element={<div>Menu Sales Order (Coming Soon)</div>} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          {/* Protected Routes */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }>
+            {/* Default redirect for dashboard */}
+            <Route index element={<div className="p-8"><h1 className="text-2xl font-bold">Selamat Datang di IDN ERP</h1><p className="mt-2 text-gray-600">Pilih menu di sebelah kiri untuk memulai.</p></div>} />
+            
+            {/* Setup Routes */}
+            <Route path="setup">
+              <Route path="perusahaan" element={<SetupPerusahaan />} />
+              <Route path="preferensi" element={<SetupPreferensi />} />
+              <Route path="mata-uang" element={<SetupMataUang />} />
+              <Route path="kurs-pajak" element={<SetupKursPajak />} />
+              <Route path="tanda-tangan" element={<SetupTandaTangan />} />
+              <Route path="perkiraan" element={<SetupPerkiraan />} />
+              <Route path="gudang" element={<SetupGudang />} />
+              <Route path="group-barang" element={<SetupGroupBarang />} />
+              <Route path="item" element={<SetupItem />} />
+              <Route path="pembayaran" element={<SetupPembayaran />} />
+              <Route path="pelanggan" element={<SetupPelanggan />} />
+              <Route path="supplier" element={<SetupSupplier />} />
+              <Route path="proyek" element={<SetupProyek />} />
+              <Route path="salesman" element={<SetupSalesman />} />
+              <Route path="jenis-potongan" element={<SetupJenisPotongan />} />
+              <Route path="format-bukti" element={<SetupFormatBukti />} />
+              <Route path="faktur-pajak" element={<SetupFakturPajak />} />
+              <Route path="jenis-pajak" element={<SetupJenisPajak />} />
+              <Route path="jenis-setoran" element={<SetupJenisSetoran />} />
+              <Route path="bahasa" element={<SetupBahasa />} />
+              <Route index element={<Navigate to="perusahaan" replace />} />
+            </Route>
+
+            {/* Placeholder for other main menus */}
+            <Route path="invoice" element={<div>Menu Invoice (Coming Soon)</div>} />
+            <Route path="sales-order" element={<div>Menu Sales Order (Coming Soon)</div>} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

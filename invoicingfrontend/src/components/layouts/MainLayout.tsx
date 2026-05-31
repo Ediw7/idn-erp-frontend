@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../features/auth/contexts/AuthContext';
+import { LogOut } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const [isSetupOpen, setIsSetupOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   // Menu List mirroring Krishand Invoicing
   const menuItems = [
@@ -54,7 +63,6 @@ const MainLayout: React.FC = () => {
       {/* Sidebar - Corporate Slate Theme */}
       <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-md z-10 border-r border-slate-700">
         <div className="p-4 border-b border-slate-700 bg-slate-950 flex items-center gap-3">
-          <div className="w-8 h-8 bg-slate-800 border border-slate-600 text-white flex items-center justify-center font-bold text-lg">IE</div>
           <div>
             <h1 className="text-xl font-bold tracking-wide text-white">IDN ERP</h1>
             <p className="text-xs text-blue-300">Invoicing Modern ERP</p>
@@ -115,14 +123,19 @@ const MainLayout: React.FC = () => {
           <h2 className="text-lg font-semibold text-slate-800 capitalize">
             {location.pathname === '/' ? 'Dashboard' : location.pathname.split('/').pop()?.replace(/-/g, ' ')}
           </h2>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-semibold text-slate-700">Administrator</p>
-              <p className="text-[11px] text-slate-500">PT. IDN ERP System</p>
+              <p className="text-sm font-semibold text-slate-700">{user?.name || 'Administrator'}</p>
+              <p className="text-[11px] text-slate-500">{user?.email || 'PT. IDN ERP System'}</p>
             </div>
-            <div className="w-8 h-8 bg-slate-200 flex items-center justify-center text-slate-700 font-bold border border-slate-300">
-              AD
-            </div>
+            <div className="h-6 w-px bg-slate-300 mx-1"></div>
+            <button 
+              onClick={handleLogout}
+              className="text-slate-500 hover:text-red-600 transition-colors flex items-center gap-1 text-xs font-semibold"
+              title="Logout"
+            >
+              <LogOut size={18} />
+            </button>
           </div>
         </header>
 
