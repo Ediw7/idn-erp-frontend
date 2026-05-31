@@ -8,11 +8,11 @@ const SetupPreferensi: React.FC = () => {
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const [formData, setFormData] = useState<PreferensiData>({
-    folderDatabase: 'D:\\',
-    fileDatabase: 'invcdat2020.MDB',
-    folderBackupData: 'C:\\krishand\\invc\\601',
-    folderCsvFaktur: 'C:\\krishand\\invc\\601',
-    namaFileLogo: 'C:\\krishand\\invc\\601\\logo.jpg',
+    folderDatabase: 'postgresql://db-cluster-01.idnerp.internal:5432',
+    fileDatabase: 'idn_erp_production',
+    folderBackupData: 's3://idnerp-enterprise-backup/daily',
+    folderCsvFaktur: 's3://idnerp-efaktur-export/csv',
+    namaFileLogo: 'https://cdn.idnerp.com/assets/corporate_logo.png',
     lebarLogo: 0.90,
     tinggiLogo: 0.75,
     dokumenPemotonganInventory: 'Surat Jalan',
@@ -39,10 +39,10 @@ const SetupPreferensi: React.FC = () => {
     perkDiscPenjualan: '4103',
     perkPpn: '2109005',
     perkPph22: '2109004',
-    footerInvoiceVat: 'Pembayaran untuk invoice ini mohon ditransfer ke rekening :\nBank BCA Cab. Sudirman\nNo. Rekening : 035-0123456\nAtas Nama PT Krishand Indonesia',
-    footerInvoiceNonVat: 'Pembayaran untuk invoice ini mohon ditransfer ke rekening :\nBank BCA Cab. KPO Asemka\nNo. Rekening : 001-0123456\nAtas Nama Krishand',
-    footerKwitansiVat: 'Catatan :\n1. Pembayaran untuk invoice ini mohon ditransfer ke rekening :\n   Bank BCA Cab. Sudirman\n   No. Rekening : 035-0123456\n   Atas Nama PT Krishand Indonesia',
-    footerKwitansiNonVat: 'Catatan :\n1. Pembayaran untuk invoice ini mohon ditransfer ke rekening :\n   Bank BCA Cab. KPO Asemka\n   No. Rekening : 001-0123456\n   Atas Nama Krishand',
+    footerInvoiceVat: 'Pembayaran untuk invoice ini mohon ditransfer ke rekening :\nBank BCA Cab. Sudirman\nNo. Rekening : 035-0123456\nAtas Nama PT IDN ERP System',
+    footerInvoiceNonVat: 'Pembayaran untuk invoice ini mohon ditransfer ke rekening :\nBank BCA Cab. KPO Asemka\nNo. Rekening : 001-0123456\nAtas Nama IDN ERP',
+    footerKwitansiVat: 'Catatan :\n1. Pembayaran untuk invoice ini mohon ditransfer ke rekening :\n   Bank BCA Cab. Sudirman\n   No. Rekening : 035-0123456\n   Atas Nama PT IDN ERP System',
+    footerKwitansiNonVat: 'Catatan :\n1. Pembayaran untuk invoice ini mohon ditransfer ke rekening :\n   Bank BCA Cab. KPO Asemka\n   No. Rekening : 001-0123456\n   Atas Nama IDN ERP',
   });
 
   useEffect(() => {
@@ -82,10 +82,13 @@ const SetupPreferensi: React.FC = () => {
         const dirHandle = await window.showDirectoryPicker();
         setFormData(prev => ({ ...prev, [fieldName]: dirHandle.name }));
       } else {
-        alert("Browser Anda tidak mendukung fitur pemilihan folder secara langsung. Silakan ketik path secara manual.");
+        setMessage({ 
+          text: 'Fitur akses folder otomatis diblokir oleh keamanan browser. Silakan ketik path folder secara manual.', 
+          type: 'error' 
+        });
+        setTimeout(() => setMessage(null), 4000);
       }
     } catch (err: any) {
-      // User cancelled picker
       console.log('Folder selection cancelled', err);
     }
   };
@@ -98,7 +101,11 @@ const SetupPreferensi: React.FC = () => {
         const [fileHandle] = await window.showOpenFilePicker();
         setFormData(prev => ({ ...prev, [fieldName]: fileHandle.name }));
       } else {
-        alert("Browser Anda tidak mendukung fitur pemilihan file secara langsung. Silakan ketik path secara manual.");
+        setMessage({ 
+          text: 'Fitur akses file otomatis diblokir oleh keamanan browser. Silakan ketik lokasi file secara manual.', 
+          type: 'error' 
+        });
+        setTimeout(() => setMessage(null), 4000);
       }
     } catch (err: any) {
       console.log('File selection cancelled', err);
@@ -113,8 +120,14 @@ const SetupPreferensi: React.FC = () => {
     try {
       const response = await setupApi.updatePreferensi(formData);
       setMessage({ text: response.message || 'Data preferensi berhasil disimpan!', type: 'success' });
+      
+      // Auto-hide message after 1.5 seconds
+      setTimeout(() => {
+        setMessage(null);
+      }, 1500);
     } catch (error) {
       setMessage({ text: 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
+      setTimeout(() => setMessage(null), 1500);
     } finally {
       setIsSaving(false);
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Save, X, Settings2 } from 'lucide-react';
+import { Plus, Trash2, Save, X, Settings2 } from 'lucide-react';
 import { setupApi, FormatBuktiData } from '../api';
 
 const TRANSACTIONS = [

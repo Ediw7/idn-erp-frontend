@@ -91,8 +91,14 @@ const SetupPerusahaan: React.FC = () => {
     try {
       const response = await setupApi.updatePerusahaan(formData);
       setMessage({ text: response.message || 'Data berhasil disimpan!', type: 'success' });
+      
+      // Auto-hide message after 1.5 seconds
+      setTimeout(() => {
+        setMessage(null);
+      }, 1500);
     } catch (error) {
       setMessage({ text: 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
+      setTimeout(() => setMessage(null), 1500);
     } finally {
       setIsSaving(false);
     }

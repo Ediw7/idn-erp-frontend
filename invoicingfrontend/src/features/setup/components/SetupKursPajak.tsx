@@ -10,7 +10,7 @@ const SetupKursPajak: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   
-  const [editingId, setEditingId] = useState<number | 'new' | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<KursPajakData>({
     mata_uang_id: 0,
     tgl_dari: '',
@@ -30,7 +30,7 @@ const SetupKursPajak: React.FC = () => {
     } else {
       setKursPajakList([]);
     }
-    setEditingId(null);
+    setIsModalOpen(false);
   }, [selectedMataUangId]);
 
   const fetchMataUang = async () => {
@@ -68,7 +68,6 @@ const SetupKursPajak: React.FC = () => {
       showMessage('Pilih Mata Uang terlebih dahulu.', 'error');
       return;
     }
-    setEditingId('new');
     setEditForm({
       mata_uang_id: Number(selectedMataUangId),
       tgl_dari: '',
@@ -77,15 +76,12 @@ const SetupKursPajak: React.FC = () => {
       no_kmk: '',
       tgl_kmk: ''
     });
+    setIsModalOpen(true);
   };
 
   const handleEdit = (item: KursPajakData) => {
-    setEditingId(item.id!);
     setEditForm({ ...item });
-  };
-
-  const handleCancel = () => {
-    setEditingId(null);
+    setIsModalOpen(true);
   };
 
   const handleSave = async () => {
@@ -97,7 +93,7 @@ const SetupKursPajak: React.FC = () => {
     try {
       await setupApi.saveKursPajak(editForm);
       showMessage('Data kurs pajak berhasil disimpan!', 'success');
-      setEditingId(null);
+      setIsModalOpen(false);
       if (selectedMataUangId) fetchKursPajak(Number(selectedMataUangId));
     } catch (error) {
       showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
@@ -129,7 +125,7 @@ const SetupKursPajak: React.FC = () => {
         </div>
         <button 
           onClick={handleAddNew}
-          disabled={!selectedMataUangId || editingId !== null}
+          disabled={!selectedMataUangId}
           className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus size={14} />
@@ -198,80 +194,26 @@ const SetupKursPajak: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
-                {editingId === 'new' && (
-                  <tr className="bg-blue-50/50">
-                    <td className="px-4 py-3 text-center text-slate-400">*</td>
-                    <td className="px-4 py-2">
-                      <input type="date" value={editForm.tgl_dari} onChange={e => setEditForm({...editForm, tgl_dari: e.target.value})} className={inputClass} autoFocus />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input type="date" value={editForm.tgl_sd} onChange={e => setEditForm({...editForm, tgl_sd: e.target.value})} className={inputClass} />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input type="number" step="0.01" value={editForm.kurs} onChange={e => setEditForm({...editForm, kurs: e.target.value})} className={`${inputClass} text-right`} placeholder="0.00" />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input type="text" value={editForm.no_kmk} onChange={e => setEditForm({...editForm, no_kmk: e.target.value})} className={inputClass} placeholder="Nomor KMK" />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input type="date" value={editForm.tgl_kmk} onChange={e => setEditForm({...editForm, tgl_kmk: e.target.value})} className={inputClass} />
-                    </td>
-                    <td className="px-4 py-2 flex justify-center gap-2">
-                      <button onClick={handleSave} className="p-1 text-emerald-600 hover:bg-emerald-100 rounded" title="Simpan"><Save size={16} /></button>
-                      <button onClick={handleCancel} className="p-1 text-slate-500 hover:bg-slate-200 rounded" title="Batal"><X size={16} /></button>
-                    </td>
-                  </tr>
-                )}
-
                 {kursPajakList.map((item, index) => (
                   <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                    {editingId === item.id ? (
-                      // Edit Mode
-                      <>
-                        <td className="px-4 py-3 text-center">{index + 1}</td>
-                        <td className="px-4 py-2">
-                          <input type="date" value={editForm.tgl_dari} onChange={e => setEditForm({...editForm, tgl_dari: e.target.value})} className={inputClass} />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input type="date" value={editForm.tgl_sd} onChange={e => setEditForm({...editForm, tgl_sd: e.target.value})} className={inputClass} />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input type="number" step="0.01" value={editForm.kurs} onChange={e => setEditForm({...editForm, kurs: e.target.value})} className={`${inputClass} text-right`} />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input type="text" value={editForm.no_kmk} onChange={e => setEditForm({...editForm, no_kmk: e.target.value})} className={inputClass} />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input type="date" value={editForm.tgl_kmk} onChange={e => setEditForm({...editForm, tgl_kmk: e.target.value})} className={inputClass} />
-                        </td>
-                        <td className="px-4 py-2 flex justify-center gap-2">
-                          <button onClick={handleSave} className="p-1 text-emerald-600 hover:bg-emerald-100 rounded" title="Simpan"><Save size={16} /></button>
-                          <button onClick={handleCancel} className="p-1 text-slate-500 hover:bg-slate-200 rounded" title="Batal"><X size={16} /></button>
-                        </td>
-                      </>
-                    ) : (
-                      // View Mode
-                      <>
-                        <td className="px-4 py-3 text-center text-slate-500">{index + 1}</td>
-                        <td className="px-4 py-3">{item.tgl_dari}</td>
-                        <td className="px-4 py-3">{item.tgl_sd}</td>
-                        <td className="px-4 py-3 text-right font-medium">{Number(item.kurs).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
-                        <td className="px-4 py-3">{item.no_kmk || '-'}</td>
-                        <td className="px-4 py-3">{item.tgl_kmk || '-'}</td>
-                        <td className="px-4 py-3 flex justify-center gap-2">
-                          <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
-                            <Edit2 size={14} />
-                          </button>
-                          <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
-                            <Trash2 size={14} />
-                          </button>
-                        </td>
-                      </>
-                    )}
+                    <td className="px-4 py-3 text-center text-slate-500">{index + 1}</td>
+                    <td className="px-4 py-3">{item.tgl_dari}</td>
+                    <td className="px-4 py-3">{item.tgl_sd}</td>
+                    <td className="px-4 py-3 text-right font-medium">{Number(item.kurs).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
+                    <td className="px-4 py-3">{item.no_kmk || '-'}</td>
+                    <td className="px-4 py-3">{item.tgl_kmk || '-'}</td>
+                    <td className="px-4 py-3 flex justify-center gap-2">
+                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
+                        <Edit2 size={14} />
+                      </button>
+                      <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 
-                {kursPajakList.length === 0 && editingId !== 'new' && (
+                {kursPajakList.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-4 py-8 text-center text-slate-500 text-sm">
                       Belum ada data kurs pajak. Klik "Tambah Baru" untuk memulai.
@@ -283,6 +225,61 @@ const SetupKursPajak: React.FC = () => {
           </div>
         )}
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded shadow-xl max-w-md w-full flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+              <h3 className="font-bold text-slate-800">
+                {editForm.id ? 'Edit Kurs Pajak' : 'Tambah Kurs Pajak'}
+              </h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Tanggal Dari</label>
+                    <input type="date" value={editForm.tgl_dari} onChange={e => setEditForm({...editForm, tgl_dari: e.target.value})} className={inputClass} autoFocus={!editForm.id} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Tanggal s/d</label>
+                    <input type="date" value={editForm.tgl_sd} onChange={e => setEditForm({...editForm, tgl_sd: e.target.value})} className={inputClass} />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Kurs</label>
+                  <input type="number" step="0.01" value={editForm.kurs} onChange={e => setEditForm({...editForm, kurs: e.target.value})} className={`${inputClass} text-right`} placeholder="0.00" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Nomor KMK</label>
+                  <input type="text" value={editForm.no_kmk} onChange={e => setEditForm({...editForm, no_kmk: e.target.value})} className={inputClass} placeholder="Nomor KMK" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Tanggal KMK</label>
+                  <input type="date" value={editForm.tgl_kmk} onChange={e => setEditForm({...editForm, tgl_kmk: e.target.value})} className={inputClass} />
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 rounded-b">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-sm transition-colors"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={handleSave}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors flex items-center gap-2"
+              >
+                <Save size={16} /> Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

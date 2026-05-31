@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { UserProfile } from '../api';
 
 interface AuthContextType {
@@ -11,17 +11,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<UserProfile | null>(null);
-
-  useEffect(() => {
-    // Basic session persistence check
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('idn_user') !== null;
+  });
+  
+  const [user, setUser] = useState<UserProfile | null>(() => {
     const storedUser = localStorage.getItem('idn_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
-  }, []);
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
+  // useEffect removed since state is now initialized synchronously
 
   const login = (userData: UserProfile) => {
     setIsAuthenticated(true);

@@ -14,7 +14,7 @@ const MainLayout: React.FC = () => {
     navigate('/login');
   };
 
-  // Menu List mirroring Krishand Invoicing
+  // Menu List mirroring IDN ERP System
   const menuItems = [
     { label: 'Saldo Awal Piutang', path: '/saldo-awal-piutang' },
     { label: 'Sales Order', path: '/sales-order' },

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
+import Pagination from '../../../components/ui/Pagination';
 import { setupApi, SupplierData, PembayaranData } from '../api';
 
 const JENIS_TRANSAKSI = [
@@ -20,6 +21,9 @@ const SetupSupplier: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 20;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [editForm, setEditForm] = useState<SupplierData>({
@@ -55,6 +59,7 @@ const SetupSupplier: React.FC = () => {
       ]);
       setList(suppliersData || []);
       setPembayarans(pembayaransData || []);
+      setCurrentPage(1);
     } catch (error) {
       showMessage('Gagal memuat data supplier.', 'error');
     } finally {
@@ -176,9 +181,9 @@ const SetupSupplier: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
-                {list.map((item, index) => (
+                {list.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((item, index) => (
                   <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-2.5 text-center text-slate-500">{index + 1}</td>
+                    <td className="px-4 py-2.5 text-center text-slate-500">{(currentPage - 1) * rowsPerPage + index + 1}</td>
                     <td className="px-4 py-2.5 font-medium">{item.kode}</td>
                     <td className="px-4 py-2.5 font-bold">{item.nama}</td>
                     <td className="px-4 py-2.5">{item.npwp || '-'}</td>
@@ -205,6 +210,13 @@ const SetupSupplier: React.FC = () => {
                 )}
               </tbody>
             </table>
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={Math.ceil(list.length / rowsPerPage)} 
+              onPageChange={setCurrentPage} 
+              totalItems={list.length} 
+              itemsPerPage={rowsPerPage} 
+            />
           </div>
         )}
       </div>

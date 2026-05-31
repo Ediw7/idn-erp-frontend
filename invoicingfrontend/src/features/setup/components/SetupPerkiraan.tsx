@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Search } from 'lucide-react';
+import Pagination from '../../../components/ui/Pagination';
 import { setupApi, PerkiraanData } from '../api';
 
 const SetupPerkiraan: React.FC = () => {
@@ -11,7 +12,11 @@ const SetupPerkiraan: React.FC = () => {
   const [filterNo, setFilterNo] = useState('');
   const [filterNama, setFilterNama] = useState('');
   
-  const [editingId, setEditingId] = useState<number | 'new' | null>(null);
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 20;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<PerkiraanData>({
     no_perkiraan: '',
     nama_perkiraan: '',
@@ -30,6 +35,7 @@ const SetupPerkiraan: React.FC = () => {
         nama_perkiraan: filterNama
       });
       setList(data || []);
+      setCurrentPage(1);
     } catch (error) {
       showMessage('Gagal memuat data perkiraan.', 'error');
     } finally {
@@ -43,21 +49,17 @@ const SetupPerkiraan: React.FC = () => {
   };
 
   const handleAddNew = () => {
-    setEditingId('new');
     setEditForm({
       no_perkiraan: '',
       nama_perkiraan: '',
       kas_bank: false
     });
+    setIsModalOpen(true);
   };
 
   const handleEdit = (item: PerkiraanData) => {
-    setEditingId(item.id!);
     setEditForm({ ...item });
-  };
-
-  const handleCancel = () => {
-    setEditingId(null);
+    setIsModalOpen(true);
   };
 
   const handleSave = async () => {
@@ -69,7 +71,7 @@ const SetupPerkiraan: React.FC = () => {
     try {
       await setupApi.savePerkiraan(editForm);
       showMessage('Data perkiraan berhasil disimpan!', 'success');
-      setEditingId(null);
+      setIsModalOpen(false);
       fetchData();
     } catch (error) {
       showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
@@ -100,8 +102,7 @@ const SetupPerkiraan: React.FC = () => {
         </div>
         <button 
           onClick={handleAddNew}
-          disabled={editingId !== null}
-          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
         >
           <Plus size={14} />
           <span>TAMBAH BARU</span>
@@ -172,86 +173,26 @@ const SetupPerkiraan: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
-                {editingId === 'new' && (
-                  <tr className="bg-blue-50/50">
-                    <td className="px-4 py-3 text-center text-slate-400">*</td>
-                    <td className="px-4 py-2">
-                      <input 
-                        type="text" 
-                        value={editForm.no_perkiraan} 
-                        onChange={e => setEditForm({...editForm, no_perkiraan: e.target.value})} 
-                        className={inputClass}
-                        placeholder="Contoh: 1101001"
-                        autoFocus
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input 
-                        type="text" 
-                        value={editForm.nama_perkiraan} 
-                        onChange={e => setEditForm({...editForm, nama_perkiraan: e.target.value})} 
-                        className={inputClass}
-                        placeholder="Contoh: Kas Kecil"
-                      />
-                    </td>
-                    <td className="px-4 py-2 text-center">
-                      <input 
-                        type="checkbox" 
-                        checked={editForm.kas_bank} 
-                        onChange={e => setEditForm({...editForm, kas_bank: e.target.checked})} 
-                        className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                      />
-                    </td>
-                    <td className="px-4 py-2 flex justify-center gap-2">
-                      <button onClick={handleSave} className="p-1 text-emerald-600 hover:bg-emerald-100 rounded" title="Simpan"><Save size={16} /></button>
-                      <button onClick={handleCancel} className="p-1 text-slate-500 hover:bg-slate-200 rounded" title="Batal"><X size={16} /></button>
-                    </td>
-                  </tr>
-                )}
-
-                {list.map((item, index) => (
+                {list.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((item, index) => (
                   <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                    {editingId === item.id ? (
-                      // Edit Mode
-                      <>
-                        <td className="px-4 py-3 text-center">{index + 1}</td>
-                        <td className="px-4 py-2">
-                          <input type="text" value={editForm.no_perkiraan} onChange={e => setEditForm({...editForm, no_perkiraan: e.target.value})} className={inputClass} />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input type="text" value={editForm.nama_perkiraan} onChange={e => setEditForm({...editForm, nama_perkiraan: e.target.value})} className={inputClass} />
-                        </td>
-                        <td className="px-4 py-2 text-center">
-                          <input type="checkbox" checked={editForm.kas_bank} onChange={e => setEditForm({...editForm, kas_bank: e.target.checked})} className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" />
-                        </td>
-                        <td className="px-4 py-2 flex justify-center gap-2">
-                          <button onClick={handleSave} className="p-1 text-emerald-600 hover:bg-emerald-100 rounded" title="Simpan"><Save size={16} /></button>
-                          <button onClick={handleCancel} className="p-1 text-slate-500 hover:bg-slate-200 rounded" title="Batal"><X size={16} /></button>
-                        </td>
-                      </>
-                    ) : (
-                      // View Mode
-                      <>
-                        <td className="px-4 py-3 text-center text-slate-500">{index + 1}</td>
-                        <td className="px-4 py-3 font-medium">{item.no_perkiraan}</td>
-                        <td className="px-4 py-3">{item.nama_perkiraan}</td>
-                        <td className="px-4 py-3 text-center">
-                          <input type="checkbox" checked={item.kas_bank} readOnly className="w-4 h-4 text-slate-400 border-slate-300 rounded opacity-70 cursor-not-allowed" />
-                        </td>
-                        <td className="px-4 py-3 flex justify-center gap-2">
-                          <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
-                            <Edit2 size={14} />
-                          </button>
-                          <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
-                            <Trash2 size={14} />
-                          </button>
-                        </td>
-                      </>
-                    )}
+                    <td className="px-4 py-3 text-center text-slate-500">{(currentPage - 1) * rowsPerPage + index + 1}</td>
+                    <td className="px-4 py-3 font-medium">{item.no_perkiraan}</td>
+                    <td className="px-4 py-3">{item.nama_perkiraan}</td>
+                    <td className="px-4 py-3 text-center">
+                      <input type="checkbox" checked={item.kas_bank} readOnly className="w-4 h-4 text-slate-400 border-slate-300 rounded opacity-70 cursor-not-allowed" />
+                    </td>
+                    <td className="px-4 py-3 flex justify-center gap-2">
+                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
+                        <Edit2 size={14} />
+                      </button>
+                      <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 
-                {list.length === 0 && editingId !== 'new' && (
+                {list.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-8 text-center text-slate-500 text-sm">
                       Belum ada data perkiraan yang ditemukan.
@@ -260,9 +201,81 @@ const SetupPerkiraan: React.FC = () => {
                 )}
               </tbody>
             </table>
+            
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={Math.ceil(list.length / rowsPerPage)} 
+              onPageChange={setCurrentPage} 
+              totalItems={list.length} 
+              itemsPerPage={rowsPerPage} 
+            />
           </div>
         )}
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded shadow-xl max-w-md w-full flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+              <h3 className="font-bold text-slate-800">
+                {editForm.id ? 'Edit Perkiraan' : 'Tambah Perkiraan'}
+              </h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">No Perkiraan</label>
+                  <input 
+                    type="text" 
+                    value={editForm.no_perkiraan} 
+                    onChange={e => setEditForm({...editForm, no_perkiraan: e.target.value})} 
+                    className={inputClass}
+                    placeholder="Contoh: 1101001"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Perkiraan</label>
+                  <input 
+                    type="text" 
+                    value={editForm.nama_perkiraan} 
+                    onChange={e => setEditForm({...editForm, nama_perkiraan: e.target.value})} 
+                    className={inputClass}
+                    placeholder="Contoh: Kas Kecil"
+                  />
+                </div>
+                <div className="flex items-center gap-2 pt-2">
+                  <input 
+                    type="checkbox" 
+                    checked={editForm.kas_bank} 
+                    onChange={e => setEditForm({...editForm, kas_bank: e.target.checked})} 
+                    className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                    id="kas_bank"
+                  />
+                  <label htmlFor="kas_bank" className="text-sm font-semibold text-slate-700 cursor-pointer">Kas / Bank</label>
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 rounded-b">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-sm transition-colors"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={handleSave}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors flex items-center gap-2"
+              >
+                <Save size={16} /> Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
