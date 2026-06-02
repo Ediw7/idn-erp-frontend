@@ -5,8 +5,7 @@ const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '', 
   // CRITICAL: withCredentials ensures the frontend automatically sends and 
   // receives the Odoo `session_id` cookie on every request.
-  // Temporarily set to false to ignore old odoo_produksi cookie.
-  withCredentials: false, 
+  withCredentials: true, 
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',

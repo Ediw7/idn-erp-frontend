@@ -22,13 +22,21 @@ import SetupFakturPajak from './features/setup/components/SetupFakturPajak';
 import SetupJenisPajak from './features/setup/components/SetupJenisPajak';
 import SetupJenisSetoran from './features/setup/components/SetupJenisSetoran';
 import SetupBahasa from './features/setup/components/SetupBahasa';
+import Register from './features/auth/components/Register';
+import AdminLayout from './features/admin/components/AdminLayout';
+import AdminDashboard from './features/admin/components/AdminDashboard';
+import AdminUserManagement from './features/admin/components/UserManagement';
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { isAuthenticated } = useAuth();
+const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
+  const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (requireAdmin && !user?.is_admin) {
+    return <Navigate to="/" replace />;
   }
 
   return children;
@@ -41,6 +49,7 @@ function App() {
         <Routes>
           {/* Public Route */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* Protected Routes */}
           <Route path="/" element={
@@ -79,6 +88,16 @@ function App() {
             {/* Placeholder for other main menus */}
             <Route path="invoice" element={<div>Menu Invoice (Coming Soon)</div>} />
             <Route path="sales-order" element={<div>Menu Sales Order (Coming Soon)</div>} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <ProtectedRoute requireAdmin={true}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUserManagement />} />
           </Route>
         </Routes>
       </BrowserRouter>
