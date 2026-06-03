@@ -26,6 +26,7 @@ import Register from './features/auth/components/Register';
 import AdminLayout from './features/admin/components/AdminLayout';
 import AdminDashboard from './features/admin/components/AdminDashboard';
 import AdminUserManagement from './features/admin/components/UserManagement';
+import SaldoAwalPiutang from './features/saldo-awal/components/SaldoAwalPiutang';
 
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
   const { isAuthenticated, user } = useAuth();
@@ -84,6 +85,9 @@ function App() {
               <Route path="bahasa" element={<SetupBahasa />} />
               <Route index element={<Navigate to="perusahaan" replace />} />
             </Route>
+
+            {/* General Routes */}
+            <Route path="saldo-awal-piutang" element={<SaldoAwalPiutang />} />
 
             {/* Placeholder for other main menus */}
             <Route path="invoice" element={<div>Menu Invoice (Coming Soon)</div>} />
