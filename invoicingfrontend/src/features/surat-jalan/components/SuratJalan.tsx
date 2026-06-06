@@ -1,7 +1,10 @@
-import React from 'react';
-import { Plus, Trash2, X, FileText, Search, Save, Settings, FileBox } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash2, X, FileText, Search, Save, FileBox } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const SuratJalan: React.FC = () => {
+  const navigate = useNavigate();
+  const [isCreateInvoiceModalOpen, setIsCreateInvoiceModalOpen] = useState(false);
 
   const inputClass = "w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm";
   const labelClass = "block text-xs font-semibold text-slate-700 mb-1";
@@ -26,14 +29,15 @@ const SuratJalan: React.FC = () => {
               <p className="text-xs text-slate-300">Isi kelengkapan data dokumen pengiriman barang</p>
             </div>
             <div className="flex gap-2">
-              <button className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors">
+              <button 
+                onClick={() => navigate('/laporan', { state: { initialReport: 'Surat Jalan (A4 / Kwarto / 1/2 Kwarto) - Font 10' } })}
+                className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors">
                 <FileText size={14} /> Report
               </button>
-              <button className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors">
-                <Settings size={14} /> Options
-              </button>
               <div className="w-px h-6 bg-slate-600 mx-1 self-center"></div>
-              <button className="px-3 py-1.5 bg-green-600 hover:bg-green-500 border border-green-500 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors">
+              <button 
+                onClick={() => setIsCreateInvoiceModalOpen(true)}
+                className="px-3 py-1.5 bg-green-600 hover:bg-green-500 border border-green-500 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors">
                 Create Invoice
               </button>
             </div>
@@ -172,6 +176,72 @@ const SuratJalan: React.FC = () => {
           <button className={btnPrimary}><Save size={16} /> Simpan Surat Jalan</button>
         </div>
       </div>
+
+      {/* Auto Create Invoice Modal */}
+      {isCreateInvoiceModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-md shadow-xl w-full max-w-lg flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-slate-800 px-4 py-3 flex justify-between items-center text-white">
+              <h2 className="text-sm font-bold">Create Invoice</h2>
+              <button onClick={() => setIsCreateInvoiceModalOpen(false)} className="hover:text-slate-300 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-6 bg-slate-50 flex flex-col gap-4">
+              <div className="flex items-center">
+                <label className="w-36 text-sm font-semibold text-slate-700">Nama Pelanggan</label>
+                <select className={`${inputClass} flex-1`} defaultValue="PT Sari Wangi">
+                  <option>PT Sari Wangi</option>
+                </select>
+              </div>
+              <div className="flex items-start">
+                <label className="w-36 text-sm font-semibold text-slate-700 mt-2">Alamat Kirim</label>
+                <textarea className={`${inputClass} flex-1 h-16 resize-none`} defaultValue="Jl. Sukabumi No. 123, Menteng&#10;Jakarta Pusat" />
+              </div>
+              <div className="flex items-center">
+                <label className="w-36 text-sm font-semibold text-slate-700">No. Surat Jalan</label>
+                <select className={`${inputClass} flex-1`} defaultValue="SJ/005/12/2026">
+                  <option>SJ/005/12/2026</option>
+                </select>
+              </div>
+              <div className="flex items-center">
+                <label className="w-36 text-sm font-semibold text-slate-700">Gudang</label>
+                <select className={`${inputClass} flex-1`} defaultValue="Kapuk">
+                  <option>Kapuk</option>
+                </select>
+              </div>
+              <div className="flex items-center">
+                <label className="w-36 text-sm font-semibold text-slate-700">Tanggal</label>
+                <input type="date" className={`${inputClass} flex-1`} />
+              </div>
+              <div className="flex items-center">
+                <label className="w-36 text-sm font-semibold text-slate-700">Jenis Invoice</label>
+                <select className={`${inputClass} flex-1`} defaultValue="Dengan PPN">
+                  <option>Dengan PPN</option>
+                  <option>Tanpa PPN</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-white px-6 py-4 border-t border-slate-200 flex justify-center gap-4">
+              <button 
+                onClick={() => navigate('/invoice')}
+                className="px-8 py-2 bg-blue-600 text-white text-sm font-bold rounded-sm hover:bg-blue-500 shadow-sm transition-colors">
+                Create
+              </button>
+              <button 
+                onClick={() => setIsCreateInvoiceModalOpen(false)}
+                className="px-8 py-2 bg-slate-700 text-white text-sm font-bold rounded-sm hover:bg-slate-600 shadow-sm transition-colors">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

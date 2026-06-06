@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { X, FileText } from 'lucide-react';
+import { X, FileText, Search } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const Laporan: React.FC = () => {
-  const [activeReportItem, setActiveReportItem] = useState('Sales Order (A4 / Kwarto / 1/2 Kwarto)');
+  const location = useLocation();
+  const [activeReportItem, setActiveReportItem] = useState(location.state?.initialReport || 'Sales Order (A4 / Kwarto / 1/2 Kwarto)');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const inputClass = "w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm";
@@ -67,28 +69,72 @@ const Laporan: React.FC = () => {
             {/* Filter Content */}
             <div className="flex-1 bg-slate-50 p-8 overflow-y-auto">
               <h2 className="text-xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">Filter Pencarian Data Laporan</h2>
-              <div className="max-w-2xl flex flex-col gap-4">
+              <div className="max-w-2xl flex flex-col gap-2">
                 <div className="flex items-center">
-                  <label className="w-48 text-sm font-medium text-slate-700">Tahun:</label>
-                  <input type="text" className={`${inputClass} w-32`} defaultValue="2026" />
+                  <label className="w-48 text-sm text-slate-700">Tahun:</label>
+                  <input type="text" className={`${inputClass} w-32`} defaultValue="2020" />
                 </div>
                 <div className="flex items-center">
-                  <label className="w-48 text-sm font-medium text-slate-700">Bulan:</label>
-                  <select className={`${inputClass} w-32`}><option>Juni</option></select>
+                  <label className="w-48 text-sm text-slate-700">Bulan:</label>
+                  <select className={`${inputClass} w-32`} defaultValue="Desember">
+                    <option>Desember</option>
+                  </select>
+                </div>
+                <div className="flex items-center opacity-50">
+                  <label className="w-48 text-sm text-slate-700">Pembetulan Ke:</label>
+                  <input type="text" className={`${inputClass} w-32`} disabled />
                 </div>
                 
-                <hr className="my-4 border-slate-200" />
-                
-                <div className="flex items-center">
-                  <label className="w-48 text-sm font-medium text-slate-700">Dari No. Sales Order</label>
+                <div className={`flex items-center ${activeReportItem.includes('Sales Order') ? '' : 'opacity-50'}`}>
+                  <label className={`w-48 text-sm ${activeReportItem.includes('Sales Order') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Sales Order</label>
                   <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} defaultValue="SO/005/12/2026" />
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Sales Order')} />
                     <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} defaultValue="SO/005/12/2026" />
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Sales Order')} />
+                  </div>
+                </div>
+                <div className={`flex items-center ${activeReportItem.includes('Surat Jalan') ? '' : 'opacity-50'}`}>
+                  <label className={`w-48 text-sm ${activeReportItem.includes('Surat Jalan') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Surat Jalan</label>
+                  <div className="flex gap-2 flex-1 items-center">
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Surat Jalan')} defaultValue="SJ/005/12/2020" />
+                    <span className="text-sm font-medium text-slate-500">s/d</span>
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Surat Jalan')} defaultValue="SJ/005/12/2020" />
+                  </div>
+                </div>
+                <div className={`flex items-center ${activeReportItem.includes('Invoice') ? '' : 'opacity-50'}`}>
+                  <label className={`w-48 text-sm ${activeReportItem.includes('Invoice') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Invoice:</label>
+                  <div className="flex gap-2 flex-1 items-center">
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Invoice')} />
+                    <span className="text-sm font-medium text-slate-500">s/d</span>
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Invoice')} />
+                  </div>
+                </div>
+                <div className={`flex items-center ${activeReportItem.includes('Kwitansi') ? '' : 'opacity-50'}`}>
+                  <label className={`w-48 text-sm ${activeReportItem.includes('Kwitansi') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Kwitansi:</label>
+                  <div className="flex gap-2 flex-1 items-center">
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Kwitansi')} />
+                    <span className="text-sm font-medium text-slate-500">s/d</span>
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Kwitansi')} />
+                  </div>
+                </div>
+                <div className={`flex items-center ${activeReportItem.includes('Faktur Pajak') ? '' : 'opacity-50'}`}>
+                  <label className={`w-48 text-sm ${activeReportItem.includes('Faktur Pajak') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No Faktur Pajak</label>
+                  <div className="flex gap-2 flex-1 items-center">
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Faktur Pajak')} />
+                    <span className="text-sm font-medium text-slate-500">s/d</span>
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Faktur Pajak')} />
+                  </div>
+                </div>
+                <div className={`flex items-center ${activeReportItem.includes('Nota Kredit') ? '' : 'opacity-50'}`}>
+                  <label className={`w-48 text-sm ${activeReportItem.includes('Nota Kredit') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No NK:</label>
+                  <div className="flex gap-2 flex-1 items-center">
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Nota Kredit')} />
+                    <span className="text-sm font-medium text-slate-500">s/d</span>
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Nota Kredit')} />
                   </div>
                 </div>
                 <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm font-medium text-slate-700">Dari No. Surat Jalan</label>
+                  <label className="w-48 text-sm text-slate-700">Dari No PO</label>
                   <div className="flex gap-2 flex-1 items-center">
                     <input type="text" className={inputClass} disabled />
                     <span className="text-sm font-medium text-slate-500">s/d</span>
@@ -96,43 +142,61 @@ const Laporan: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm font-medium text-slate-700">Dari No. Invoice</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled />
-                  </div>
+                  <label className="w-48 text-sm text-slate-700">No. Retur Penjualan:</label>
+                  <input type="text" className={inputClass} disabled />
                 </div>
                 <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm font-medium text-slate-700">Dari No. PO</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled />
-                  </div>
+                  <label className="w-48 text-sm text-slate-700">No. Retur Pembelian</label>
+                  <input type="text" className={inputClass} disabled />
                 </div>
                 
-                <hr className="my-4 border-slate-200" />
-                
-                <div className="flex items-center">
-                  <label className="w-48 text-sm font-medium text-slate-700">Dari Tanggal</label>
+                <div className="flex items-center mt-2">
+                  <label className="w-48 text-sm text-slate-700">Dari Tanggal</label>
                   <div className="flex gap-2 flex-1 items-center">
                     <input type="date" className={inputClass} />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
+                    <span className="text-sm font-medium text-slate-500">s/d Tanggal</span>
                     <input type="date" className={inputClass} />
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <label className="w-48 text-sm font-medium text-slate-700">Nama Pelanggan</label>
+                  <label className="w-48 text-sm text-slate-700">Nama Pelanggan:</label>
                   <select className={inputClass}></select>
                 </div>
-                <div className="flex items-center">
-                  <label className="w-48 text-sm font-medium text-slate-700">Gudang</label>
-                  <select className={inputClass}></select>
+                <div className="flex items-center opacity-50">
+                  <label className="w-48 text-sm text-slate-700">Nama Proyek</label>
+                  <select className={inputClass} disabled></select>
+                </div>
+                <div className="flex items-center opacity-50">
+                  <label className="w-48 text-sm text-slate-700">Metode Pembayaran:</label>
+                  <select className={`${inputClass} w-32`} disabled></select>
                 </div>
                 <div className="flex items-center">
-                  <label className="w-48 text-sm font-medium text-slate-700">Salesman</label>
-                  <select className={inputClass}></select>
+                  <label className="w-48 text-sm text-slate-700">Gudang:</label>
+                  <select className={`${inputClass} w-48`} defaultValue="Kapuk">
+                    <option>Kapuk</option>
+                  </select>
+                </div>
+                <div className="flex items-center mt-2">
+                  <label className="w-48 text-sm text-slate-700">Dari Kode Barang</label>
+                  <div className="flex gap-2 flex-1 items-center">
+                    <div className="flex flex-1 gap-1">
+                      <input type="text" className={`${inputClass} bg-cyan-50`} />
+                      <button className="px-2 border border-slate-300 bg-slate-100 rounded-sm"><Search size={14}/></button>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <label className="w-48 text-sm text-slate-700">s/d Kode Barang</label>
+                  <div className="flex gap-2 flex-1 items-center">
+                    <div className="flex flex-1 gap-1">
+                      <input type="text" className={`${inputClass} bg-cyan-50`} />
+                      <button className="px-2 border border-slate-300 bg-slate-100 rounded-sm"><Search size={14}/></button>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center opacity-50">
+                  <label className="w-48 text-sm text-slate-700">Salesman</label>
+                  <select className={`${inputClass} w-48`} disabled></select>
                 </div>
               </div>
             </div>

@@ -29,6 +29,7 @@ import AdminUserManagement from './features/admin/components/UserManagement';
 import SaldoAwalPiutang from './features/saldo-awal/components/SaldoAwalPiutang';
 import SalesOrder from './features/sales-order/components/SalesOrder';
 import SuratJalan from './features/surat-jalan/components/SuratJalan';
+import Invoice from './features/invoice/components/Invoice';
 import Laporan from './features/report/components/Laporan';
 
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
@@ -92,8 +93,8 @@ function App() {
             {/* General Routes */}
             <Route path="saldo-awal-piutang" element={<SaldoAwalPiutang />} />
 
-            {/* Placeholder for other main menus */}
-            <Route path="invoice" element={<div>Menu Invoice (Coming Soon)</div>} />
+            {/* Main Application Routes */}
+            <Route path="invoice" element={<Invoice />} />
             <Route path="surat-jalan" element={<SuratJalan />} />
             <Route path="sales-order" element={<SalesOrder />} />
             <Route path="laporan" element={<Laporan />} />
