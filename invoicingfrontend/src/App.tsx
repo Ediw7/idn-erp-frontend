@@ -31,6 +31,12 @@ import SalesOrder from './features/sales-order/components/SalesOrder';
 import SuratJalan from './features/surat-jalan/components/SuratJalan';
 import Invoice from './features/invoice/components/Invoice';
 import Laporan from './features/report/components/Laporan';
+import FakturPajak from './features/faktur-pajak/components/FakturPajak';
+import Kwitansi from './features/kwitansi/components/Kwitansi';
+import HistoryHargaJual from './features/history-harga/components/HistoryHargaJual';
+import Pembayaran from './features/pembayaran/components/Pembayaran';
+import NotaKredit from './features/nota-kredit/components/NotaKredit';
+import KartuPiutang from './features/kartu-piutang/components/KartuPiutang';
 
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
   const { isAuthenticated, user } = useAuth();
@@ -97,6 +103,12 @@ function App() {
             <Route path="invoice" element={<Invoice />} />
             <Route path="surat-jalan" element={<SuratJalan />} />
             <Route path="sales-order" element={<SalesOrder />} />
+            <Route path="faktur-pajak" element={<FakturPajak />} />
+            <Route path="kwitansi" element={<Kwitansi />} />
+            <Route path="history-harga" element={<HistoryHargaJual />} />
+            <Route path="pembayaran" element={<Pembayaran />} />
+            <Route path="nota-kredit" element={<NotaKredit />} />
+            <Route path="kartu-piutang" element={<KartuPiutang />} />
             <Route path="laporan" element={<Laporan />} />
           </Route>
 

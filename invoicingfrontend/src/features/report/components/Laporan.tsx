@@ -112,9 +112,9 @@ const Laporan: React.FC = () => {
                 <div className={`flex items-center ${activeReportItem.includes('Kwitansi') ? '' : 'opacity-50'}`}>
                   <label className={`w-48 text-sm ${activeReportItem.includes('Kwitansi') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Kwitansi:</label>
                   <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Kwitansi')} />
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Kwitansi')} defaultValue="KT/002/12/2026" />
                     <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Kwitansi')} />
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Kwitansi')} defaultValue="KT/002/12/2026" />
                   </div>
                 </div>
                 <div className={`flex items-center ${activeReportItem.includes('Faktur Pajak') ? '' : 'opacity-50'}`}>

@@ -5,6 +5,8 @@ import { LogOut } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const [isSetupOpen, setIsSetupOpen] = useState(false);
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [isPpnOpen, setIsPpnOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -15,7 +17,7 @@ const MainLayout: React.FC = () => {
   };
 
   // Menu List mirroring IDN ERP System
-  const menuItems = [
+  const menuItemsTop = [
     { label: 'Saldo Awal Piutang', path: '/saldo-awal-piutang' },
     { label: 'Sales Order', path: '/sales-order' },
     { label: 'Surat Jalan', path: '/surat-jalan' },
@@ -24,8 +26,9 @@ const MainLayout: React.FC = () => {
     { label: 'Kwitansi', path: '/kwitansi' },
     { label: 'Pembayaran Invoice', path: '/pembayaran' },
     { label: 'Nota Kredit', path: '/nota-kredit' },
-    { label: 'PPN', path: '/ppn' },
-    { label: 'Inventory', path: '/inventory' },
+  ];
+
+  const menuItemsBottom = [
     { label: 'Kartu Piutang', path: '/kartu-piutang' },
     { label: 'Laporan', path: '/laporan' },
     { label: 'Pemeliharaan Sistem', path: '/pemeliharaan' },
@@ -53,6 +56,34 @@ const MainLayout: React.FC = () => {
     { label: 'Setup Kode Jenis Pajak', path: '/setup/jenis-pajak' },
     { label: 'Setup Kode Jenis Setoran', path: '/setup/jenis-setoran' },
     { label: 'Setup Bahasa', path: '/setup/bahasa' },
+  ];
+
+  // Submenus for Inventory
+  const inventoryItems = [
+    { label: 'Daftar Gudang', path: '/inventory/gudang' },
+    { label: 'Daftar Barang', path: '/inventory/barang' },
+    { label: 'Saldo Awal Inventory', path: '/inventory/saldo-awal' },
+    { label: 'Penerimaan Barang', path: '/inventory/penerimaan' },
+    { label: 'Surat Jalan', path: '/surat-jalan' },
+    { label: 'Nota Retur Penjualan', path: '/inventory/retur-penjualan' },
+    { label: 'Nota Retur Pembelian', path: '/inventory/retur-pembelian' },
+    { label: 'Adjustment Inventory', path: '/inventory/adjustment' },
+    { label: 'Transfer Barang', path: '/inventory/transfer' },
+    { label: 'Proses HPP Barang', path: '/inventory/proses-hpp' },
+    { label: 'Kartu Stock Barang', path: '/inventory/kartu-stock' },
+    { label: 'Kartu HPP Barang', path: '/inventory/kartu-hpp' },
+    { label: 'Rekap Stok Barang', path: '/inventory/rekap-stok' },
+  ];
+
+  // Submenus for PPN
+  const ppnItems = [
+    { label: 'Faktur Pajak', path: '/faktur-pajak' },
+    { label: 'Nota Retur Penjualan', path: '/ppn/retur-penjualan' },
+    { label: 'Nota Retur Pembelian', path: '/ppn/retur-pembelian' },
+    { label: 'SPT Masa PPN 1111', path: '/ppn/spt' },
+    { label: 'Surat Setoran Pajak', path: '/ppn/ssp' },
+    { label: 'Transfer ke Program e-SPT', path: '/ppn/transfer-espt' },
+    { label: 'Transfer ke Program e-Faktur', path: '/ppn/transfer-efaktur' },
   ];
 
   // Check if current route starts with a specific path to highlight active state
@@ -101,9 +132,73 @@ const MainLayout: React.FC = () => {
               </div>
             </li>
 
-            {/* General Menu Items */}
-            {menuItems.map((item, idx) => (
-              <li key={idx}>
+            {/* Top Menu Items */}
+            {menuItemsTop.map((item, idx) => (
+              <li key={`top-${idx}`}>
+                <Link 
+                  to={item.path}
+                  className={`block px-4 py-2 text-sm hover:bg-slate-800 transition-colors ${location.pathname === item.path ? 'bg-slate-800 border-l-4 border-slate-400 font-medium text-white' : 'border-l-4 border-transparent text-slate-300 hover:text-white'}`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+
+            {/* PPN Accordion */}
+            <li>
+              <button 
+                onClick={() => setIsPpnOpen(!isPpnOpen)}
+                className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors ${isPpnOpen || location.pathname.startsWith('/faktur-pajak') || location.pathname.startsWith('/ppn') ? 'bg-slate-800 border-l-4 border-slate-400 font-medium text-white' : 'border-l-4 border-transparent text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+              >
+                <span>PPN</span>
+                <svg className={`w-4 h-4 transition-transform duration-200 ${isPpnOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+              
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isPpnOpen ? 'max-h-96' : 'max-h-0'}`}>
+                <ul className="bg-slate-950 py-2">
+                  {ppnItems.map((item, idx) => (
+                    <li key={`ppn-${idx}`}>
+                      <Link 
+                        to={item.path}
+                        className={`block px-10 py-2 text-sm transition-colors ${location.pathname === item.path ? 'text-blue-400 font-medium' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+
+            {/* Inventory Accordion */}
+            <li>
+              <button 
+                onClick={() => setIsInventoryOpen(!isInventoryOpen)}
+                className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors ${isInventoryOpen || location.pathname.startsWith('/inventory') ? 'bg-slate-800 border-l-4 border-slate-400 font-medium text-white' : 'border-l-4 border-transparent text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+              >
+                <span>Inventory</span>
+                <svg className={`w-4 h-4 transition-transform duration-200 ${isInventoryOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+              
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isInventoryOpen ? 'max-h-96' : 'max-h-0'}`}>
+                <ul className="bg-slate-950 py-2">
+                  {inventoryItems.map((item, idx) => (
+                    <li key={`inv-${idx}`}>
+                      <Link 
+                        to={item.path}
+                        className={`block px-10 py-2 text-sm transition-colors ${location.pathname === item.path ? 'text-blue-400 font-medium' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+
+            {/* Bottom Menu Items */}
+            {menuItemsBottom.map((item, idx) => (
+              <li key={`bot-${idx}`}>
                 <Link 
                   to={item.path}
                   className={`block px-4 py-2 text-sm hover:bg-slate-800 transition-colors ${location.pathname === item.path ? 'bg-slate-800 border-l-4 border-slate-400 font-medium text-white' : 'border-l-4 border-transparent text-slate-300 hover:text-white'}`}
