@@ -23,7 +23,10 @@ const KartuPiutang: React.FC = () => {
           >
             <X size={14} /> Close
           </button>
-          <button className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white">
+          <button 
+            onClick={() => navigate('/laporan', { state: { initialReport: 'Kartu Piutang (A4)' } })}
+            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white"
+          >
             <FileText size={14} /> Report
           </button>
           <button className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white">

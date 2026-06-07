@@ -37,6 +37,9 @@ import HistoryHargaJual from './features/history-harga/components/HistoryHargaJu
 import Pembayaran from './features/pembayaran/components/Pembayaran';
 import NotaKredit from './features/nota-kredit/components/NotaKredit';
 import KartuPiutang from './features/kartu-piutang/components/KartuPiutang';
+import OutstandingInvoice from './features/outstanding-invoice/components/OutstandingInvoice';
+import RangkumanPenjualan from './features/rangkuman-penjualan/components/RangkumanPenjualan';
+import SetupDataBaru from './features/setup-data-baru/components/SetupDataBaru';
 
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
   const { isAuthenticated, user } = useAuth();
@@ -109,7 +112,10 @@ function App() {
             <Route path="pembayaran" element={<Pembayaran />} />
             <Route path="nota-kredit" element={<NotaKredit />} />
             <Route path="kartu-piutang" element={<KartuPiutang />} />
+            <Route path="outstanding-invoice" element={<OutstandingInvoice />} />
+            <Route path="rangkuman-penjualan" element={<RangkumanPenjualan />} />
             <Route path="laporan" element={<Laporan />} />
+            <Route path="setup-data-baru" element={<SetupDataBaru />} />
           </Route>
 
           {/* Admin Routes */}

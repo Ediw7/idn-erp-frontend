@@ -7,6 +7,7 @@ const MainLayout: React.FC = () => {
   const [isSetupOpen, setIsSetupOpen] = useState(false);
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const [isPpnOpen, setIsPpnOpen] = useState(false);
+  const [isPemeliharaanOpen, setIsPemeliharaanOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -30,8 +31,9 @@ const MainLayout: React.FC = () => {
 
   const menuItemsBottom = [
     { label: 'Kartu Piutang', path: '/kartu-piutang' },
+    { label: 'Daftar Outstanding Invoice', path: '/outstanding-invoice' },
+    { label: 'Rangkuman Data Penjualan', path: '/rangkuman-penjualan' },
     { label: 'Laporan', path: '/laporan' },
-    { label: 'Pemeliharaan Sistem', path: '/pemeliharaan' },
   ];
 
   // Submenus for Setup Awal
@@ -84,6 +86,20 @@ const MainLayout: React.FC = () => {
     { label: 'Surat Setoran Pajak', path: '/ppn/ssp' },
     { label: 'Transfer ke Program e-SPT', path: '/ppn/transfer-espt' },
     { label: 'Transfer ke Program e-Faktur', path: '/ppn/transfer-efaktur' },
+  ];
+
+  // Submenus for Pemeliharaan Sistem
+  const pemeliharaanItems = [
+    { label: 'Migrasi Data', path: '/pemeliharaan/migrasi' },
+    { label: 'Ganti Password', path: '/pemeliharaan/ganti-password' },
+    { label: 'Setup User', path: '/pemeliharaan/setup-user' },
+    { label: 'Setup User Permission', path: '/pemeliharaan/setup-permission' },
+    { label: 'Database Connection', path: '/pemeliharaan/database' },
+    { label: 'Backup Data', path: '/pemeliharaan/backup' },
+    { label: 'Restore Data', path: '/pemeliharaan/restore' },
+    { label: 'Hapus Data', path: '/pemeliharaan/hapus' },
+    { label: 'Perbaikan Saldo Piutang', path: '/pemeliharaan/perbaikan-saldo' },
+    { label: 'About Krishand Invoicing', path: '/pemeliharaan/about' },
   ];
 
   // Check if current route starts with a specific path to highlight active state
@@ -207,6 +223,42 @@ const MainLayout: React.FC = () => {
                 </Link>
               </li>
             ))}
+
+            {/* Pemeliharaan Sistem Accordion */}
+            <li>
+              <button 
+                onClick={() => setIsPemeliharaanOpen(!isPemeliharaanOpen)}
+                className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-colors ${isPemeliharaanOpen || location.pathname.startsWith('/pemeliharaan') ? 'bg-slate-800 border-l-4 border-slate-400 font-medium text-white' : 'border-l-4 border-transparent text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+              >
+                <span>Pemeliharaan Sistem</span>
+                <svg className={`w-4 h-4 transition-transform duration-200 ${isPemeliharaanOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+              
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isPemeliharaanOpen ? 'max-h-96' : 'max-h-0'}`}>
+                <ul className="bg-slate-950 py-2">
+                  {pemeliharaanItems.map((item, idx) => (
+                    <li key={`pm-${idx}`}>
+                      <Link 
+                        to={item.path}
+                        className={`block px-10 py-2 text-sm transition-colors ${location.pathname === item.path ? 'text-blue-400 font-medium' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+
+            {/* Setup Data Baru Link */}
+            <li>
+              <Link 
+                to="/setup-data-baru"
+                className={`block px-4 py-2 text-sm hover:bg-slate-800 transition-colors ${location.pathname === '/setup-data-baru' ? 'bg-slate-800 border-l-4 border-slate-400 font-medium text-white' : 'border-l-4 border-transparent text-slate-300 hover:text-white'}`}
+              >
+                <span className={location.pathname === '/setup-data-baru' ? 'text-white' : 'text-yellow-400'}>Setup Data Baru</span>
+              </Link>
+            </li>
           </ul>
         </nav>
         

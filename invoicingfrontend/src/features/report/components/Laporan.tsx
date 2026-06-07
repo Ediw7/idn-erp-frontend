@@ -27,7 +27,23 @@ const Laporan: React.FC = () => {
                 'Sales Order (A4 / Kwarto / 1/2 Kwarto)',
                 'Surat Jalan (A4 / Kwarto / 1/2 Kwarto)',
                 'Surat Jalan (A4 / Kwarto / 1/2 Kwarto) - Font 10',
-                'Surat Jalan Kop Surat (A4)',
+                'Daftar Outstanding Invoice Per Pelanggan (A4)',
+                'Daftar Penjualan Per Kode Barang',
+                'Rangkumana Penjualan Per Kode Barang',
+                'Daftar Penjualan Per Pelanggan - Barang',
+                'Kartu Piutang (A4)',
+                'Laporan Piutang Per Invoice (A4)',
+                'Rangkuman Piutang Dagang',
+                'Rangkuman Piutang Dagang Per Proyek',
+                'Analisa Umur Piutang Berdasarkan Tgl Invoice',
+                'Analisa Umur Piutang Berdasarkan Tgl JT',
+                'Rangkuman Analisa Umur Piutang Berdasarkan Tgl JT',
+                'Daftar Pembayaran Invoice',
+                'Daftar Pembayaran Invoice Per Pelanggan',
+                'Daftar Cek/Giro Diterima',
+                'Kartu Stock Barang',
+                'Kartu HPP Barang',
+                'Quantity Akhir Per Gudang - Kode Barang',
                 'Invoice (A4 / Kwarto)',
                 'Invoice Kop Surat (A4)',
                 'Invoice Sederhana - Tanpa Disc & DP',
@@ -150,17 +166,17 @@ const Laporan: React.FC = () => {
                   <input type="text" className={inputClass} disabled />
                 </div>
                 
-                <div className="flex items-center mt-2">
-                  <label className="w-48 text-sm text-slate-700">Dari Tanggal</label>
+                <div className={`flex items-center mt-2 ${!activeReportItem.includes('Kartu Piutang') ? 'opacity-50' : ''}`}>
+                  <label className={`w-48 text-sm ${activeReportItem.includes('Kartu Piutang') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari Tanggal</label>
                   <div className="flex gap-2 flex-1 items-center">
-                    <input type="date" className={inputClass} />
+                    <input type="date" className={inputClass} disabled={!activeReportItem.includes('Kartu Piutang')} defaultValue={activeReportItem.includes('Kartu Piutang') ? "2026-01-01" : undefined} />
                     <span className="text-sm font-medium text-slate-500">s/d Tanggal</span>
-                    <input type="date" className={inputClass} />
+                    <input type="date" className={inputClass} disabled={!activeReportItem.includes('Kartu Piutang')} defaultValue={activeReportItem.includes('Kartu Piutang') ? "2026-12-31" : undefined} />
                   </div>
                 </div>
-                <div className="flex items-center">
-                  <label className="w-48 text-sm text-slate-700">Nama Pelanggan:</label>
-                  <select className={inputClass}></select>
+                <div className={`flex items-center ${!activeReportItem.includes('Kartu Piutang') ? 'opacity-50' : ''}`}>
+                  <label className={`w-48 text-sm ${activeReportItem.includes('Kartu Piutang') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Nama Pelanggan:</label>
+                  <select className={inputClass} disabled={!activeReportItem.includes('Kartu Piutang')}></select>
                 </div>
                 <div className="flex items-center opacity-50">
                   <label className="w-48 text-sm text-slate-700">Nama Proyek</label>
