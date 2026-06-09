@@ -5,30 +5,11 @@ import { useNavigate } from 'react-router-dom';
 const RangkumanPenjualan: React.FC = () => {
   const navigate = useNavigate();
 
-  // Mock Data Based on Screenshot
-  const dataQtyBarang = [
-    { kode: 'B-001', nama: 'Baju Blazer Model #01', qty: '59.00' },
-    { kode: 'B-002', nama: 'Baju Blazer Model #02', qty: '49.00' },
-    { kode: 'P-001', nama: 'Kaos Polo', qty: '30.00' },
-    { kode: 'B-011', nama: 'Baju Blazer', qty: '20.00' },
-  ];
-
-  const dataSaleBarang = [
-    { kode: 'B-011', nama: 'Baju Blazer', sale: '8,000,000.00' },
-    { kode: 'B-001', nama: 'Baju Blazer Model #01', sale: '5,940,000.00' },
-    { kode: 'B-002', nama: 'Baju Blazer Model #02', sale: '5,149,000.00' },
-    { kode: 'P-001', nama: 'Kaos Polo', sale: '2,400,000.00' },
-  ];
-
-  const dataNilaiPelanggan = [
-    { kode: 'BOGASARI', nama: 'PT ISM Bogasari Flour', alamat: 'Jl. Raya Cilincing, Tanjung Priok', jumlah: '17,264,000.00' },
-    { kode: 'SW', nama: 'PT Sari Wangi', alamat: 'Jl. Sukabumi No. 123, Menteng', jumlah: '4,085,000.00' },
-  ];
-
-  const dataPiutangPelanggan = [
-    { kode: 'SW', nama: 'PT Sari Wangi', alamat: 'Jl. Sukabumi No. 123, Menteng', piutang: '4,496,600.00' },
-    { kode: 'BOGASARI', nama: 'PT ISM Bogasari Flour', alamat: 'Jl. Raya Cilincing, Tanjung Priok', piutang: '-24,499,200.00' },
-  ];
+  // Data Arrays
+  const dataQtyBarang: any[] = [];
+  const dataSaleBarang: any[] = [];
+  const dataNilaiPelanggan: any[] = [];
+  const dataPiutangPelanggan: any[] = [];
 
   const TableCard = ({ title, columns, data, dataKeys, alignRightIdx }: any) => (
     <div className="flex flex-col bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden h-64">

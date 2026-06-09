@@ -47,7 +47,7 @@ const Kwitansi: React.FC = () => {
           <div className="flex items-center gap-2 text-sm text-slate-200">
             <span className="whitespace-nowrap">Pilih Periode:</span>
             <select className="bg-slate-700 border border-slate-600 text-white px-2 py-1 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>202606</option>
+              <option></option>
             </select>
             <button className="px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white hover:bg-slate-600">+</button>
           </div>
@@ -75,7 +75,7 @@ const Kwitansi: React.FC = () => {
             <div className="flex items-center">
               <label className={labelClass}>No. Kwitansi</label>
               <div className="flex gap-2 w-72">
-                <input type="text" className={`${inputClass} font-semibold`} defaultValue="KT/002/12/2026" />
+                <input type="text" className={`${inputClass} font-semibold`}  />
                 <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Search size={16}/></button>
                 <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold text-slate-700 hover:bg-slate-200 whitespace-nowrap">Auto No</button>
               </div>
@@ -83,32 +83,32 @@ const Kwitansi: React.FC = () => {
             
             <div className="flex items-center">
               <label className={labelClass}>Tgl Kwitansi</label>
-              <input type="date" className={`${inputClass} w-48`} defaultValue="2026-06-06" />
+              <input type="date" className={`${inputClass} w-48`}  />
             </div>
 
             <div className="flex items-center">
               <label className={labelClass}>No. Invoice</label>
-              <input type="text" className={`${inputClass} w-72`} defaultValue="FT/002/12/2026" />
+              <input type="text" className={`${inputClass} w-72`}  />
             </div>
 
             <div className="flex items-start mt-2">
               <label className={labelClass}>Sudah Terima Dari</label>
               <div className="flex flex-col gap-1 w-[400px]">
                 <div className="flex gap-1">
-                  <select className={inputClass} defaultValue="PT Sari Wangi">
-                    <option>PT Sari Wangi</option>
+                  <select className={inputClass} >
+                    <option></option>
                   </select>
                   <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Plus size={16}/></button>
                 </div>
-                <textarea className={`${inputClass} bg-cyan-50 h-16 resize-none`} defaultValue="Jl. Sukabumi No. 123, Menteng&#10;Jakarta Pusat" readOnly />
+                <textarea className={`${inputClass} bg-cyan-50 h-16 resize-none`}  readOnly />
               </div>
             </div>
 
             <div className="flex items-center mt-2">
               <label className={labelClass}>Jumlah</label>
               <div className="flex gap-2 w-72 items-center">
-                <select className={`${inputClass} w-24`} defaultValue="IDR"><option>IDR</option></select>
-                <input type="text" className={`${inputClass} text-right font-semibold bg-cyan-50`} defaultValue="-22,000.00" readOnly />
+                <select className={`${inputClass} w-24`} ><option>IDR</option></select>
+                <input type="text" className={`${inputClass} text-right font-semibold bg-cyan-50`}  readOnly />
               </div>
             </div>
 
@@ -122,12 +122,12 @@ const Kwitansi: React.FC = () => {
 
             <div className="flex items-start mt-2">
               <label className={labelClass}>Untuk Pembayaran</label>
-              <textarea className={`${inputClass} h-24 resize-none`} defaultValue="Invoice No. FT/002/12/2026" />
+              <textarea className={`${inputClass} h-24 resize-none`}  />
             </div>
 
             <div className="flex items-start mt-2">
               <label className={labelClass}>Keterangan Footer</label>
-              <textarea className={`${inputClass} h-32 resize-none text-xs leading-relaxed`} defaultValue="Catatan :&#10;1. Pembayaran untuk invoice ini mohon ditransfer ke rekening :&#10;   Bank BCA Cab. Sudirman&#10;   No. Rekening : 035-0123456&#10;   Atas Nama PT Krishand Indonesia&#10;&#10;2. Pembayaran dengan cek/giro baru dianggap sah setelah dicairkan." />
+              <textarea className={`${inputClass} h-32 resize-none text-xs leading-relaxed`}  />
             </div>
 
             <div className="flex items-center mt-2">

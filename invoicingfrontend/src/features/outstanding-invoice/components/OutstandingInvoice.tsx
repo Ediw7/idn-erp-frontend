@@ -90,107 +90,8 @@ const OutstandingInvoice: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-slate-200 hover:bg-blue-50 transition-colors">
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-400">1</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">1/7/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 font-medium text-slate-800">FT/001/01/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">PT ISM Bogasari Flour</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[200px]" title="Jl. Raya Cilincing, Tanjung Priok">Jl. Raya Cilincing, Tanjung Priok</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">021-4301048</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">1/21/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">IDR</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium">11,450,400.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium text-blue-600">6,450,400.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">Windi</td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5"></td>
-              </tr>
-              <tr className="border-b border-slate-200 hover:bg-blue-50 transition-colors">
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-400">2</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">3/1/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 font-medium text-slate-800">FT/001/03/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">PT ISM Bogasari Flour</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[200px]" title="Jl. Raya Cilincing, Tanjung Priok">Jl. Raya Cilincing, Tanjung Priok</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">021-4301048</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">3/15/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">IDR</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium">3,630,000.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium text-blue-600">3,630,000.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">Windi</td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5"></td>
-              </tr>
-              <tr className="border-b border-slate-200 hover:bg-blue-50 transition-colors">
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-400">3</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">6/1/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 font-medium text-slate-800">FT/001/06/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">PT Sari Wangi</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[200px]" title="Jl. Sukabumi No. 123, Menteng">Jl. Sukabumi No. 123, Menteng</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-slate-400">-</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">6/8/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">IDR</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium">1,127,500.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium text-blue-600">1,127,500.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">Andi</td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200">SO/001/05/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">PO-001</td>
-                <td className="px-3 py-1.5"></td>
-              </tr>
-              <tr className="border-b border-slate-200 hover:bg-blue-50 transition-colors">
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-400">4</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">1/15/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 font-medium text-slate-800">FT/002/01/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">PT Sari Wangi</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[200px]" title="Jl. Sukabumi No. 123, Menteng">Jl. Sukabumi No. 123, Menteng</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-slate-400">-</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">1/22/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">IDR</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium">3,413,100.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium text-blue-600">3,413,100.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">Andi</td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5"></td>
-              </tr>
-              <tr className="border-b border-slate-200 hover:bg-blue-50 transition-colors">
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-400">5</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">6/1/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 font-medium text-slate-800">FT/002/06/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">PT ISM Bogasari Flour</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[200px]" title="Jl. Raya Cilincing, Tanjung Priok">Jl. Raya Cilincing, Tanjung Priok</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">021-4301048</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">6/15/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">IDR</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium">1,390,400.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium text-blue-600">1,390,400.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">Windi</td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200">SO/001/06/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">PO-001</td>
-                <td className="px-3 py-1.5"></td>
-              </tr>
-              <tr className="border-b border-slate-200 hover:bg-blue-50 transition-colors">
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-400">6</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">1/15/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 font-medium text-slate-800">FT/003/01/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">PT ISM Bogasari Flour</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[200px]" title="Jl. Raya Cilincing, Tanjung Priok">Jl. Raya Cilincing, Tanjung Priok</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">021-4301048</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">1/29/2026</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-center text-slate-500">IDR</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium">2,530,000.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200 text-right font-medium text-blue-600">2,530,000.00</td>
-                <td className="px-3 py-1.5 border-r border-slate-200">Windi</td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5 border-r border-slate-200"></td>
-                <td className="px-3 py-1.5"></td>
+              <tr>
+                <td colSpan={15} className="px-3 py-8 text-center text-slate-500">Tidak ada data.</td>
               </tr>
             </tbody>
           </table>
@@ -200,10 +101,10 @@ const OutstandingInvoice: React.FC = () => {
         <div className="bg-slate-50 border-t border-slate-200 p-3 shrink-0 flex justify-end">
           <div className="flex bg-white border border-slate-300 rounded-sm overflow-hidden shadow-sm">
             <div className="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 border-r border-slate-300">TOTAL INVOICE</div>
-            <div className="px-4 py-2 text-sm font-bold text-slate-800 text-right min-w-[150px] border-r border-slate-300">23,541,400.00</div>
+            <div className="px-4 py-2 text-sm font-bold text-slate-800 text-right min-w-[150px] border-r border-slate-300">0.00</div>
             
             <div className="px-4 py-2 text-xs font-bold text-blue-700 bg-blue-50 border-r border-slate-300">SALDO PIUTANG</div>
-            <div className="px-4 py-2 text-sm font-bold text-blue-700 text-right min-w-[150px]">18,541,400.00</div>
+            <div className="px-4 py-2 text-sm font-bold text-blue-700 text-right min-w-[150px]">0.00</div>
           </div>
         </div>
       </div>

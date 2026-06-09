@@ -47,7 +47,7 @@ const HistoryHargaJual: React.FC = () => {
               <label className={labelClass}>Nama Pelanggan</label>
               <select className={`${inputClass} flex-1`}>
                 <option></option>
-                <option>PT Sari Wangi</option>
+                <option></option>
               </select>
             </div>
           </div>
@@ -55,7 +55,7 @@ const HistoryHargaJual: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <span className="text-xs font-semibold text-slate-700">Tampilkan</span>
-              <input type="text" className={`${inputClass} w-16 text-center`} defaultValue="25" />
+              <input type="text" className={`${inputClass} w-16 text-center`}  />
               <span className="text-xs font-semibold text-slate-700">record terakhir</span>
             </div>
             <div className="flex gap-2 items-start">

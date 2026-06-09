@@ -47,7 +47,7 @@ const KartuPiutang: React.FC = () => {
           </div>
           <div className="flex items-center">
             <label className={labelClass}>Pilih Mata Uang</label>
-            <select className={`${inputClass} w-32`} defaultValue="IDR">
+            <select className={`${inputClass} w-32`} >
               <option value="IDR">IDR</option>
               <option value="USD">USD</option>
             </select>

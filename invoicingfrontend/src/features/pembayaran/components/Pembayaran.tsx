@@ -24,7 +24,7 @@ const Pembayaran: React.FC = () => {
           <div className="flex items-center gap-2 text-sm text-slate-200">
             <span className="whitespace-nowrap">Pilih Periode:</span>
             <select className="bg-slate-700 border border-slate-600 text-white px-2 py-1 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>202606</option>
+              <option></option>
             </select>
             <button className="px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white hover:bg-slate-600">+</button>
           </div>
@@ -45,32 +45,32 @@ const Pembayaran: React.FC = () => {
               <div className="flex items-center">
                 <label className={labelClass}>No. Bukti</label>
                 <div className="flex gap-1 flex-1">
-                  <input type="text" className={`${inputClass} font-semibold`} defaultValue="BM/001/01/2026" />
+                  <input type="text" className={`${inputClass} font-semibold`}  />
                   <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Search size={16}/></button>
                   <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold text-slate-700 hover:bg-slate-200 whitespace-nowrap">Auto No</button>
                 </div>
               </div>
               <div className="flex items-center">
                 <label className={labelClass}>Tanggal</label>
-                <input type="date" className={`${inputClass} w-40`} defaultValue="2026-06-06" />
+                <input type="date" className={`${inputClass} w-40`}  />
               </div>
               <div className="flex items-center mt-2">
                 <label className={labelClass}>Nama Pembeli</label>
                 <div className="flex gap-1 flex-1">
-                  <select className={inputClass} defaultValue="PT ISM Bogasari Flour">
-                    <option>PT ISM Bogasari Flour</option>
+                  <select className={inputClass} >
+                    <option></option>
                   </select>
                   <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Plus size={16}/></button>
                 </div>
               </div>
               <div className="flex items-start">
                 <label className={labelClass}>Alamat</label>
-                <textarea className={`${inputClass} bg-cyan-50 h-16 resize-none`} defaultValue="Jl. Raya Cilincing, Tanjung Priok&#10;Jakarta Utara - 14110" readOnly />
+                <textarea className={`${inputClass} bg-cyan-50 h-16 resize-none`}  readOnly />
               </div>
               
               <div className="flex items-center mt-2">
                 <label className={labelClass}>Metode Pembayaran</label>
-                <select className={`${inputClass} w-32`} defaultValue="Cash">
+                <select className={`${inputClass} w-32`} >
                   <option>Cash</option>
                   <option>Transfer</option>
                   <option>Giro</option>
@@ -90,21 +90,21 @@ const Pembayaran: React.FC = () => {
             <div className="flex-1 flex flex-col gap-2 max-w-lg">
               <div className="flex items-center">
                 <label className={labelClassSmall}>Perkiraan Kas/Bank</label>
-                <select className={`${inputClass} w-32`} defaultValue="1102001">
-                  <option>1102001</option>
+                <select className={`${inputClass} w-32`} >
+                  <option></option>
                 </select>
               </div>
               <div className="flex items-center">
                 <label className={labelClassSmall}>Mata Uang</label>
-                <input type="text" className={`${inputClass} w-32 bg-cyan-50`} defaultValue="IDR" readOnly />
+                <input type="text" className={`${inputClass} w-32 bg-cyan-50`}  readOnly />
               </div>
               <div className="flex items-center mt-2">
                 <label className={labelClassSmall}>Jumlah Penerimaan</label>
-                <input type="text" className={`${inputClass} w-48 text-right font-semibold bg-white`} defaultValue="43,500,000.00" />
+                <input type="text" className={`${inputClass} w-48 text-right font-semibold bg-white`}  />
               </div>
               <div className="flex items-center">
                 <label className={labelClassSmall}>Kurs Pembayaran</label>
-                <input type="text" className={`${inputClass} w-32 text-right`} defaultValue="1.00" />
+                <input type="text" className={`${inputClass} w-32 text-right`}  />
               </div>
               <div className="flex items-start mt-2">
                 <label className={labelClassSmall}>Keterangan</label>
@@ -138,7 +138,7 @@ const Pembayaran: React.FC = () => {
                   <td className="px-2 py-1 text-center border-r border-slate-200">▶</td>
                   <td className="px-2 py-1 border-r border-slate-200">
                     <div className="flex gap-1">
-                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs" defaultValue="FT/123/12/2025" />
+                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs"  />
                       <button className="px-1.5 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Search size={12} /></button>
                     </div>
                   </td>
@@ -147,11 +147,11 @@ const Pembayaran: React.FC = () => {
                   <td className="px-2 py-1 border-r border-slate-200 bg-cyan-50 text-center">IDR</td>
                   <td className="px-2 py-1 border-r border-slate-200 bg-cyan-50 text-right">27,500,000.00</td>
                   <td className="px-2 py-1 border-r border-slate-200 text-right">
-                    <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right" defaultValue="27,500,000.00" />
+                    <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right"  />
                   </td>
                   <td className="px-2 py-1 border-r border-slate-200">
                     <div className="flex gap-1">
-                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right bg-cyan-50" defaultValue="0.00" readOnly />
+                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right bg-cyan-50"  readOnly />
                       <button className="px-1.5 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 text-[10px] font-bold">...</button>
                     </div>
                   </td>
@@ -164,7 +164,7 @@ const Pembayaran: React.FC = () => {
                   <td className="px-2 py-1 text-center border-r border-slate-200"></td>
                   <td className="px-2 py-1 border-r border-slate-200">
                     <div className="flex gap-1">
-                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs" defaultValue="FT/124/12/2025" />
+                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs"  />
                       <button className="px-1.5 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Search size={12} /></button>
                     </div>
                   </td>
@@ -173,11 +173,11 @@ const Pembayaran: React.FC = () => {
                   <td className="px-2 py-1 border-r border-slate-200 bg-cyan-50 text-center">IDR</td>
                   <td className="px-2 py-1 border-r border-slate-200 bg-cyan-50 text-right">11,000,000.00</td>
                   <td className="px-2 py-1 border-r border-slate-200 text-right">
-                    <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right" defaultValue="11,000,000.00" />
+                    <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right"  />
                   </td>
                   <td className="px-2 py-1 border-r border-slate-200">
                     <div className="flex gap-1">
-                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right bg-cyan-50" defaultValue="0.00" readOnly />
+                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right bg-cyan-50"  readOnly />
                       <button className="px-1.5 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 text-[10px] font-bold">...</button>
                     </div>
                   </td>
@@ -190,7 +190,7 @@ const Pembayaran: React.FC = () => {
                   <td className="px-2 py-1 text-center border-r border-slate-200"></td>
                   <td className="px-2 py-1 border-r border-slate-200">
                     <div className="flex gap-1">
-                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs" defaultValue="FT/001/01/2026" />
+                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs"  />
                       <button className="px-1.5 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Search size={12} /></button>
                     </div>
                   </td>
@@ -199,11 +199,11 @@ const Pembayaran: React.FC = () => {
                   <td className="px-2 py-1 border-r border-slate-200 bg-cyan-50 text-center">IDR</td>
                   <td className="px-2 py-1 border-r border-slate-200 bg-cyan-50 text-right">11,450,400.00</td>
                   <td className="px-2 py-1 border-r border-slate-200 text-right">
-                    <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right" defaultValue="5,000,000.00" />
+                    <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right"  />
                   </td>
                   <td className="px-2 py-1 border-r border-slate-200">
                     <div className="flex gap-1">
-                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right bg-cyan-50" defaultValue="0.00" readOnly />
+                      <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right bg-cyan-50"  readOnly />
                       <button className="px-1.5 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 text-[10px] font-bold">...</button>
                     </div>
                   </td>

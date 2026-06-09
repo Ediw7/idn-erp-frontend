@@ -45,7 +45,7 @@ const SuratJalan: React.FC = () => {
               <div className="flex items-center gap-3">
                 <label className="text-sm font-semibold text-slate-700">Periode:</label>
                 <select className={`${inputClass} w-32`}>
-                  <option>202606</option>
+                  <option></option>
                 </select>
               </div>
             </div>
@@ -55,7 +55,7 @@ const SuratJalan: React.FC = () => {
               <div>
                 <label className={labelClass}>No. Surat Jalan</label>
                 <div className="flex gap-2">
-                  <input type="text" className={inputClass} defaultValue="SJ/004/12/2026" />
+                  <input type="text" className={inputClass}  />
                   <button className="px-3 border border-slate-300 bg-slate-50 hover:bg-slate-100 rounded-sm"><Search size={16}/></button>
                 </div>
               </div>
@@ -67,25 +67,25 @@ const SuratJalan: React.FC = () => {
                 <label className={labelClass}>Nama Pelanggan</label>
                 <div className="flex gap-2">
                   <select className={inputClass}>
-                    <option>PT Sari Wangi</option>
+                    <option></option>
                   </select>
                   <button className="px-3 border border-slate-300 bg-slate-50 hover:bg-slate-100 rounded-sm text-slate-700 font-bold">+</button>
                 </div>
               </div>
               <div className="lg:col-span-3">
                 <label className={labelClass}>Alamat Kirim</label>
-                <textarea className={`${inputClass} h-16 resize-none`} defaultValue="Jl. Sukabumi No. 123, Menteng&#10;Jakarta Pusat" />
+                <textarea className={`${inputClass} h-16 resize-none`}  />
               </div>
 
               {/* Kolom 2 */}
               <div className="mt-2">
                 <label className={labelClass}>Gudang</label>
-                <select className={inputClass}><option>Kapuk</option></select>
+                <select className={inputClass}><option></option></select>
               </div>
               <div className="mt-2">
                 <label className={labelClass}>No. Sales Order</label>
                 <div className="flex gap-2">
-                  <input type="text" className={inputClass} defaultValue="SO/005/12/2026" />
+                  <input type="text" className={inputClass}  />
                   <button className="px-3 border border-slate-300 bg-slate-50 hover:bg-slate-100 rounded-sm"><Search size={16}/></button>
                 </div>
               </div>
@@ -101,7 +101,7 @@ const SuratJalan: React.FC = () => {
               </div>
               <div>
                 <label className={labelClass}>No. Invoice</label>
-                <input type="text" className={inputClass} defaultValue="FT/001/12/2026" />
+                <input type="text" className={inputClass}  />
               </div>
               <div className="lg:col-span-3">
                 <label className={labelClass}>Keterangan</label>
@@ -189,24 +189,24 @@ const SuratJalan: React.FC = () => {
             <div className="p-6 bg-slate-50 flex flex-col gap-4">
               <div className="flex items-center">
                 <label className="w-36 text-sm font-semibold text-slate-700">Nama Pelanggan</label>
-                <select className={`${inputClass} flex-1`} defaultValue="PT Sari Wangi">
-                  <option>PT Sari Wangi</option>
+                <select className={`${inputClass} flex-1`} >
+                  <option></option>
                 </select>
               </div>
               <div className="flex items-start">
                 <label className="w-36 text-sm font-semibold text-slate-700 mt-2">Alamat Kirim</label>
-                <textarea className={`${inputClass} flex-1 h-16 resize-none`} defaultValue="Jl. Sukabumi No. 123, Menteng&#10;Jakarta Pusat" />
+                <textarea className={`${inputClass} flex-1 h-16 resize-none`}  />
               </div>
               <div className="flex items-center">
                 <label className="w-36 text-sm font-semibold text-slate-700">No. Surat Jalan</label>
-                <select className={`${inputClass} flex-1`} defaultValue="SJ/005/12/2026">
-                  <option>SJ/005/12/2026</option>
+                <select className={`${inputClass} flex-1`} >
+                  <option></option>
                 </select>
               </div>
               <div className="flex items-center">
                 <label className="w-36 text-sm font-semibold text-slate-700">Gudang</label>
-                <select className={`${inputClass} flex-1`} defaultValue="Kapuk">
-                  <option>Kapuk</option>
+                <select className={`${inputClass} flex-1`} >
+                  <option></option>
                 </select>
               </div>
               <div className="flex items-center">
@@ -215,7 +215,7 @@ const SuratJalan: React.FC = () => {
               </div>
               <div className="flex items-center">
                 <label className="w-36 text-sm font-semibold text-slate-700">Jenis Invoice</label>
-                <select className={`${inputClass} flex-1`} defaultValue="Dengan PPN">
+                <select className={`${inputClass} flex-1`} >
                   <option>Dengan PPN</option>
                   <option>Tanpa PPN</option>
                 </select>

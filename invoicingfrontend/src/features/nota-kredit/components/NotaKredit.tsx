@@ -47,7 +47,7 @@ const NotaKredit: React.FC = () => {
           <div className="flex items-center gap-2 text-sm text-slate-200">
             <span className="whitespace-nowrap">Pilih Periode:</span>
             <select className="bg-slate-700 border border-slate-600 text-white px-2 py-1 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>202606</option>
+              <option></option>
             </select>
             <button className="px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white hover:bg-slate-600">+</button>
           </div>
@@ -70,31 +70,31 @@ const NotaKredit: React.FC = () => {
               <div className="flex items-center">
                 <label className={labelClass}>No. Nota Kredit</label>
                 <div className="flex gap-1 flex-1">
-                  <input type="text" className={`${inputClass} font-semibold`} defaultValue="NK/001/06/2026" />
+                  <input type="text" className={`${inputClass} font-semibold`}  />
                   <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Search size={16}/></button>
                   <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold text-slate-700 hover:bg-slate-200 whitespace-nowrap">Auto No</button>
                 </div>
               </div>
               <div className="flex items-center">
                 <label className={labelClass}>Tgl Nota Kredit</label>
-                <input type="date" className={`${inputClass} w-40`} defaultValue="2026-06-06" />
+                <input type="date" className={`${inputClass} w-40`}  />
               </div>
               <div className="flex items-center mt-2">
                 <label className={labelClass}>Nama Pelanggan</label>
                 <select className={inputClass}>
-                  <option>PT ISM Bogasari Flour</option>
+                  <option></option>
                 </select>
               </div>
               <div className="flex items-start">
                 <label className={labelClass}>Alamat</label>
-                <textarea className={`${inputClass} bg-cyan-50 h-16 resize-none`} defaultValue="Jl. Raya Cilincing, Tanjung Priok&#10;Jakarta Utara - 14110" readOnly />
+                <textarea className={`${inputClass} bg-cyan-50 h-16 resize-none`}  readOnly />
               </div>
               
               <div className="flex items-center mt-2">
                 <label className={labelClass}>Nilai Nota Kredit</label>
                 <div className="flex gap-1 w-64 items-center">
-                  <input type="text" className={`${inputClass} w-16 bg-cyan-50 text-center font-semibold`} defaultValue="IDR" readOnly />
-                  <input type="text" className={`${inputClass} flex-1 text-right bg-cyan-50 font-semibold`} defaultValue="0.00" readOnly />
+                  <input type="text" className={`${inputClass} w-16 bg-cyan-50 text-center font-semibold`}  readOnly />
+                  <input type="text" className={`${inputClass} flex-1 text-right bg-cyan-50 font-semibold`}  readOnly />
                 </div>
               </div>
 
@@ -167,7 +167,7 @@ const NotaKredit: React.FC = () => {
                     <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs" />
                   </td>
                   <td className="px-2 py-1 border-r border-slate-200 text-right">
-                    <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right" defaultValue="0.00" />
+                    <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs text-right"  />
                   </td>
                   <td className="px-2 py-1">
                     <select className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs"><option></option></select>

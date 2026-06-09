@@ -42,7 +42,6 @@ const Invoice: React.FC = () => {
     <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0 overflow-x-auto">
-        <div className="flex items-center gap-3 shrink-0">
         <div className="flex items-center gap-6 shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-white">Invoice</h2>
@@ -52,7 +51,7 @@ const Invoice: React.FC = () => {
           <div className="flex items-center gap-2 text-sm text-slate-200">
             <span className="whitespace-nowrap">Pilih Periode:</span>
             <select className="bg-slate-700 border border-slate-600 text-white px-2 py-1 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>202606</option>
+              <option></option>
             </select>
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-200">
@@ -104,31 +103,31 @@ const Invoice: React.FC = () => {
               <div>
                 <label className={labelClass}>No. Invoice</label>
                 <div className="flex gap-2">
-                  <input type="text" className={`${inputClass} font-bold text-blue-900 bg-blue-50`} defaultValue="FT/002/12/2026" />
+                  <input type="text" className={`${inputClass} font-bold text-blue-900 bg-blue-50`}  />
                   <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 transition-colors"><Search size={16} className="text-slate-600" /></button>
                   <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-colors whitespace-nowrap">Auto No</button>
                 </div>
               </div>
               <div>
                 <label className={labelClass}>Tgl Invoice</label>
-                <input type="date" className={inputClass} defaultValue="2026-06-06" />
+                <input type="date" className={inputClass}  />
               </div>
               <div>
                 <label className={labelClass}>Nama Pembeli</label>
                 <div className="flex gap-2">
-                  <select className={inputClass} defaultValue="PT Sari Wangi">
-                    <option>PT Sari Wangi</option>
+                  <select className={inputClass} >
+                    <option></option>
                   </select>
                   <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 transition-colors"><Plus size={16} className="text-slate-600" /></button>
                 </div>
               </div>
               <div>
                 <label className={labelClass}>Alamat</label>
-                <textarea className={`${inputClass} h-20 resize-none text-xs`} defaultValue="Jl. Sukabumi No. 123, Menteng&#10;Jakarta Pusat" />
+                <textarea className={`${inputClass} h-20 resize-none text-xs`}  />
               </div>
               <div>
                 <label className={labelClass}>NPWP</label>
-                <input type="text" className={`${inputClass} bg-cyan-50`} defaultValue="01.234.478.3-032.000" />
+                <input type="text" className={`${inputClass} bg-cyan-50`}  />
               </div>
               <div>
                 <label className={labelClass}>Proyek</label>
@@ -142,7 +141,7 @@ const Invoice: React.FC = () => {
             <div className="col-span-4 flex flex-col gap-3">
               <div>
                 <label className={labelClass}>Mata Uang</label>
-                <select className={inputClass} defaultValue="IDR">
+                <select className={inputClass} >
                   <option>IDR</option>
                   <option>USD</option>
                 </select>
@@ -150,7 +149,7 @@ const Invoice: React.FC = () => {
               <div>
                 <label className={labelClass}>No. SO</label>
                 <div className="flex gap-2">
-                  <input type="text" className={inputClass} defaultValue="SO/005/12/2026" />
+                  <input type="text" className={inputClass}  />
                   <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 transition-colors"><Search size={16} className="text-slate-600" /></button>
                 </div>
               </div>
@@ -160,7 +159,7 @@ const Invoice: React.FC = () => {
               </div>
               <div>
                 <label className={labelClass}>Cara Pembayaran</label>
-                <select className={inputClass} defaultValue="Kredit 7 Hari">
+                <select className={inputClass} >
                   <option>Kredit 7 Hari</option>
                   <option>Cash</option>
                 </select>
@@ -192,11 +191,11 @@ const Invoice: React.FC = () => {
               <div className="flex gap-4">
                 <div className="flex-1">
                   <label className={labelClass}>Kurs Jual</label>
-                  <input type="text" className={`${inputClass} text-right`} defaultValue="1.00" />
+                  <input type="text" className={`${inputClass} text-right`}  />
                 </div>
                 <div className="flex-1">
                   <label className={labelClass}>Tgl JT</label>
-                  <input type="date" className={inputClass} defaultValue="2026-06-13" />
+                  <input type="date" className={inputClass}  />
                 </div>
               </div>
               <div className="flex gap-4">
@@ -206,7 +205,7 @@ const Invoice: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <label className={labelClass}>Gudang</label>
-                  <input type="text" className={`${inputClass} bg-slate-100 text-slate-500`} defaultValue="Kapuk" disabled />
+                  <input type="text" className={`${inputClass} bg-slate-100 text-slate-500`}  disabled />
                 </div>
               </div>
               <div className="flex gap-6 mt-2">
@@ -228,7 +227,7 @@ const Invoice: React.FC = () => {
                 <div className="text-[10px] text-slate-500 border border-slate-200 rounded p-2 bg-slate-50 flex flex-col gap-1">
                   <div className="flex justify-between">
                     <span className="font-semibold">Record Created:</span>
-                    <span>6/6/2026 2:34:44 PM (System - Admin)</span>
+                    <span>-</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-semibold">Record Modified:</span>
@@ -294,19 +293,19 @@ const Invoice: React.FC = () => {
                       <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-center" />
                     </td>
                     <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right" defaultValue="0" />
+                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right"  />
                     </td>
                     <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right" defaultValue="0" />
+                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right"  />
                     </td>
                     <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right" defaultValue="0.00" />
+                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right"  />
                     </td>
                     <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right" defaultValue="0" />
+                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right"  />
                     </td>
                     <td className="px-3 py-1">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right bg-slate-100" defaultValue="0" disabled />
+                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right bg-slate-100"  disabled />
                     </td>
                   </tr>
                 </tbody>
@@ -355,7 +354,7 @@ const Invoice: React.FC = () => {
 
             <div>
               <label className={labelClass}>Keterangan</label>
-              <textarea className={`${inputClass} h-24 resize-none text-xs leading-relaxed`} defaultValue="Pembayaran untuk invoice ini mohon ditransfer ke rekening :&#10;Bank BCA Cab. Sudirman&#10;No. Rekening : 035-0123456&#10;Atas Nama PT Krishand Indonesia" />
+              <textarea className={`${inputClass} h-24 resize-none text-xs leading-relaxed`}  />
             </div>
           </div>
 
@@ -363,23 +362,23 @@ const Invoice: React.FC = () => {
           <div className="col-span-3 flex flex-col gap-2 pt-5">
             <div className="flex justify-between items-center">
               <span className="text-xs font-semibold text-slate-700 w-32">Nilai Invoice</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50 font-semibold`} defaultValue="-22,000.00" readOnly />
+              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50 font-semibold`}  readOnly />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs font-semibold text-slate-700 w-32">Pembayaran</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50`} defaultValue="0.00" readOnly />
+              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50`}  readOnly />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs font-semibold text-slate-700 w-32">Potongan</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50`} defaultValue="0.00" readOnly />
+              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50`}  readOnly />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs font-semibold text-slate-700 w-32">Nota Kredit</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50`} defaultValue="0.00" readOnly />
+              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50`}  readOnly />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs font-semibold text-slate-700 w-32">Sisa Piutang</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50 font-bold`} defaultValue="-22,000.00" readOnly />
+              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50 font-bold`}  readOnly />
             </div>
           </div>
 
@@ -387,7 +386,7 @@ const Invoice: React.FC = () => {
           <div className="col-span-4 flex flex-col gap-2 pt-5">
             <div className="flex justify-end items-center gap-3">
               <span className="text-xs font-semibold text-slate-700">Jlh Harga Jual</span>
-              <input type="text" className={`${inputClass} w-40 text-right bg-cyan-50`} defaultValue="0.00" readOnly />
+              <input type="text" className={`${inputClass} w-40 text-right bg-cyan-50`}  readOnly />
             </div>
             <div className="flex justify-end items-center gap-2">
               <span className="text-xs font-semibold text-slate-700">Disc.</span>
@@ -398,11 +397,11 @@ const Invoice: React.FC = () => {
             </div>
             <div className="flex justify-end items-center gap-3">
               <span className="text-xs font-semibold text-slate-700"></span>
-              <input type="text" className={`${inputClass} w-40 text-right font-semibold`} defaultValue="20,000.00" />
+              <input type="text" className={`${inputClass} w-40 text-right font-semibold`}  />
             </div>
             <div className="flex justify-end items-center gap-3">
               <span className="text-xs font-semibold text-slate-700">Uang Muka</span>
-              <input type="text" className={`${inputClass} w-40 text-right bg-cyan-50`} defaultValue="0.00" readOnly />
+              <input type="text" className={`${inputClass} w-40 text-right bg-cyan-50`}  readOnly />
             </div>
             <div className="flex justify-end items-center gap-3">
               <div className="flex items-center gap-2">
@@ -411,20 +410,20 @@ const Invoice: React.FC = () => {
               </div>
               <span className="text-xs font-semibold text-slate-700 ml-2">PPN</span>
               <div className="flex gap-1 w-40">
-                <input type="text" className={`${inputClass} w-16 text-right`} defaultValue="10.00 %" />
-                <input type="text" className={`${inputClass} flex-1 text-right bg-cyan-50 font-semibold`} defaultValue="-2,000.00" readOnly />
+                <input type="text" className={`${inputClass} w-16 text-right`}  />
+                <input type="text" className={`${inputClass} flex-1 text-right bg-cyan-50 font-semibold`}  readOnly />
               </div>
             </div>
             <div className="flex justify-end items-center gap-3">
               <span className="text-xs font-semibold text-slate-700">PPh 22</span>
               <div className="flex gap-1 w-40">
-                <input type="text" className={`${inputClass} w-16 text-right`} defaultValue="0.00 %" />
-                <input type="text" className={`${inputClass} flex-1 text-right bg-cyan-50`} defaultValue="0.00" readOnly />
+                <input type="text" className={`${inputClass} w-16 text-right`}  />
+                <input type="text" className={`${inputClass} flex-1 text-right bg-cyan-50`}  readOnly />
               </div>
             </div>
             <div className="flex justify-end items-center gap-3 mt-1 pt-2 border-t border-slate-200">
               <span className="text-sm font-bold text-slate-800">Total</span>
-              <input type="text" className={`${inputClass} w-40 text-right bg-cyan-50 font-bold text-base py-3`} defaultValue="-22,000.00" readOnly />
+              <input type="text" className={`${inputClass} w-40 text-right bg-cyan-50 font-bold text-base py-3`}  readOnly />
             </div>
           </div>
         </div>

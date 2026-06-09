@@ -48,7 +48,7 @@ const FakturPajak: React.FC = () => {
           <div className="flex items-center gap-2 text-sm text-slate-200">
             <span className="whitespace-nowrap">Pilih Periode:</span>
             <select className="bg-slate-700 border border-slate-600 text-white px-2 py-1 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>202606</option>
+              <option></option>
             </select>
             <button className="px-2 py-1 bg-slate-700 border border-slate-600 rounded text-white hover:bg-slate-600">+</button>
           </div>
@@ -87,17 +87,17 @@ const FakturPajak: React.FC = () => {
               <div className="flex items-center">
                 <label className={labelClass}>No. Faktur Pajak</label>
                 <div className="flex gap-1 w-64">
-                  <input type="text" className={`${inputClass} bg-cyan-50 font-semibold`} defaultValue="010.000-26.00000005" />
+                  <input type="text" className={`${inputClass} bg-cyan-50 font-semibold`}  />
                   <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Search size={16}/></button>
                 </div>
               </div>
               <div className="flex items-center">
                 <label className={labelClass}>Tgl Faktur Pajak</label>
                 <div className="flex gap-4 flex-1">
-                  <input type="date" className={`${inputClass} w-40`} defaultValue="2026-06-06" />
+                  <input type="date" className={`${inputClass} w-40`}  />
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-slate-700">Mata Uang</span>
-                    <select className={`${inputClass} w-24`} defaultValue="IDR"><option>IDR</option></select>
+                    <select className={`${inputClass} w-24`} ><option>IDR</option></select>
                     <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Plus size={16}/></button>
                   </div>
                 </div>
@@ -105,19 +105,19 @@ const FakturPajak: React.FC = () => {
               <div className="flex items-center">
                 <label className={labelClass}>Nama Pembeli</label>
                 <div className="flex gap-1 flex-1">
-                  <select className={inputClass} defaultValue="PT SARI WANGI">
-                    <option>PT SARI WANGI</option>
+                  <select className={inputClass} >
+                    <option></option>
                   </select>
                   <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200"><Plus size={16}/></button>
                 </div>
               </div>
               <div className="flex items-center">
                 <label className={labelClass}>Alamat Pembeli</label>
-                <input type="text" className={`${inputClass} bg-cyan-50`} defaultValue="Jl. Sukabumi No. 123, Menteng" />
+                <input type="text" className={`${inputClass} bg-cyan-50`}  />
               </div>
               <div className="flex items-center">
                 <label className={labelClass}>NPWP</label>
-                <input type="text" className={`${inputClass} bg-cyan-50`} defaultValue="01.234.478.3-032.000" />
+                <input type="text" className={`${inputClass} bg-cyan-50`}  />
               </div>
               <div className="flex items-center">
                 <label className={labelClass}>FP Yang Diganti</label>
@@ -145,23 +145,23 @@ const FakturPajak: React.FC = () => {
               <div className="flex-1 flex flex-col gap-2">
                 <div className="flex items-center">
                   <label className={labelClassSmall}>Jenis Status</label>
-                  <input type="text" className={`${inputClass} bg-cyan-50`} defaultValue="Normal" readOnly />
+                  <input type="text" className={`${inputClass} bg-cyan-50`}  readOnly />
                 </div>
                 <div className="flex items-center">
                   <label className={labelClassSmall}>No. Invoice</label>
-                  <input type="text" className={inputClass} defaultValue="FT/002/12/2026" />
+                  <input type="text" className={inputClass}  />
                 </div>
                 <div className="flex items-center">
                   <label className={labelClassSmall}>Tarif PPN</label>
                   <div className="flex gap-2 items-center w-24">
-                    <input type="text" className={`${inputClass} text-right`} defaultValue="10" />
+                    <input type="text" className={`${inputClass} text-right`}  />
                     <span className="text-xs font-bold">%</span>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <label className={labelClassSmall}>Kurs Pajak</label>
                   <div className="flex gap-2 items-center">
-                    <input type="text" className={`${inputClass} w-32 text-right`} defaultValue="1.00" />
+                    <input type="text" className={`${inputClass} w-32 text-right`}  />
                     <span className="text-xs font-semibold">/</span>
                     <button className="px-3 py-1.5 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold hover:bg-slate-200">1 RP</button>
                   </div>
@@ -300,21 +300,21 @@ const FakturPajak: React.FC = () => {
               <select className="border border-slate-300 px-1 py-0.5 text-xs"><option>Harga Jual</option></select>
               <div className="flex gap-2 w-48 items-center">
                 <span className="text-xs font-semibold w-6">IDR</span>
-                <input type="text" className="flex-1 text-right bg-cyan-100 border border-slate-300 px-2 py-0.5" defaultValue="0.00" readOnly />
+                <input type="text" className="flex-1 text-right bg-cyan-100 border border-slate-300 px-2 py-0.5"  readOnly />
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs">Dikurangi Potongan Harga</span>
               <div className="flex gap-2 w-48 items-center">
                 <span className="text-xs font-semibold w-6">IDR</span>
-                <input type="text" className="flex-1 text-right border border-slate-300 px-2 py-0.5" defaultValue="20,000.00" />
+                <input type="text" className="flex-1 text-right border border-slate-300 px-2 py-0.5"  />
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs">Dikurangi Uang Muka Yang Telah Diterima</span>
               <div className="flex gap-2 w-48 items-center">
                 <span className="text-xs font-semibold w-6">IDR</span>
-                <input type="text" className="flex-1 text-right border border-slate-300 px-2 py-0.5" defaultValue="0.00" />
+                <input type="text" className="flex-1 text-right border border-slate-300 px-2 py-0.5"  />
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -325,21 +325,21 @@ const FakturPajak: React.FC = () => {
               </div>
               <div className="flex gap-2 w-48 items-center">
                 <span className="text-xs font-semibold w-6">IDR</span>
-                <input type="text" className="flex-1 text-right border border-slate-300 px-2 py-0.5" defaultValue="-20,000.00" />
+                <input type="text" className="flex-1 text-right border border-slate-300 px-2 py-0.5"  />
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs">Dasar Pengenaan Pajak</span>
               <div className="flex gap-2 w-48 items-center">
                 <span className="text-xs font-semibold w-6">IDR</span>
-                <input type="text" className="flex-1 text-right border border-slate-300 px-2 py-0.5" defaultValue="-20,000.00" />
+                <input type="text" className="flex-1 text-right border border-slate-300 px-2 py-0.5"  />
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold">PPN = 10% x Dasar Pengenaan Pajak</span>
               <div className="flex gap-2 w-48 items-center">
                 <span className="text-xs font-semibold w-6">IDR</span>
-                <input type="text" className="flex-1 text-right bg-white border border-slate-300 px-2 py-0.5 font-semibold" defaultValue="-2,000.00" />
+                <input type="text" className="flex-1 text-right bg-white border border-slate-300 px-2 py-0.5 font-semibold"  />
               </div>
             </div>
           </div>
