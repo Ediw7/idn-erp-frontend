@@ -35,15 +35,15 @@ const Kwitansi: React.FC = () => {
   const btnSecondary = "px-4 py-2 bg-white text-slate-700 border border-slate-300 text-sm font-bold rounded-sm hover:bg-slate-50 shadow-sm flex items-center gap-2 transition-colors";
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
-      {/* Top Bar Navigation */}
-      <div className="bg-slate-800 px-4 py-2 flex justify-between items-center shrink-0 overflow-x-auto">
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="text-white font-bold text-lg flex items-center gap-2">
-            <HandCoins size={20} className="text-blue-400" />
-            <span className="tracking-wide">KWITANSI</span>
+    <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
+      {/* Header */}
+      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0 overflow-x-auto">
+        <div className="flex items-center gap-6 shrink-0">
+          <div>
+            <h2 className="text-lg font-semibold text-white">Kwitansi</h2>
+            <p className="text-xs text-slate-300 mt-1">Kelola pembuatan dan pencetakan data kwitansi.</p>
           </div>
-          <div className="h-5 w-px bg-slate-600"></div>
+          <div className="h-8 w-px bg-slate-600"></div>
           <div className="flex items-center gap-2 text-sm text-slate-200">
             <span className="whitespace-nowrap">Pilih Periode:</span>
             <select className="bg-slate-700 border border-slate-600 text-white px-2 py-1 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">

@@ -144,6 +144,7 @@ export interface PembayaranData {
 export interface PelangganData {
   id?: number;
   kode: string;
+  is_ekspor?: boolean;
   nama: string;
   alamat?: string;
   telepon?: string;
@@ -156,6 +157,7 @@ export interface PelangganData {
   nik?: string;
   alamat_wp?: string;
   jenis_transaksi?: string;
+  ket_tambahan?: string;
   email?: string;
   contact_person?: string;
   no_hp?: string;

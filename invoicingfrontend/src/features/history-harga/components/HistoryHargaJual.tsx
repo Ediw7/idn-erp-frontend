@@ -11,16 +11,16 @@ const HistoryHargaJual: React.FC = () => {
   const btnSecondary = "px-4 py-1.5 bg-white text-slate-700 text-xs font-bold rounded-sm hover:bg-slate-50 border border-slate-300 transition-colors shadow-sm";
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
-      {/* Top Bar */}
-      <div className="bg-slate-800 px-4 py-2 flex justify-between items-center shrink-0">
-        <div className="flex items-center gap-2 text-white font-bold text-lg">
-          <History size={20} className="text-blue-400" />
-          <span className="tracking-wide">CEK HISTORY HARGA JUAL</span>
+    <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
+      {/* Header */}
+      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
+        <div>
+          <h2 className="text-lg font-semibold text-white">History Harga Jual</h2>
+          <p className="text-xs text-slate-300 mt-1">Pencarian dan pemantauan riwayat harga jual pelanggan.</p>
         </div>
         <button 
           onClick={() => navigate(-1)}
-          className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white"
+          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white"
         >
           <X size={14} /> Close
         </button>

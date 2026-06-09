@@ -33,6 +33,7 @@ const SetupPelanggan: React.FC = () => {
 
   const [editForm, setEditForm] = useState<PelangganData>({
     kode: '',
+    is_ekspor: false,
     nama: '',
     alamat: '',
     telepon: '',
@@ -45,6 +46,7 @@ const SetupPelanggan: React.FC = () => {
     nik: '',
     alamat_wp: '',
     jenis_transaksi: '01',
+    ket_tambahan: '',
     email: '',
     contact_person: '',
     no_hp: '',
@@ -272,7 +274,7 @@ const SetupPelanggan: React.FC = () => {
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
                 {list.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((item, index) => (
-                  <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={item.id} onClick={() => handleEdit(item)} className="hover:bg-slate-100 transition-colors cursor-pointer">
                     <td className="px-4 py-2.5 text-center text-slate-500">{(currentPage - 1) * rowsPerPage + index + 1}</td>
                     <td className="px-4 py-2.5 font-medium">{item.kode}</td>
                     <td className="px-4 py-2.5 font-bold">{item.nama}</td>
@@ -281,10 +283,10 @@ const SetupPelanggan: React.FC = () => {
                     <td className="px-4 py-2.5">{item.contact_person || '-'}</td>
                     <td className="px-4 py-2.5">{item.pembayaran_nama || '-'}</td>
                     <td className="px-4 py-2.5 flex justify-center gap-2">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
+                      <button onClick={(e) => { e.stopPropagation(); handleEdit(item); }} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
                         <Edit2 size={14} />
                       </button>
-                      <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
+                      <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id!); }} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
                         <Trash2 size={14} />
                       </button>
                     </td>
@@ -371,9 +373,15 @@ const SetupPelanggan: React.FC = () => {
               <div className="flex gap-8">
                 {/* Kolom Kiri */}
                 <div className="flex-1 flex flex-col gap-3">
-                  <div className="flex items-center">
-                    <label className="w-40 text-xs font-semibold text-slate-700 shrink-0">Kode Pelanggan</label>
-                    <input type="text" value={editForm.kode} onChange={e => setEditForm({...editForm, kode: e.target.value.toUpperCase()})} className={`${inputClass} w-32`} autoFocus/>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center flex-1">
+                      <label className="w-40 text-xs font-semibold text-slate-700 shrink-0">Kode Pelanggan</label>
+                      <input type="text" value={editForm.kode} onChange={e => setEditForm({...editForm, kode: e.target.value.toUpperCase()})} className={`${inputClass} w-32`} autoFocus/>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                      <input type="checkbox" checked={editForm.is_ekspor || false} onChange={e => setEditForm({...editForm, is_ekspor: e.target.checked})} className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" />
+                      Ekspor
+                    </label>
                   </div>
                   <div className="flex items-center">
                     <label className="w-40 text-xs font-semibold text-slate-700 shrink-0">Nama Pelanggan</label>
@@ -438,6 +446,10 @@ const SetupPelanggan: React.FC = () => {
                     <select value={editForm.jenis_transaksi || '01'} onChange={e => setEditForm({...editForm, jenis_transaksi: e.target.value})} className={inputClass}>
                       {JENIS_TRANSAKSI.map(j => <option key={j.value} value={j.value}>{j.label}</option>)}
                     </select>
+                  </div>
+                  <div className="flex items-center">
+                    <label className="w-40 text-xs font-semibold text-slate-700 shrink-0">Ket Tambahan</label>
+                    <input type="text" value={editForm.ket_tambahan || ''} onChange={e => setEditForm({...editForm, ket_tambahan: e.target.value})} className={inputClass} />
                   </div>
                   <div className="flex gap-2">
                     <div className="flex-1 flex items-center">

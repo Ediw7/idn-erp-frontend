@@ -12,36 +12,32 @@ const SuratJalan: React.FC = () => {
   const btnSecondary = "px-4 py-2 bg-white text-slate-700 border border-slate-300 text-xs font-semibold rounded-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2";
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
-      {/* Header Info */}
-      <div className="px-6 py-4 bg-white border-b border-slate-200 shrink-0">
-        <h1 className="text-xl font-bold text-slate-800">Surat Jalan</h1>
-        <p className="text-sm text-slate-500 mt-1">Buat dan kelola data Surat Jalan (Delivery Order).</p>
+    <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
+      {/* Header */}
+      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
+        <div>
+          <h2 className="text-lg font-semibold text-white">Surat Jalan</h2>
+          <p className="text-xs text-slate-300 mt-1">Buat dan kelola data Surat Jalan (Delivery Order).</p>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <button 
+            onClick={() => navigate('/laporan', { state: { initialReport: 'Surat Jalan (A4 / Kwarto / 1/2 Kwarto) - Font 10' } })}
+            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white">
+            <FileText size={14} /> Report
+          </button>
+          <div className="w-px h-6 bg-slate-600 mx-1 self-center"></div>
+          <button 
+            onClick={() => setIsCreateInvoiceModalOpen(true)}
+            className="px-3 py-1.5 bg-green-600 hover:bg-green-500 border border-green-500 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white">
+            Create Invoice
+          </button>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 bg-slate-50">
         <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden mb-6">
           
-          {/* Card Header & Toolbar */}
-          <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center text-white">
-            <div>
-              <h2 className="text-lg font-bold">Form Surat Jalan</h2>
-              <p className="text-xs text-slate-300">Isi kelengkapan data dokumen pengiriman barang</p>
-            </div>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => navigate('/laporan', { state: { initialReport: 'Surat Jalan (A4 / Kwarto / 1/2 Kwarto) - Font 10' } })}
-                className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors">
-                <FileText size={14} /> Report
-              </button>
-              <div className="w-px h-6 bg-slate-600 mx-1 self-center"></div>
-              <button 
-                onClick={() => setIsCreateInvoiceModalOpen(true)}
-                className="px-3 py-1.5 bg-green-600 hover:bg-green-500 border border-green-500 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors">
-                Create Invoice
-              </button>
-            </div>
-          </div>
+
 
           <div className="p-6 bg-white">
             {/* Top Toolbar Info */}

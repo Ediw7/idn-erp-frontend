@@ -9,27 +9,28 @@ const KartuPiutang: React.FC = () => {
   const labelClass = "text-xs font-semibold text-slate-700 w-36";
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
+    <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
       {/* Top Bar Navigation */}
-      <div className="bg-slate-800 px-4 py-2 flex justify-between items-center shrink-0">
-        <div className="flex items-center gap-2 text-white font-bold text-lg">
-          <FileStack size={20} className="text-blue-400" />
-          <span className="tracking-wide uppercase">Browse Kartu Piutang</span>
+      {/* Header */}
+      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
+        <div>
+          <h2 className="text-lg font-semibold text-white">Kartu Piutang</h2>
+          <p className="text-xs text-slate-300 mt-1">Laporan detail dan pencarian riwayat kartu piutang pelanggan.</p>
         </div>
-        <div className="flex gap-1.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button 
             onClick={() => navigate(-1)}
-            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white"
+            className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors"
           >
             <X size={14} /> Close
           </button>
           <button 
             onClick={() => navigate('/laporan', { state: { initialReport: 'Kartu Piutang (A4)' } })}
-            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white"
+            className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors"
           >
             <FileText size={14} /> Report
           </button>
-          <button className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white">
+          <button className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors">
             <Search size={14} /> Search
           </button>
         </div>
