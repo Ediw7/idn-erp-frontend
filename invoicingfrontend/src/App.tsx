@@ -25,6 +25,7 @@ import SetupBahasa from './features/setup/components/SetupBahasa';
 import Register from './features/auth/components/Register';
 import AdminLayout from './features/admin/components/AdminLayout';
 import AdminDashboard from './features/admin/components/AdminDashboard';
+import MainDashboard from './features/dashboard/components/MainDashboard';
 import AdminUserManagement from './features/admin/components/UserManagement';
 import SaldoAwalPiutang from './features/saldo-awal/components/SaldoAwalPiutang';
 import SalesOrder from './features/sales-order/components/SalesOrder';
@@ -72,7 +73,7 @@ function App() {
             </ProtectedRoute>
           }>
             {/* Default redirect for dashboard */}
-            <Route index element={<div className="p-8"><h1 className="text-2xl font-bold">Selamat Datang di IDN ERP</h1><p className="mt-2 text-gray-600">Pilih menu di sebelah kiri untuk memulai.</p></div>} />
+            <Route index element={<MainDashboard />} />
             
             {/* Setup Routes */}
             <Route path="setup">
