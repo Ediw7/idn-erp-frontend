@@ -51,14 +51,6 @@ const AdminLayout: React.FC = () => {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-slate-700 bg-slate-950">
-          <button 
-            onClick={() => navigate('/')}
-            className="w-full py-2 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm rounded transition-colors"
-          >
-            Kembali ke Aplikasi ERP
-          </button>
-        </div>
       </aside>
 
       {/* Main Content Area */}

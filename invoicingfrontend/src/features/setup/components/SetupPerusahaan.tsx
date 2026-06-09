@@ -123,12 +123,21 @@ const SetupPerusahaan: React.FC = () => {
 
       <div className="p-6">
         {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div>
-              <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-              </h3>
-              <p className="text-sm mt-1">{message.text}</p>
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-slate-900/20 backdrop-blur-sm transition-opacity">
+            <div className={`p-6 rounded-md shadow-xl border-t-4 max-w-sm w-full mx-4 transform transition-all scale-100 bg-white ${message.type === 'success' ? 'border-emerald-500' : 'border-red-500'}`}>
+              <div className="flex flex-col items-center text-center">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${message.type === 'success' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                  {message.type === 'success' ? (
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  ) : (
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
+                  )}
+                </div>
+                <h3 className="text-lg font-bold text-slate-800">
+                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
+                </h3>
+                <p className="text-sm mt-2 text-slate-500 font-medium">{message.text}</p>
+              </div>
             </div>
           </div>
         )}
@@ -202,15 +211,15 @@ const SetupPerusahaan: React.FC = () => {
                 <div className="pt-4 mt-2 border-t border-slate-100 space-y-4">
                   <div className="w-1/2">
                     <label className={labelClass}>Maks. Jlh Pelanggan</label>
-                    <input type="number" readOnly value={formData.maks_pelanggan} className={`${inputClass} bg-slate-100 text-slate-500 cursor-not-allowed font-bold`} />
+                    <input type="number" name="maks_pelanggan" value={formData.maks_pelanggan} onChange={handleChange} className={inputClass} />
                   </div>
                   <div className="w-1/2">
                     <label className={labelClass}>Periode Serial</label>
-                    <input type="text" readOnly value={formData.periode_serial} className={`${inputClass} bg-slate-100 text-slate-500 cursor-not-allowed font-bold`} />
+                    <input type="text" name="periode_serial" value={formData.periode_serial} onChange={handleChange} className={inputClass} />
                   </div>
                   <div>
                     <label className={labelClass}>No. Serial</label>
-                    <input type="text" readOnly value={formData.no_serial} className={`${inputClass} bg-slate-100 font-mono text-slate-500 cursor-not-allowed`} title="System Generated License" />
+                    <input type="text" name="no_serial" value={formData.no_serial} onChange={handleChange} className={`${inputClass} font-mono`} />
                   </div>
                 </div>
               </div>

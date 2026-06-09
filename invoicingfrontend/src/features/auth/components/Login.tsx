@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { LogIn } from 'lucide-react';
 
 const Login: React.FC = () => {
-  const [db] = useState('odoo_invoicing_clea');
+  const [db] = useState('odoo_invoicing_idnerp');
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
