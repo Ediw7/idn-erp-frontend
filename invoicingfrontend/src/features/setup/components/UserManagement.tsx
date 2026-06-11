@@ -1,37 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { authApi, UserData } from '../../auth/api';
+import React from 'react';
+import { authApi } from '../../auth/api';
 import { Users, Shield, UserX, UserCheck } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const UserManagement: React.FC = () => {
-  const [users, setUsers] = useState<UserData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const confirm = useConfirm();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const { data: users = [], isLoading: loading, error: queryError } = useQuery({
+    queryKey: ['users'],
+    queryFn: authApi.getUsers,
+  });
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const data = await authApi.getUsers();
-      setUsers(data);
-    } catch (err: any) {
-      setError(err.message || 'Gagal memuat data pengguna');
-    } finally {
-      setLoading(false);
+  const toggleMutation = useMutation({
+    mutationFn: (userId: number) => authApi.toggleUser(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (err: any) => {
+      alert(err.message || 'Gagal mengubah status pengguna');
     }
-  };
+  });
 
-  const handleToggle = async (userId: number, currentStatus: boolean) => {
-    if (confirm(`Apakah Anda yakin ingin ${currentStatus ? 'menonaktifkan' : 'mengaktifkan'} pengguna ini?`)) {
-      try {
-        const response = await authApi.toggleUser(userId);
-        if (response.error) throw new Error(response.error);
-        await fetchUsers(); // Refresh data
-      } catch (err: any) {
-        alert(err.message || 'Gagal mengubah status pengguna');
-      }
+  const handleToggle = (userId: number, currentStatus: boolean) => {
+    const isConfirmed = await confirm(`Apakah Anda yakin ingin ${currentStatus ? 'menonaktifkan' : 'mengaktifkan'} pengguna ini?`);
+    if (isConfirmed) {
+      toggleMutation.mutate(userId);
     }
   };
 
@@ -39,12 +34,12 @@ const UserManagement: React.FC = () => {
     return <div className="p-8 text-center text-slate-500">Memuat data pengguna...</div>;
   }
 
-  if (error) {
+  if (queryError) {
     return (
       <div className="p-8">
         <div className="bg-red-50 text-red-700 p-4 rounded-sm border border-red-200">
           <h3 className="font-bold mb-2">Akses Ditolak</h3>
-          <p>{error}</p>
+          <p>{queryError instanceof Error ? queryError.message : 'Akses Ditolak'}</p>
         </div>
       </div>
     );

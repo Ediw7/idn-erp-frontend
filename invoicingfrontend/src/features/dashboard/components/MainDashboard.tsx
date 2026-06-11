@@ -11,7 +11,7 @@ const MainDashboard: React.FC = () => {
       {/* Welcome Banner */}
       <div className="bg-slate-800 px-8 py-10 shrink-0 relative overflow-hidden shadow-sm">
         <div className="relative z-10 max-w-5xl">
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-wide mb-2">Selamat Datang di IDN ERP</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-wide mb-2">Selamat Datang di EDI Accounting</h1>
           <p className="text-slate-300 text-sm font-medium">Dashboard Utama Invoicing & Penjualan • {today}</p>
         </div>
       </div>

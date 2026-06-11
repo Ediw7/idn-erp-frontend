@@ -28,7 +28,7 @@ const AdminLayout: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-wide text-white">ADMIN</h1>
-            <p className="text-xs text-red-400">IDN ERP System</p>
+            <p className="text-xs text-red-400">EDI Accounting System</p>
           </div>
         </div>
         

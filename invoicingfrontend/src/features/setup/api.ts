@@ -266,25 +266,19 @@ export interface BahasaData {
 
 export const setupApi = {
   getPerusahaan: async (): Promise<CompanyData> => {
-    const response = await axiosClient.post('/api/setup/perusahaan/get', {
-      jsonrpc: '2.0',
-      params: {}
-    });
-    if (response.data.result && response.data.result.status === 'success') {
-      return response.data.result.data;
+    const response = await axiosClient.get('/api/setup/perusahaan/get');
+    if (response.data.status === 'success') {
+      return response.data.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch perusahaan');
+    throw new Error(response.data.message || 'Failed to fetch perusahaan');
   },
 
   updatePerusahaan: async (data: CompanyData): Promise<{ message: string; id: number }> => {
-    const response = await axiosClient.post('/api/setup/perusahaan/save', {
-      jsonrpc: '2.0',
-      params: data
-    });
-    if (response.data.result && response.data.result.status === 'success') {
-      return response.data.result;
+    const response = await axiosClient.post('/api/setup/perusahaan/save', data);
+    if (response.data.status === 'success') {
+      return response.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to update perusahaan');
+    throw new Error(response.data.message || 'Failed to update perusahaan');
   },
 
   getPreferensi: async (): Promise<PreferensiData> => {

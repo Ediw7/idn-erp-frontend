@@ -33,7 +33,7 @@ const AdminDashboard: React.FC = () => {
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-800">Admin Dashboard</h1>
-        <p className="text-slate-500">Ringkasan sistem IDN ERP</p>
+        <p className="text-slate-500">Ringkasan sistem EDI Accounting</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, ProyekData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const SetupProyek: React.FC = () => {
+  const confirm = useConfirm();
   const [list, setList] = useState<ProyekData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -64,7 +66,8 @@ const SetupProyek: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus proyek ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus proyek ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteProyek(id);

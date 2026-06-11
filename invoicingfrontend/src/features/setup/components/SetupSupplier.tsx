@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, SupplierData, PembayaranData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const JENIS_TRANSAKSI = [
   { value: '01', label: 'Kepada Bukan Pemungut PPN (01)' },
@@ -15,6 +16,7 @@ const JENIS_TRANSAKSI = [
 ];
 
 const SetupSupplier: React.FC = () => {
+  const confirm = useConfirm();
   const [list, setList] = useState<SupplierData[]>([]);
   const [pembayarans, setPembayarans] = useState<PembayaranData[]>([]);
   
@@ -117,7 +119,8 @@ const SetupSupplier: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus supplier ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus supplier ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteSupplier(id);

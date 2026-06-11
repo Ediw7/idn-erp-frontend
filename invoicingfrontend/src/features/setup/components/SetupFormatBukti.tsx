@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, X, Settings2 } from 'lucide-react';
 import { setupApi, FormatBuktiData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const TRANSACTIONS = [
   { id: 'inv_vat', label: 'Invoice VAT' },
@@ -36,6 +37,7 @@ const emptyForm: FormatBuktiData = {
 };
 
 const SetupFormatBukti: React.FC = () => {
+  const confirm = useConfirm();
   const [list, setList] = useState<FormatBuktiData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -101,7 +103,8 @@ const SetupFormatBukti: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus format ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus format ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteFormatBukti(id);

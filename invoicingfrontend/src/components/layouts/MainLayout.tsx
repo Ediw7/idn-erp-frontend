@@ -17,7 +17,7 @@ const MainLayout: React.FC = () => {
     navigate('/login');
   };
 
-  // Menu List mirroring IDN ERP System
+  // Menu List mirroring EDI Accounting System
   const menuItemsTop = [
     { label: 'Saldo Awal Piutang', path: '/saldo-awal-piutang' },
     { label: 'Sales Order', path: '/sales-order' },
@@ -111,8 +111,8 @@ const MainLayout: React.FC = () => {
       <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-md z-10 border-r border-slate-700">
         <div className="p-4 border-b border-slate-700 bg-slate-950 flex items-center gap-3">
           <div>
-            <h1 className="text-xl font-bold tracking-wide text-white">IDN ERP</h1>
-            <p className="text-xs text-blue-300">Invoicing Modern ERP</p>
+            <h1 className="text-xl font-bold tracking-wide text-white">EDI Accounting</h1>
+            <p className="text-xs text-blue-300">Invoicing Modern Accounting</p>
           </div>
         </div>
         
@@ -294,7 +294,7 @@ const MainLayout: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className="text-right">
               <p className="text-sm font-semibold text-slate-700">{user?.name || 'Administrator'}</p>
-              <p className="text-[11px] text-slate-500">{user?.email || 'PT. IDN ERP System'}</p>
+              <p className="text-[11px] text-slate-500">{user?.email || 'PT. EDI Accounting System'}</p>
             </div>
             <div className="h-6 w-px bg-slate-300 mx-1"></div>
             <button 

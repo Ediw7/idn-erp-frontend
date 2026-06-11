@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Eraser } from 'lucide-react';
 import SignatureCanvas from 'react-signature-canvas';
 import { setupApi, TandaTanganData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const FORM_TYPES = [
   'Faktur Pajak',
@@ -15,6 +16,7 @@ const FORM_TYPES = [
 ];
 
 const SetupTandaTangan: React.FC = () => {
+  const confirm = useConfirm();
   const [list, setList] = useState<TandaTanganData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -110,7 +112,8 @@ const SetupTandaTangan: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus data ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteTandaTangan(id);

@@ -12,11 +12,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem('idn_user') !== null;
+    return localStorage.getItem('edi_user') !== null;
   });
   
   const [user, setUser] = useState<UserProfile | null>(() => {
-    const storedUser = localStorage.getItem('idn_user');
+    const storedUser = localStorage.getItem('edi_user');
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
@@ -25,13 +25,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = (userData: UserProfile) => {
     setIsAuthenticated(true);
     setUser(userData);
-    localStorage.setItem('idn_user', JSON.stringify(userData));
+    localStorage.setItem('edi_user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('idn_user');
+    localStorage.removeItem('edi_user');
   };
 
   return (

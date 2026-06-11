@@ -7,7 +7,7 @@ const HistoryHargaJual: React.FC = () => {
 
   const inputClass = "px-3 py-1.5 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-sm text-sm";
   const labelClass = "text-xs font-semibold text-slate-700 w-28";
-  const btnPrimary = "px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-sm hover:bg-blue-500 shadow-sm transition-colors";
+  const btnPrimary = "flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors";
   const btnSecondary = "px-4 py-1.5 bg-white text-slate-700 text-xs font-bold rounded-sm hover:bg-slate-50 border border-slate-300 transition-colors shadow-sm";
 
   return (

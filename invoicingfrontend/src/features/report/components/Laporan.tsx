@@ -248,7 +248,7 @@ const Laporan: React.FC = () => {
                 
                 <div className="flex justify-between mb-10 text-sm">
                   <div>
-                    <p className="font-bold text-base mb-1">PT. IDN ERP INDONESIA</p>
+                    <p className="font-bold text-base mb-1">PT. EDI Accounting INDONESIA</p>
                     <p>Jl. Jendral Sudirman Kav. 21</p>
                     <p>Jakarta Selatan, 12920</p>
                   </div>

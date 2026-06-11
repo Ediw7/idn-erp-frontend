@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ConfirmProvider } from './contexts/ConfirmContext';
 import MainLayout from './components/layouts/MainLayout';
 import { AuthProvider, useAuth } from './features/auth/contexts/AuthContext';
 import Login from './features/auth/components/Login';
@@ -57,11 +59,23 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Elem
   return children;
 };
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // Prevent excessive refetching
+      retry: 1, // Only retry failed requests once
+      staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
+    },
+  },
+});
+
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
+    <QueryClientProvider client={queryClient}>
+      <ConfirmProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
           {/* Public Route */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -131,6 +145,8 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ConfirmProvider>
+    </QueryClientProvider>
   );
 }
 

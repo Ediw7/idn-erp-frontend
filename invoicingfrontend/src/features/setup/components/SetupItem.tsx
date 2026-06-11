@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Search } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, ItemData, GroupBarangData, PerkiraanData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const SetupItem: React.FC = () => {
+  const confirm = useConfirm();
   const [list, setList] = useState<ItemData[]>([]);
   const [groupBarangs, setGroupBarangs] = useState<GroupBarangData[]>([]);
   const [perkiraans, setPerkiraans] = useState<PerkiraanData[]>([]);
@@ -115,7 +117,8 @@ const SetupItem: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus item ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus item ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteItem(id);

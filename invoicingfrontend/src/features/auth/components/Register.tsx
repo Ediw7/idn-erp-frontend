@@ -31,7 +31,7 @@ const Register: React.FC = () => {
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="bg-white max-w-md w-full shadow-2xl rounded-sm overflow-hidden border border-slate-300">
         <div className="bg-slate-800 px-8 py-6 text-center border-b-4 border-slate-600">
-          <h1 className="text-2xl font-bold text-white tracking-wider">IDN ERP</h1>
+          <h1 className="text-2xl font-bold text-white tracking-wider">EDI Accounting</h1>
           <p className="text-slate-400 text-sm mt-2">Daftar akun baru ke sistem</p>
         </div>
         

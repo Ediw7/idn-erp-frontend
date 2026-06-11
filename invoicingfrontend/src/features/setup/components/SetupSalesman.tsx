@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, SalesmanData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const SetupSalesman: React.FC = () => {
+  const confirm = useConfirm();
   const [list, setList] = useState<SalesmanData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -64,7 +66,8 @@ const SetupSalesman: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus salesman ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus salesman ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteSalesman(id);

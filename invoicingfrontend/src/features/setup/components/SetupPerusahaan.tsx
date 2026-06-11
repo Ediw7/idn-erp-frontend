@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { setupApi, CompanyData } from '../api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const SetupPerusahaan: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profil' | 'perpajakan'>('profil');
@@ -31,49 +32,61 @@ const SetupPerusahaan: React.FC = () => {
     wajib_ppnbm: false,
   });
   
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
+  const queryClient = useQueryClient();
+
+  const { data: initialData, isLoading } = useQuery({
+    queryKey: ['perusahaan'],
+    queryFn: setupApi.getPerusahaan,
+  });
+
+  const mutation = useMutation({
+    mutationFn: (data: CompanyData) => setupApi.updatePerusahaan(data),
+    onSuccess: (response) => {
+      setMessage({ text: response.message || 'Data berhasil disimpan!', type: 'success' });
+      queryClient.invalidateQueries({ queryKey: ['perusahaan'] });
+      setTimeout(() => setMessage(null), 1500);
+    },
+    onError: (error: any) => {
+      setMessage({ text: error.message || 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
+      setTimeout(() => setMessage(null), 1500);
+    }
+  });
+
   useEffect(() => {
-    const fetchCompanyData = async () => {
-      try {
-        const data = await setupApi.getPerusahaan();
-        setFormData({
-          name: data.name || '',
-          street: data.street || '',
-          city: data.city || '',
-          zip: data.zip || '',
-          phone: data.phone || '',
-          mobile: data.mobile || '',
-          email: data.email || '',
-          website: data.website || '',
-          fax: data.fax || '',
-          maks_pelanggan: data.maks_pelanggan || 100,
-          periode_serial: data.periode_serial || '',
-          no_serial: data.no_serial || '',
-          npwp: data.npwp || '',
-          nitku: data.nitku || '',
-          nama_pkp: data.nama_pkp || '',
-          kpp: data.kpp || '',
-          nppkp: data.nppkp || '',
-          tgl_pengukuhan: data.tgl_pengukuhan || '',
-          alamat_wp: data.alamat_wp || '',
-          kota_wp: data.kota_wp || '',
-          kodepos_wp: data.kodepos_wp || '',
-          tahun_buku_start: data.tahun_buku_start || '1',
-          tahun_buku_end: data.tahun_buku_end || '12',
-          kode_klu: data.kode_klu || '',
-          wajib_ppnbm: data.wajib_ppnbm || false,
-        });
-      } catch (error) {
-        setMessage({ text: 'Gagal memuat data perusahaan dari server.', type: 'error' });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchCompanyData();
-  }, []);
+    if (initialData) {
+      setFormData({
+        name: initialData.name || '',
+        street: initialData.street || '',
+        city: initialData.city || '',
+        zip: initialData.zip || '',
+        phone: initialData.phone || '',
+        mobile: initialData.mobile || '',
+        email: initialData.email || '',
+        website: initialData.website || '',
+        fax: initialData.fax || '',
+        maks_pelanggan: initialData.maks_pelanggan || 100,
+        periode_serial: initialData.periode_serial || '',
+        no_serial: initialData.no_serial || '',
+        npwp: initialData.npwp || '',
+        nitku: initialData.nitku || '',
+        nama_pkp: initialData.nama_pkp || '',
+        kpp: initialData.kpp || '',
+        nppkp: initialData.nppkp || '',
+        tgl_pengukuhan: initialData.tgl_pengukuhan || '',
+        alamat_wp: initialData.alamat_wp || '',
+        kota_wp: initialData.kota_wp || '',
+        kodepos_wp: initialData.kodepos_wp || '',
+        tahun_buku_start: initialData.tahun_buku_start || '1',
+        tahun_buku_end: initialData.tahun_buku_end || '12',
+        kode_klu: initialData.kode_klu || '',
+        wajib_ppnbm: initialData.wajib_ppnbm || false,
+      });
+    }
+  }, [initialData]);
+
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const target = e.target as HTMLInputElement;
@@ -84,24 +97,10 @@ const SetupPerusahaan: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
     setMessage(null);
-    try {
-      const response = await setupApi.updatePerusahaan(formData);
-      setMessage({ text: response.message || 'Data berhasil disimpan!', type: 'success' });
-      
-      // Auto-hide message after 1.5 seconds
-      setTimeout(() => {
-        setMessage(null);
-      }, 1500);
-    } catch (error) {
-      setMessage({ text: 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
-      setTimeout(() => setMessage(null), 1500);
-    } finally {
-      setIsSaving(false);
-    }
+    mutation.mutate(formData);
   };
 
   if (isLoading) {
@@ -117,7 +116,7 @@ const SetupPerusahaan: React.FC = () => {
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold text-white">Setup Perusahaan</h2>
-          <p className="text-xs text-slate-300 mt-1">Konfigurasi identitas utama dan legalitas perpajakan perusahaan (NPWP & NITKU).</p>
+          <p className="text-xs text-slate-300 mt-1">Konfigurasi identitas utama dan legalitas perpajakan perusahaan (NPWP).</p>
         </div>
       </div>
 
@@ -165,7 +164,7 @@ const SetupPerusahaan: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <label className={labelClass}>Nama Perusahaan <span className="text-red-600">*</span></label>
-                  <input type="text" name="name" value={formData.name} onChange={handleChange} required className={inputClass} placeholder="PT. IDN ERP System" />
+                  <input type="text" name="name" value={formData.name} onChange={handleChange} required className={inputClass} placeholder="PT. EDI Accounting System" />
                 </div>
                 <div>
                   <label className={labelClass}>Alamat Perusahaan</label>
@@ -201,11 +200,11 @@ const SetupPerusahaan: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <label className={labelClass}>Web Site</label>
-                  <input type="text" name="website" value={formData.website} onChange={handleChange} className={inputClass} placeholder="www.idnerp.com" />
+                  <input type="text" name="website" value={formData.website} onChange={handleChange} className={inputClass} placeholder="www.ediaccounting.com" />
                 </div>
                 <div>
                   <label className={labelClass}>Email</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="admin@idnerp.com" />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="admin@ediaccounting.com" />
                 </div>
                 
                 <div className="pt-4 mt-2 border-t border-slate-100 space-y-4">
@@ -249,10 +248,7 @@ const SetupPerusahaan: React.FC = () => {
                   <label className={labelClass}>Tgl Pengukuhan</label>
                   <input type="date" name="tgl_pengukuhan" value={formData.tgl_pengukuhan} onChange={handleChange} className={inputClass} />
                 </div>
-                <div>
-                  <label className={labelClass}>NITKU (22 Digit) - Opsional</label>
-                  <input type="text" name="nitku" value={formData.nitku} onChange={handleChange} maxLength={22} className={`${inputClass} font-mono`} />
-                </div>
+
               </div>
 
               <div className="space-y-4">
@@ -303,10 +299,10 @@ const SetupPerusahaan: React.FC = () => {
             </button>
             <button 
               type="submit" 
-              disabled={isSaving}
+              disabled={mutation.isPending}
               className="px-6 py-2 text-xs font-semibold text-white bg-slate-800 border border-slate-800 hover:bg-slate-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {isSaving ? 'MENYIMPAN...' : 'SIMPAN PENGATURAN'}
+              {mutation.isPending ? 'MENYIMPAN...' : 'SIMPAN PENGATURAN'}
             </button>
           </div>
         </form>

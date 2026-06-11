@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { authApi, UserData } from '../../auth/api';
 import { Users, Shield, UserX, UserCheck } from 'lucide-react';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const UserManagement: React.FC = () => {
+  const confirm = useConfirm();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -24,7 +26,8 @@ const UserManagement: React.FC = () => {
   };
 
   const handleToggle = async (userId: number, currentStatus: boolean) => {
-    if (confirm(`Apakah Anda yakin ingin ${currentStatus ? 'menonaktifkan' : 'mengaktifkan'} pengguna ini?`)) {
+    const isConfirmed = await confirm(`Apakah Anda yakin ingin ${currentStatus ? 'menonaktifkan' : 'mengaktifkan'} pengguna ini?`);
+    if (isConfirmed) {
       try {
         const response = await authApi.toggleUser(userId);
         if (response.error) throw new Error(response.error);

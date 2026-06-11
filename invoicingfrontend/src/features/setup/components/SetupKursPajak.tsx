@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Search } from 'lucide-react';
 import { setupApi, MataUangData, KursPajakData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const SetupKursPajak: React.FC = () => {
+  const confirm = useConfirm();
   const [mataUangList, setMataUangList] = useState<MataUangData[]>([]);
   const [selectedMataUangId, setSelectedMataUangId] = useState<number | ''>('');
   
@@ -101,7 +103,8 @@ const SetupKursPajak: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus kurs pajak ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus kurs pajak ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteKursPajak(id);

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, GroupBarangData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const SetupGroupBarang: React.FC = () => {
+  const confirm = useConfirm();
   const [list, setList] = useState<GroupBarangData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -62,7 +64,8 @@ const SetupGroupBarang: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus group barang ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus group barang ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteGroupBarang(id);

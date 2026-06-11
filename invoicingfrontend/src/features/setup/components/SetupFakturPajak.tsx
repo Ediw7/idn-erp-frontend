@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, FakturPajakData } from '../api';
 import { format, parseISO } from 'date-fns';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const SetupFakturPajak: React.FC = () => {
+  const confirm = useConfirm();
   const [list, setList] = useState<FakturPajakData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -73,7 +75,8 @@ const SetupFakturPajak: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus data ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteFakturPajak(id);

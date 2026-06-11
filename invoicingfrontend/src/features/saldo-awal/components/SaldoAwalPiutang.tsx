@@ -3,6 +3,7 @@ import axiosClient from '../../../lib/axiosClient';
 import { Plus, Trash2, X, UserPlus, Search, Save } from 'lucide-react';
 import { setupApi, PelangganData, ProyekData, MataUangData } from '../../setup/api';
 import SetupPelangganForm from '../../setup/components/SetupPelangganForm';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 interface SaldoAwal {
   id: number;
@@ -21,6 +22,7 @@ interface SaldoAwal {
 }
 
 const SaldoAwalPiutang: React.FC = () => {
+  const confirm = useConfirm();
   const [data, setData] = useState<SaldoAwal[]>([]);
   const [pelanggans, setPelanggans] = useState<PelangganData[]>([]);
   const [proyeks, setProyeks] = useState<ProyekData[]>([]);
@@ -32,15 +34,16 @@ const SaldoAwalPiutang: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
-  const [editForm, setEditForm] = useState<Partial<SaldoAwal>>({
+  const [editForm, setEditForm] = useState<Omit<Partial<SaldoAwal>, 'saldo_invoice'> & { saldo_invoice?: number | '' }>({
     no_invoice: '',
     tanggal: '',
     pelanggan_id: undefined,
     proyek_id: undefined,
     tgl_jt: '',
     mata_uang_id: undefined,
-    saldo_invoice: 0,
+    saldo_invoice: '',
     is_paid: false
   });
   
@@ -94,13 +97,35 @@ const SaldoAwalPiutang: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus data ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus data ini?');
+    if (!isConfirmed) return;
     try {
       await axiosClient.post('/api/saldo-awal-piutang/delete', { id });
       fetchData();
     } catch (error) {
       console.error('Failed to delete', error);
       alert('Gagal menghapus data');
+    }
+  };
+
+  const handleTogglePaid = async (row: SaldoAwal) => {
+    const action = row.is_paid ? 'membatalkan status lunas' : 'menandai sebagai lunas';
+    const isConfirmed = await confirm(`Apakah Anda yakin ingin ${action} untuk invoice ${row.no_invoice}?`);
+    if (!isConfirmed) return;
+    
+    try {
+      const res = await axiosClient.post('/api/saldo-awal-piutang/update', {
+        id: row.id,
+        is_paid: !row.is_paid
+      });
+      if (res.data.status === 'success') {
+        fetchData();
+      } else {
+        alert(res.data.message);
+      }
+    } catch (error) {
+      console.error('Failed to update status', error);
+      alert('Gagal mengupdate status lunas');
     }
   };
 
@@ -115,7 +140,12 @@ const SaldoAwalPiutang: React.FC = () => {
     }, 1500);
   };
 
-  const totalSaldo = data.reduce((sum, item) => sum + item.saldo_invoice, 0);
+  const filteredData = data.filter(item => 
+    item.pelanggan_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.no_invoice.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalSaldo = filteredData.filter(item => item.is_paid).reduce((sum, item) => sum + item.saldo_invoice, 0);
 
   return (
     <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
@@ -128,21 +158,18 @@ const SaldoAwalPiutang: React.FC = () => {
         <div className="flex items-center gap-2">
           <button 
             onClick={() => {
-              setEditForm({ no_invoice: '', tanggal: '', saldo_invoice: 0, is_paid: false });
+              setEditForm({ no_invoice: '', tanggal: '', saldo_invoice: '', is_paid: false });
               setIsFormOpen(true);
             }}
-            className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
           >
-            <Plus size={14} /> NEW
-          </button>
-          <button className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors">
-            <Trash2 size={14} /> DELETE
+            <Plus size={14} /> TAMBAH SALDO INVOICE
           </button>
           <button 
             onClick={() => setIsCustomerModalOpen(true)}
-            className="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 border border-blue-600 rounded-sm text-xs font-semibold text-white transition-colors ml-2"
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors ml-2"
           >
-            <UserPlus size={14} /> NEW CUSTOMER
+            <UserPlus size={14} /> TAMBAH PELANGGAN
           </button>
         </div>
       </div>
@@ -153,8 +180,10 @@ const SaldoAwalPiutang: React.FC = () => {
           <div className="relative">
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-3 pr-8 py-1.5 border border-slate-300 rounded-sm text-sm w-72 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white" 
-              placeholder="Cari nama pelanggan..."
+              placeholder="Cari nama pelanggan atau invoice..."
             />
             <Search size={14} className="absolute right-2.5 top-2.5 text-slate-400" />
           </div>
@@ -166,7 +195,6 @@ const SaldoAwalPiutang: React.FC = () => {
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-slate-700 bg-slate-100 border-b border-slate-300">
               <tr>
-                <th className="px-3 py-2 border-r border-slate-300 w-10 text-center"></th>
                 <th className="px-3 py-2 border-r border-slate-300 font-semibold">No. Invoice</th>
                 <th className="px-3 py-2 border-r border-slate-300 font-semibold">Tanggal</th>
                 <th className="px-3 py-2 border-r border-slate-300 font-semibold">Nama Pelanggan</th>
@@ -175,22 +203,18 @@ const SaldoAwalPiutang: React.FC = () => {
                 <th className="px-3 py-2 border-r border-slate-300 font-semibold">Tgl JT</th>
                 <th className="px-3 py-2 border-r border-slate-300 font-semibold">Ccy</th>
                 <th className="px-3 py-2 border-r border-slate-300 font-semibold text-right">Saldo Invoice</th>
-                <th className="px-3 py-2 text-center font-semibold">Paid</th>
+                <th className="px-3 py-2 border-r border-slate-300 text-center font-semibold">Paid</th>
+                <th className="px-3 py-2 w-10 text-center font-semibold">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr><td colSpan={10} className="p-4 text-center text-slate-500">Memuat data...</td></tr>
-              ) : data.length === 0 ? (
+              ) : filteredData.length === 0 ? (
                 <tr><td colSpan={10} className="p-4 text-center text-slate-500">Tidak ada data saldo awal piutang</td></tr>
               ) : (
-                data.map((row) => (
+                filteredData.map((row) => (
                   <tr key={row.id} className="border-b border-slate-200 hover:bg-blue-50 transition-colors">
-                    <td className="px-3 py-1.5 border-r border-slate-200 text-center">
-                      <button onClick={() => handleDelete(row.id)} className="text-red-500 hover:text-red-700">
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
                     <td className="px-3 py-1.5 border-r border-slate-200 font-medium">{row.no_invoice}</td>
                     <td className="px-3 py-1.5 border-r border-slate-200">{row.tanggal}</td>
                     <td className="px-3 py-1.5 border-r border-slate-200">{row.pelanggan_name}</td>
@@ -199,8 +223,18 @@ const SaldoAwalPiutang: React.FC = () => {
                     <td className="px-3 py-1.5 border-r border-slate-200">{row.tgl_jt}</td>
                     <td className="px-3 py-1.5 border-r border-slate-200">{row.mata_uang_name}</td>
                     <td className="px-3 py-1.5 border-r border-slate-200 text-right">{row.saldo_invoice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                    <td className="px-3 py-1.5 border-r border-slate-200 text-center">
+                      <input 
+                        type="checkbox" 
+                        checked={row.is_paid} 
+                        onChange={() => handleTogglePaid(row)} 
+                        className="w-4 h-4 text-blue-600 rounded border-gray-300 cursor-pointer" 
+                      />
+                    </td>
                     <td className="px-3 py-1.5 text-center">
-                      <input type="checkbox" checked={row.is_paid} readOnly className="w-4 h-4 text-blue-600 rounded border-gray-300" />
+                      <button onClick={() => handleDelete(row.id)} className="text-red-500 hover:text-red-700 p-1 rounded transition-colors hover:bg-red-50" title="Hapus">
+                        <Trash2 size={14} />
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -274,7 +308,7 @@ const SaldoAwalPiutang: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Saldo Invoice</label>
-                  <input type="number" value={editForm.saldo_invoice} onChange={e => setEditForm({...editForm, saldo_invoice: Number(e.target.value)})} className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm text-right" />
+                  <input type="number" value={editForm.saldo_invoice === '' ? '' : editForm.saldo_invoice} onChange={e => setEditForm({...editForm, saldo_invoice: e.target.value === '' ? '' : Number(e.target.value)})} className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm text-right" />
                 </div>
               </div>
 
@@ -313,6 +347,7 @@ const SaldoAwalPiutang: React.FC = () => {
               <SetupPelangganForm 
                 onClose={() => setIsCustomerModalOpen(false)}
                 onSuccess={() => {
+                  alert('Pelanggan baru berhasil ditambahkan!');
                   setIsCustomerModalOpen(false);
                   fetchData();
                 }}

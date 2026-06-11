@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, JenisPotonganData, PerkiraanData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const SetupJenisPotongan: React.FC = () => {
+  const confirm = useConfirm();
   const [list, setList] = useState<JenisPotonganData[]>([]);
   const [perkiraans, setPerkiraans] = useState<PerkiraanData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +73,8 @@ const SetupJenisPotongan: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus jenis potongan ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus jenis potongan ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteJenisPotongan(id);

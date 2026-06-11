@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Upload, FileSpreadsheet, Download } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, PelangganData, PembayaranData, PerkiraanData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 import * as XLSX from 'xlsx';
 
 const JENIS_TRANSAKSI = [
@@ -19,6 +20,8 @@ const SetupPelanggan: React.FC = () => {
   const [list, setList] = useState<PelangganData[]>([]);
   const [pembayarans, setPembayarans] = useState<PembayaranData[]>([]);
   const [perkiraans, setPerkiraans] = useState<PerkiraanData[]>([]);
+  
+  const confirm = useConfirm();
   
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -136,7 +139,8 @@ const SetupPelanggan: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')) return;
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus pelanggan ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deletePelanggan(id);
