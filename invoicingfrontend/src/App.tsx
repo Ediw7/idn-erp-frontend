@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfirmProvider } from './contexts/ConfirmContext';
+import { Toaster } from 'react-hot-toast';
 import MainLayout from './components/layouts/MainLayout';
 import { AuthProvider, useAuth } from './features/auth/contexts/AuthContext';
 import Login from './features/auth/components/Login';
@@ -43,6 +44,11 @@ import KartuPiutang from './features/kartu-piutang/components/KartuPiutang';
 import OutstandingInvoice from './features/outstanding-invoice/components/OutstandingInvoice';
 import RangkumanPenjualan from './features/rangkuman-penjualan/components/RangkumanPenjualan';
 import SetupDataBaru from './features/setup-data-baru/components/SetupDataBaru';
+import NotaReturPenjualan from './features/nota-retur/components/NotaReturPenjualan';
+import NotaReturPembelian from './features/nota-retur/components/NotaReturPembelian';
+import SptMasa1111 from './features/spt-masa/components/SptMasa1111';
+import SuratSetoranPajak from './features/ssp/components/SuratSetoranPajak';
+import SaldoAwalInventory from './features/inventory/components/SaldoAwalInventory';
 
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
   const { isAuthenticated, user } = useAuth();
@@ -74,6 +80,34 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ConfirmProvider>
         <AuthProvider>
+          <Toaster 
+            position="bottom-right"
+            toastOptions={{
+              className: 'text-sm font-semibold rounded-sm shadow-md border border-slate-200',
+              success: {
+                style: {
+                  background: '#f0fdf4',
+                  color: '#166534',
+                  border: '1px solid #bbf7d0'
+                },
+                iconTheme: {
+                  primary: '#16a34a',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                style: {
+                  background: '#fef2f2',
+                  color: '#991b1b',
+                  border: '1px solid #fecaca'
+                },
+                iconTheme: {
+                  primary: '#dc2626',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
           <BrowserRouter>
             <Routes>
           {/* Public Route */}
@@ -131,6 +165,15 @@ function App() {
             <Route path="rangkuman-penjualan" element={<RangkumanPenjualan />} />
             <Route path="laporan" element={<Laporan />} />
             <Route path="setup-data-baru" element={<SetupDataBaru />} />
+            <Route path="inventory/retur-penjualan" element={<NotaReturPenjualan />} />
+            <Route path="ppn/retur-penjualan" element={<NotaReturPenjualan />} />
+            <Route path="inventory/retur-pembelian" element={<NotaReturPembelian />} />
+            <Route path="inventory/gudang" element={<SetupGudang />} />
+            <Route path="inventory/barang" element={<SetupItem />} />
+            <Route path="inventory/saldo-awal" element={<SaldoAwalInventory />} />
+            <Route path="ppn/retur-pembelian" element={<NotaReturPembelian />} />
+            <Route path="ppn/spt" element={<SptMasa1111 />} />
+            <Route path="ppn/ssp" element={<SuratSetoranPajak />} />
           </Route>
 
           {/* Admin Routes */}

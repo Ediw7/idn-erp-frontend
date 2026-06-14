@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save } from 'lucide-react';
 import { setupApi, PelangganData, PembayaranData, PerkiraanData } from '../api';
+import toast from 'react-hot-toast';
 
 const JENIS_TRANSAKSI = [
   { value: '01', label: 'Kepada Bukan Pemungut PPN (01)' },
@@ -66,7 +67,7 @@ const SetupPelangganForm: React.FC<SetupPelangganFormProps> = ({ onClose, onSucc
 
   const handleSave = async () => {
     if (!editForm.kode || !editForm.nama) {
-      alert('Kode dan Nama Pelanggan harus diisi!');
+      toast.error('Kode dan Nama Pelanggan harus diisi!');
       return;
     }
     setIsSaving(true);
@@ -74,7 +75,7 @@ const SetupPelangganForm: React.FC<SetupPelangganFormProps> = ({ onClose, onSucc
       await setupApi.savePelanggan(editForm);
       onSuccess();
     } catch (error) {
-      alert('Terjadi kesalahan saat menyimpan data pelanggan.');
+      toast.error('Terjadi kesalahan saat menyimpan data pelanggan.');
     } finally {
       setIsSaving(false);
     }

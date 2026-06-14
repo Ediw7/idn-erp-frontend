@@ -4,6 +4,7 @@ import { Plus, Trash2, X, UserPlus, Search, Save } from 'lucide-react';
 import { setupApi, PelangganData, ProyekData, MataUangData } from '../../setup/api';
 import SetupPelangganForm from '../../setup/components/SetupPelangganForm';
 import { useConfirm } from '../../../contexts/ConfirmContext';
+import toast from 'react-hot-toast';
 
 interface SaldoAwal {
   id: number;
@@ -80,7 +81,7 @@ const SaldoAwalPiutang: React.FC = () => {
 
   const handleSave = async () => {
     if (!editForm.no_invoice || !editForm.tanggal || !editForm.pelanggan_id) {
-      alert('No Invoice, Tanggal, dan Pelanggan harus diisi!');
+      toast.error('No Invoice, Tanggal, dan Pelanggan harus diisi!');
       return;
     }
     try {
@@ -89,10 +90,10 @@ const SaldoAwalPiutang: React.FC = () => {
         setIsFormOpen(false);
         fetchData();
       } else {
-        alert(res.data.message);
+        toast.error(res.data.message);
       }
     } catch (error) {
-      alert('Gagal menyimpan data');
+      toast.error('Gagal menyimpan data');
     }
   };
 
@@ -104,7 +105,7 @@ const SaldoAwalPiutang: React.FC = () => {
       fetchData();
     } catch (error) {
       console.error('Failed to delete', error);
-      alert('Gagal menghapus data');
+      toast.error('Gagal menghapus data');
     }
   };
 
@@ -121,11 +122,11 @@ const SaldoAwalPiutang: React.FC = () => {
       if (res.data.status === 'success') {
         fetchData();
       } else {
-        alert(res.data.message);
+        toast.error(res.data.message);
       }
     } catch (error) {
       console.error('Failed to update status', error);
-      alert('Gagal mengupdate status lunas');
+      toast.error('Gagal mengupdate status lunas');
     }
   };
 
@@ -135,7 +136,7 @@ const SaldoAwalPiutang: React.FC = () => {
     setTimeout(() => {
       setIsMigrating(false);
       setIsMigrationModalOpen(false);
-      alert('Simulasi migrasi selesai (Data dummy). Pada implementasi nyata, file ini akan diunggah ke server.');
+      toast.success('Simulasi migrasi selesai (Data dummy). Pada implementasi nyata, file ini akan diunggah ke server.');
       fetchData();
     }, 1500);
   };
@@ -347,7 +348,7 @@ const SaldoAwalPiutang: React.FC = () => {
               <SetupPelangganForm 
                 onClose={() => setIsCustomerModalOpen(false)}
                 onSuccess={() => {
-                  alert('Pelanggan baru berhasil ditambahkan!');
+                  toast.success('Pelanggan baru berhasil ditambahkan!');
                   setIsCustomerModalOpen(false);
                   fetchData();
                 }}

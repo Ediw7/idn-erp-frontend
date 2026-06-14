@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, X, Settings2 } from 'lucide-react';
 import { setupApi, FormatBuktiData } from '../api';
 import { useConfirm } from '../../../contexts/ConfirmContext';
+import toast from 'react-hot-toast';
 
 const TRANSACTIONS = [
   { id: 'inv_vat', label: 'Invoice VAT' },
@@ -118,7 +119,7 @@ const SetupFormatBukti: React.FC = () => {
   const handleApplySufiksToAll = () => {
     const sufiksRef = editForm.inv_vat_sufiks;
     if (!sufiksRef) {
-      alert("Isi Sufiks pada Invoice VAT terlebih dahulu untuk di-copy ke semua baris.");
+      toast.error("Isi Sufiks pada Invoice VAT terlebih dahulu untuk di-copy ke semua baris.");
       return;
     }
     const newForm = { ...editForm };

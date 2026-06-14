@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { authApi, UserData } from '../../auth/api';
 import { Users, Shield, UserX, UserCheck } from 'lucide-react';
 import { useConfirm } from '../../../contexts/ConfirmContext';
+import toast from 'react-hot-toast';
 
 const UserManagement: React.FC = () => {
   const confirm = useConfirm();
@@ -33,7 +34,7 @@ const UserManagement: React.FC = () => {
         if (response.error) throw new Error(response.error);
         await fetchUsers(); // Refresh data
       } catch (err: any) {
-        alert(err.message || 'Gagal mengubah status pengguna');
+        toast.error(err.message || 'Gagal mengubah status pengguna');
       }
     }
   };

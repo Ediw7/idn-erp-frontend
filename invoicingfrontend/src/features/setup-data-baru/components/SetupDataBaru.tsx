@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Save, FolderOpen, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const SetupDataBaru: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const SetupDataBaru: React.FC = () => {
   };
 
   const handleSave = () => {
-    alert('Setup Data Baru telah disimpan!');
+    toast.success('Setup Data Baru telah disimpan!');
     navigate(-1);
   };
 

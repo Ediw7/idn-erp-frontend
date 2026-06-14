@@ -3,6 +3,7 @@ import { authApi } from '../../auth/api';
 import { Users, Shield, UserX, UserCheck } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useConfirm } from '../../../contexts/ConfirmContext';
+import toast from 'react-hot-toast';
 
 const UserManagement: React.FC = () => {
   const confirm = useConfirm();
@@ -19,7 +20,7 @@ const UserManagement: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (err: any) => {
-      alert(err.message || 'Gagal mengubah status pengguna');
+      toast.error(err.message || 'Gagal mengubah status pengguna');
     }
   });
 

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, Search, X, Save } from 'lucide-react';
 import { setupApi, GudangData } from '../api';
 import { useConfirm } from '../../../contexts/ConfirmContext';
+import toast from 'react-hot-toast';
 
 const SetupGudang: React.FC = () => {
   const confirm = useConfirm();
   const [list, setList] = useState<GudangData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [editForm, setEditForm] = useState<GudangData>({
     kode_gudang: '',
     nama_gudang: '',
@@ -27,16 +28,16 @@ const SetupGudang: React.FC = () => {
       const data = await setupApi.getGudang();
       setList(data || []);
     } catch (error) {
-      showMessage('Gagal memuat data gudang.', 'error');
+      console.error('Failed to load', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
-  };
+  const filteredData = list.filter(item => 
+    item.nama_gudang.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.kode_gudang.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleAddNew = () => {
     setEditForm({
@@ -45,27 +46,26 @@ const SetupGudang: React.FC = () => {
       lokasi: '',
       is_default: false
     });
-    setIsModalOpen(true);
+    setIsFormOpen(true);
   };
 
   const handleEdit = (item: GudangData) => {
     setEditForm({ ...item });
-    setIsModalOpen(true);
+    setIsFormOpen(true);
   };
 
   const handleSave = async () => {
     if (!editForm.kode_gudang || !editForm.nama_gudang) {
-      showMessage('Kode Gudang dan Nama Gudang harus diisi!', 'error');
+      toast.error('Kode Gudang dan Nama Gudang harus diisi!');
       return;
     }
 
     try {
       await setupApi.saveGudang(editForm);
-      showMessage('Data gudang berhasil disimpan!', 'success');
-      setIsModalOpen(false);
+      setIsFormOpen(false);
       fetchData();
     } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
+      toast.error('Terjadi kesalahan saat menyimpan data.');
     }
   };
 
@@ -75,173 +75,173 @@ const SetupGudang: React.FC = () => {
     
     try {
       await setupApi.deleteGudang(id);
-      showMessage('Data berhasil dihapus!', 'success');
       fetchData();
     } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
+      toast.error('Terjadi kesalahan saat menghapus data.');
     }
   };
 
-  const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
+  const inputClass = "w-full px-3 py-1.5 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white";
 
   return (
-    <div className="bg-white shadow-sm border border-slate-300 max-w-5xl mx-auto mt-8">
-      {/* Header Form */}
-      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+    <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)] relative">
+      
+      {/* Header */}
+      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
         <div>
           <h2 className="text-lg font-semibold text-white">Setup Gudang</h2>
           <p className="text-xs text-slate-300 mt-1">Kelola data gudang (warehouse) penyimpanan barang.</p>
         </div>
-        <button 
-          onClick={handleAddNew}
-          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
-        >
-          <Plus size={14} />
-          <span>TAMBAH BARU</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handleAddNew}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
+          >
+            <Plus size={14} /> TAMBAH GUDANG
+          </button>
+        </div>
       </div>
 
-      <div className="p-6">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-1">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
+      {/* Filter Section */}
+      <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-semibold text-slate-700">Filter Gudang</label>
+          <div className="relative">
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-3 pr-8 py-1.5 border border-slate-300 rounded-sm text-sm w-72 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white" 
+              placeholder="Cari kode atau nama gudang..."
+            />
+            <Search size={14} className="absolute right-2.5 top-2.5 text-slate-400" />
           </div>
-        )}
+        </div>
+      </div>
 
-        {isLoading ? (
-          <div className="flex justify-center items-center h-32">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-700"></div>
-          </div>
-        ) : (
-          <div className="overflow-x-auto border border-slate-200">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                  <th className="px-4 py-3 w-12 text-center">No</th>
-                  <th className="px-4 py-3 w-32">Kode Gudang</th>
-                  <th className="px-4 py-3">Nama Gudang</th>
-                  <th className="px-4 py-3">Lokasi</th>
-                  <th className="px-4 py-3 w-24 text-center">Default</th>
-                  <th className="px-4 py-3 w-28 text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
-                {list.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 text-center text-slate-500">{index + 1}</td>
-                    <td className="px-4 py-3 font-medium">{item.kode_gudang}</td>
-                    <td className="px-4 py-3">{item.nama_gudang}</td>
-                    <td className="px-4 py-3">{item.lokasi || '-'}</td>
-                    <td className="px-4 py-3 text-center">
-                      <input type="checkbox" checked={item.is_default} readOnly className="w-4 h-4 text-slate-400 border-slate-300 rounded opacity-70 cursor-not-allowed" />
+      {/* Main Table Area */}
+      <div className="flex-1 overflow-hidden flex flex-col bg-white">
+        <div className="overflow-x-auto flex-1">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-slate-700 bg-slate-100 border-b border-slate-300">
+              <tr>
+                <th className="px-4 py-2 border-r border-slate-300 font-semibold w-32">Kode Gudang</th>
+                <th className="px-4 py-2 border-r border-slate-300 font-semibold">Nama Gudang</th>
+                <th className="px-4 py-2 border-r border-slate-300 font-semibold">Lokasi</th>
+                <th className="px-4 py-2 border-r border-slate-300 text-center font-semibold w-24">Default</th>
+                <th className="px-4 py-2 w-24 text-center font-semibold">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr><td colSpan={5} className="p-4 text-center text-slate-500">Memuat data...</td></tr>
+              ) : filteredData.length === 0 ? (
+                <tr><td colSpan={5} className="p-4 text-center text-slate-500">Tidak ada data gudang</td></tr>
+              ) : (
+                filteredData.map((row) => (
+                  <tr key={row.id} className="border-b border-slate-200 hover:bg-blue-50 transition-colors">
+                    <td className="px-4 py-2 border-r border-slate-200 font-medium">{row.kode_gudang}</td>
+                    <td className="px-4 py-2 border-r border-slate-200">{row.nama_gudang}</td>
+                    <td className="px-4 py-2 border-r border-slate-200">{row.lokasi || '-'}</td>
+                    <td className="px-4 py-2 border-r border-slate-200 text-center">
+                      {row.is_default ? (
+                        <span className="inline-block w-4 h-4 rounded bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-[10px]">✓</span>
+                      ) : '-'}
                     </td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
+                    <td className="px-4 py-2 text-center flex items-center justify-center gap-2">
+                      <button onClick={() => handleEdit(row)} className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors hover:bg-blue-50" title="Edit">
                         <Edit2 size={14} />
                       </button>
-                      <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
+                      <button onClick={() => handleDelete(row.id!)} className="text-red-500 hover:text-red-700 p-1 rounded transition-colors hover:bg-red-50" title="Hapus">
                         <Trash2 size={14} />
                       </button>
                     </td>
                   </tr>
-                ))}
-                
-                {list.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500 text-sm">
-                      Belum ada data gudang. Klik "Tambah Baru" untuk memulai.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded shadow-xl max-w-md w-full flex flex-col">
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-              <h3 className="font-bold text-slate-800">
-                {editForm.id ? 'Edit Gudang' : 'Tambah Gudang'}
-              </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
-                <X size={20} />
+      {/* Form Dialog/Modal Overlay */}
+      {isFormOpen && (
+        <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[1px] z-30 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-300 shadow-xl rounded-sm w-full max-w-md flex flex-col overflow-hidden">
+            <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between shrink-0">
+              <h3 className="font-semibold text-sm">{editForm.id ? 'Edit Gudang' : 'Tambah Gudang Baru'}</h3>
+              <button onClick={() => setIsFormOpen(false)} className="text-slate-300 hover:text-white transition-colors">
+                <X size={16} />
               </button>
             </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Kode Gudang</label>
-                  <input 
-                    type="text" 
-                    value={editForm.kode_gudang} 
-                    onChange={e => setEditForm({...editForm, kode_gudang: e.target.value.toUpperCase()})} 
-                    className={inputClass}
-                    placeholder="Contoh: KP"
-                    autoFocus
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Gudang</label>
-                  <input 
-                    type="text" 
-                    value={editForm.nama_gudang} 
-                    onChange={e => setEditForm({...editForm, nama_gudang: e.target.value})} 
-                    className={inputClass}
-                    placeholder="Contoh: Kapuk"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Lokasi</label>
-                  <input 
-                    type="text" 
-                    value={editForm.lokasi} 
-                    onChange={e => setEditForm({...editForm, lokasi: e.target.value})} 
-                    className={inputClass}
-                    placeholder="Contoh: Jakarta"
-                  />
-                </div>
-                <div className="flex items-center gap-2 pt-2">
-                  <input 
-                    type="checkbox" 
-                    checked={editForm.is_default} 
-                    onChange={e => setEditForm({...editForm, is_default: e.target.checked})} 
-                    className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
-                    id="is_default"
-                  />
-                  <label htmlFor="is_default" className="text-sm font-semibold text-slate-700 cursor-pointer">Set sebagai Default Gudang</label>
-                </div>
+            
+            <div className="p-5 flex flex-col gap-4 overflow-y-auto">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Kode Gudang <span className="text-red-500">*</span></label>
+                <input 
+                  type="text" 
+                  value={editForm.kode_gudang} 
+                  onChange={e => setEditForm({...editForm, kode_gudang: e.target.value.toUpperCase()})} 
+                  className={inputClass}
+                  placeholder="Contoh: KP"
+                  autoFocus
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Gudang <span className="text-red-500">*</span></label>
+                <input 
+                  type="text" 
+                  value={editForm.nama_gudang} 
+                  onChange={e => setEditForm({...editForm, nama_gudang: e.target.value})} 
+                  className={inputClass}
+                  placeholder="Contoh: Gudang Kapuk"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Lokasi</label>
+                <input 
+                  type="text" 
+                  value={editForm.lokasi} 
+                  onChange={e => setEditForm({...editForm, lokasi: e.target.value})} 
+                  className={inputClass}
+                  placeholder="Contoh: Jakarta"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <input 
+                  type="checkbox" 
+                  id="is_default_gudang"
+                  checked={editForm.is_default} 
+                  onChange={e => setEditForm({...editForm, is_default: e.target.checked})} 
+                  className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer" 
+                />
+                <label htmlFor="is_default_gudang" className="text-xs font-semibold text-slate-700 cursor-pointer select-none">
+                  Set sebagai Default Gudang
+                </label>
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 rounded-b">
+            
+            <div className="bg-slate-50 border-t border-slate-200 px-5 py-3 flex justify-end gap-2 shrink-0">
               <button 
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-sm transition-colors"
+                onClick={() => setIsFormOpen(false)}
+                className="px-4 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 transition-colors"
               >
-                Batal
+                BATAL
               </button>
               <button 
                 onClick={handleSave}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors flex items-center gap-2"
+                className="px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 border border-blue-700 hover:bg-blue-700 transition-colors flex items-center gap-1.5"
               >
-                <Save size={16} /> Simpan
+                <Save size={14} /> SIMPAN
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 };
