@@ -4,7 +4,12 @@ import { useLocation } from 'react-router-dom';
 
 const Laporan: React.FC = () => {
   const location = useLocation();
-  const [activeReportItem, setActiveReportItem] = useState(location.state?.initialReport || 'Sales Order (A4 / Kwarto / 1/2 Kwarto)');
+  const searchParams = new URLSearchParams(location.search);
+  const initialReport = searchParams.get('reportName') || location.state?.initialReport || 'Sales Order (A4 / Kwarto / 1/2 Kwarto)';
+  const soNumber = searchParams.get('so_number') || '';
+  const sjNumber = searchParams.get('sj_number') || '';
+
+  const [activeReportItem, setActiveReportItem] = useState(initialReport);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const inputClass = "w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm";
@@ -104,17 +109,17 @@ const Laporan: React.FC = () => {
                 <div className={`flex items-center ${activeReportItem.includes('Sales Order') ? '' : 'opacity-50'}`}>
                   <label className={`w-48 text-sm ${activeReportItem.includes('Sales Order') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Sales Order</label>
                   <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Sales Order')} />
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Sales Order')} defaultValue={soNumber} />
                     <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Sales Order')} />
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Sales Order')} defaultValue={soNumber} />
                   </div>
                 </div>
                 <div className={`flex items-center ${activeReportItem.includes('Surat Jalan') ? '' : 'opacity-50'}`}>
                   <label className={`w-48 text-sm ${activeReportItem.includes('Surat Jalan') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Surat Jalan</label>
                   <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Surat Jalan')} defaultValue="SJ/005/12/2020" />
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Surat Jalan')} defaultValue={sjNumber || "SJ/005/12/2020"} />
                     <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Surat Jalan')} defaultValue="SJ/005/12/2020" />
+                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Surat Jalan')} defaultValue={sjNumber || "SJ/005/12/2020"} />
                   </div>
                 </div>
                 <div className={`flex items-center ${activeReportItem.includes('Invoice') ? '' : 'opacity-50'}`}>

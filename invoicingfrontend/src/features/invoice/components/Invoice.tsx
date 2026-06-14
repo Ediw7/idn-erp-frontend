@@ -1,21 +1,60 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, X, FileText, Search, Save, FileBox, RefreshCcw, DollarSign, Copy, Filter } from 'lucide-react';
+import { Plus, Trash2, X, Printer, Search, Save, FileBox, RefreshCcw, DollarSign, FilePlus, Filter, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { useAuth } from '../../auth/contexts/AuthContext';
 import { setupApi, TandaTanganData } from '../../setup/api';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 const Invoice: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const confirm = useConfirm();
+
   const [activeTab, setActiveTab] = useState('detail');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [showNewInvoiceModal, setShowNewInvoiceModal] = useState(false);
+  const [showFpModal, setShowFpModal] = useState(false);
   
   const [ttdList, setTtdList] = useState<TandaTanganData[]>([]);
   const [selectedTtdId, setSelectedTtdId] = useState<number | ''>('');
+
+  const emptyForm = {
+    no_invoice: '',
+    tgl_invoice: new Date().toISOString().split('T')[0],
+    pembeli_id: '',
+    alamat: '',
+    npwp: '',
+    proyek: '',
+    mata_uang: 'IDR',
+    no_so: '',
+    no_po: '',
+    cara_pembayaran: '',
+    salesman_id: '',
+    no_faktur_pajak: '',
+    no_kwitansi: '',
+    kurs_jual: 1,
+    tgl_jt: '',
+    tgl_po: '',
+    gudang_id: '',
+    is_jasa: false,
+    is_paid: false,
+    catatan: '',
+    keterangan: '',
+    lines: [],
+    create_date: '',
+    create_uid_name: '',
+    write_date: '',
+    write_uid_name: ''
+  };
+
+  const [form, setForm] = useState<any>(emptyForm);
+  const [modalForm, setModalForm] = useState<any>(emptyForm);
 
   useEffect(() => {
     const fetchTtd = async () => {
       try {
         const data = await setupApi.getTandaTangan();
-        // Filter only for Invoice, or just show all if none for Invoice
         const invoiceTtd = data.filter(d => d.jenis_formulir === 'Invoice');
         setTtdList(invoiceTtd.length > 0 ? invoiceTtd : data);
         
@@ -33,298 +72,402 @@ const Invoice: React.FC = () => {
 
   const selectedTtd = ttdList.find(t => t.id === selectedTtdId);
 
-  const inputClass = "w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm";
-  const labelClass = "block text-xs font-semibold text-slate-700 mb-1";
-  const btnPrimary = "px-4 py-2 bg-slate-800 text-white text-sm font-bold rounded-sm hover:bg-slate-700 shadow-sm flex items-center gap-2 transition-colors";
-  const btnSecondary = "px-4 py-2 bg-white text-slate-700 border border-slate-300 text-sm font-bold rounded-sm hover:bg-slate-50 shadow-sm flex items-center gap-2 transition-colors";
+  const handleCreateInvoiceHeader = () => {
+    if (!modalForm.no_invoice) {
+      toast.error('No. Invoice harus diisi!');
+      return;
+    }
+    if (!modalForm.pembeli_id) {
+      toast.error('Nama Pembeli harus dipilih!');
+      return;
+    }
+    
+    setForm({
+      ...modalForm,
+      lines: [{ item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, harga: 0, disc_persen: 0, disc_harga: 0, harga_jual: 0 }],
+      create_date: new Date().toISOString(),
+      create_uid_name: user?.name || 'Unknown'
+    });
+    
+    setShowNewInvoiceModal(false);
+    toast.success('Header Invoice berhasil dibuat. Silakan lengkapi detail barang.');
+  };
+
+  const handleSaveAll = () => {
+    if (!form.no_invoice) {
+      toast.error('Harap isi header Invoice terlebih dahulu!');
+      return;
+    }
+    
+    setForm({
+      ...form,
+      write_date: new Date().toISOString(),
+      write_uid_name: user?.name || 'Unknown'
+    });
+    toast.success('Invoice berhasil disimpan');
+  };
+
+  const handleCreateKwitansi = async () => {
+    if (!form.no_invoice) {
+      toast.error('Pilih atau buat Invoice terlebih dahulu!');
+      return;
+    }
+    
+    const isConfirmed = await confirm({
+      title: 'Buat Kwitansi',
+      message: `Apakah Anda ingin membuat Kwitansi untuk Invoice ${form.no_invoice}?`,
+      confirmText: 'Ya, Lanjutkan',
+      isDestructive: false
+    });
+
+    if (isConfirmed) {
+      navigate('/kwitansi', { 
+        state: { 
+          no_invoice: form.no_invoice,
+          pembeli_id: form.pembeli_id,
+          alamat: form.alamat,
+          // Placeholder for total since it's uncalculated locally, ideally passed from a real calculated total
+          jumlah: 418000, 
+          keterangan: `Pembayaran untuk Invoice No. ${form.no_invoice}`
+        }
+      });
+    }
+  };
+
+  const handleUpdateFpClick = () => {
+    if (!form.no_invoice) {
+      toast.error('Pilih atau buat Invoice terlebih dahulu!');
+      return;
+    }
+    setShowFpModal(true);
+  };
+
+  const handleRouteToFp = (action: 'update' | 'pengganti') => {
+    setShowFpModal(false);
+    navigate('/faktur-pajak', {
+      state: {
+        action,
+        no_invoice: form.no_invoice,
+        pembeli_id: form.pembeli_id,
+        alamat: form.alamat,
+        npwp: form.npwp,
+        lines: form.lines,
+        jumlah: 418000 // Placeholder
+      }
+    });
+  };
+
+  const inputClass = "w-full h-10 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white transition-colors";
+  const labelClass = "block text-xs md:text-sm font-semibold text-gray-700 mb-1";
+  const btnClass = "px-4 py-2 text-sm font-medium rounded-md transition-colors shadow-sm flex items-center justify-center gap-2";
 
   return (
-    <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
+    <div className="bg-slate-50 flex flex-col min-h-screen">
       {/* Header */}
-      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0 overflow-x-auto">
-        <div className="flex items-center gap-6 shrink-0">
-          <div>
-            <h2 className="text-lg font-semibold text-white">Invoice</h2>
-            <p className="text-xs text-slate-300 mt-1">Buat dan kelola data faktur penjualan.</p>
-          </div>
-          <div className="h-8 w-px bg-slate-600"></div>
-          <div className="flex items-center gap-2 text-sm text-slate-200">
-            <span className="whitespace-nowrap">Pilih Periode:</span>
-            <select className="bg-slate-700 border border-slate-600 text-white px-2 py-1 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option></option>
-            </select>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-slate-200">
-            <span className="whitespace-nowrap">Jenis Invoice:</span>
-            <select className="bg-slate-700 border border-slate-600 text-white px-2 py-1 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>Dengan PPN</option>
-              <option>Tanpa PPN</option>
-            </select>
+      <div className="bg-slate-800 px-6 py-5 border-b border-slate-700 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 shrink-0">
+        <div className="flex flex-col">
+          <h2 className="text-xl font-bold text-white mb-2">Invoice</h2>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-300 font-medium">Pilih Periode:</span>
+              <select className="h-9 px-3 text-sm bg-slate-700 text-white border border-slate-600 rounded-md outline-none focus:border-slate-400 transition-colors">
+                <option>Juni 2026</option>
+                <option>Mei 2026</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-300 font-medium">Jenis Invoice:</span>
+              <select className="h-9 px-3 text-sm bg-slate-700 text-white border border-slate-600 rounded-md outline-none focus:border-slate-400 transition-colors">
+                <option>Dengan PPN</option>
+                <option>Tanpa PPN</option>
+              </select>
+            </div>
           </div>
         </div>
-        <div className="flex gap-1.5 shrink-0 ml-4">
+        <div className="flex flex-wrap items-center gap-3">
           <button 
-            onClick={() => navigate('/laporan', { state: { initialReport: 'Invoice (A4 / Kwarto)' } })}
-            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white whitespace-nowrap">
-            <FileText size={14} /> Report
-          </button>
-          <div className="w-px h-6 bg-slate-600 mx-0.5 self-center"></div>
-          <button 
-            onClick={() => navigate('/faktur-pajak')}
-            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 border border-blue-500 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white whitespace-nowrap">
-            Create FP
+            onClick={() => {
+              setModalForm({...emptyForm, no_invoice: `INV/00${Math.floor(Math.random()*100)}/06/2026`});
+              setShowNewInvoiceModal(true);
+            }} 
+            className={`${btnClass} bg-white text-slate-800 hover:bg-slate-100`}
+          >
+             <FilePlus size={16} /> + TAMBAH INVOICE
           </button>
           <button 
-            onClick={() => navigate('/kwitansi')}
-            className="px-3 py-1.5 bg-green-600 hover:bg-green-500 border border-green-500 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white whitespace-nowrap">
-            Create Kwitansi
-          </button>
-          <div className="w-px h-6 bg-slate-600 mx-0.5 self-center"></div>
-          <button className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white whitespace-nowrap">
-            <DollarSign size={14} /> Pay
-          </button>
-          <button className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white whitespace-nowrap">
-            <Copy size={14} /> Copy
+            onClick={() => navigate(form.no_invoice ? `/laporan?invoice_number=${encodeURIComponent(form.no_invoice)}&reportName=${encodeURIComponent('Invoice (A4 / Kwarto)')}` : '/laporan?reportName=Invoice (A4 / Kwarto)')} 
+            className={`${btnClass} bg-white text-slate-800 hover:bg-slate-100`}
+          >
+             <Printer size={16} /> CETAK
           </button>
           <button 
-            onClick={() => setIsFilterModalOpen(true)}
-            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white whitespace-nowrap">
-            <Filter size={14} /> Filter Data
+            onClick={handleUpdateFpClick}
+            className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700`}
+          >
+             UPDATE FP
+          </button>
+          <button 
+            onClick={handleCreateKwitansi}
+            className={`${btnClass} bg-indigo-600 text-white hover:bg-indigo-700`}
+          >
+             UPDATE KWITANSI
+          </button>
+          <button 
+            className={`${btnClass} bg-green-600 text-white hover:bg-green-700`}
+          >
+             <DollarSign size={16} /> BAYAR
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        {/* Main Form Area */}
-        <div className="bg-white rounded-md shadow-sm border border-slate-200 p-5 mb-4">
-          <div className="grid grid-cols-12 gap-8">
-            {/* Left Column */}
-            <div className="col-span-4 flex flex-col gap-3">
+      <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+        {/* Form Informasi Umum */}
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 shrink-0">
+          <h3 className="text-lg font-bold text-slate-800 mb-6 pb-3 border-b border-gray-200">Informasi Umum</h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            
+            {/* Kolom 1 */}
+            <div className="flex flex-col gap-4">
               <div>
                 <label className={labelClass}>No. Invoice</label>
-                <div className="flex gap-2">
-                  <input type="text" className={`${inputClass} font-bold text-blue-900 bg-blue-50`}  />
-                  <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 transition-colors"><Search size={16} className="text-slate-600" /></button>
-                  <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-colors whitespace-nowrap">Auto No</button>
+                <div className="flex gap-2 w-full">
+                  <input type="text" className={`${inputClass} font-mono bg-slate-50`} readOnly value={form.no_invoice || ''} />
+                  <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><Search size={16} className="text-gray-600" /></button>
                 </div>
               </div>
               <div>
                 <label className={labelClass}>Tgl Invoice</label>
-                <input type="date" className={inputClass}  />
+                <input type="date" className={inputClass} value={form.tgl_invoice || ''} onChange={e => setForm({...form, tgl_invoice: e.target.value})} />
               </div>
               <div>
                 <label className={labelClass}>Nama Pembeli</label>
-                <div className="flex gap-2">
-                  <select className={inputClass} >
-                    <option></option>
+                <div className="flex gap-2 w-full">
+                  <select className={inputClass} value={form.pembeli_id || ''} onChange={e => setForm({...form, pembeli_id: e.target.value})}>
+                    <option value="">-- Pilih --</option>
                   </select>
-                  <button className="px-2 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 transition-colors"><Plus size={16} className="text-slate-600" /></button>
+                  <button onClick={() => navigate('/setup/pelanggan')} className="px-3 font-bold border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md text-gray-600 transition-colors">+</button>
                 </div>
               </div>
               <div>
                 <label className={labelClass}>Alamat</label>
-                <textarea className={`${inputClass} h-20 resize-none text-xs`}  />
+                <textarea className={`${inputClass} h-20 resize-none`} value={form.alamat || ''} onChange={e => setForm({...form, alamat: e.target.value})} />
               </div>
               <div>
                 <label className={labelClass}>NPWP</label>
-                <input type="text" className={`${inputClass} bg-cyan-50`}  />
+                <input type="text" className={`${inputClass} bg-blue-50/50`} value={form.npwp || ''} onChange={e => setForm({...form, npwp: e.target.value})} />
               </div>
               <div>
                 <label className={labelClass}>Proyek</label>
-                <select className={inputClass}>
-                  <option></option>
-                </select>
+                <select className={inputClass} value={form.proyek || ''} onChange={e => setForm({...form, proyek: e.target.value})}><option></option></select>
               </div>
             </div>
 
-            {/* Middle Column */}
-            <div className="col-span-4 flex flex-col gap-3">
+            {/* Kolom 2 */}
+            <div className="flex flex-col gap-4">
               <div>
                 <label className={labelClass}>Mata Uang</label>
-                <select className={inputClass} >
-                  <option>IDR</option>
-                  <option>USD</option>
+                <select className={inputClass} value={form.mata_uang} onChange={e => setForm({...form, mata_uang: e.target.value})}>
+                  <option value="IDR">IDR</option>
+                  <option value="USD">USD</option>
                 </select>
               </div>
               <div>
                 <label className={labelClass}>No. SO</label>
-                <div className="flex gap-2">
-                  <input type="text" className={inputClass}  />
-                  <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 transition-colors"><Search size={16} className="text-slate-600" /></button>
+                <div className="flex gap-2 w-full">
+                  <input type="text" className={inputClass} value={form.no_so || ''} onChange={e => setForm({...form, no_so: e.target.value})} />
+                  <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><Search size={16} className="text-gray-600" /></button>
                 </div>
               </div>
               <div>
                 <label className={labelClass}>No. PO</label>
-                <input type="text" className={inputClass} />
+                <input type="text" className={inputClass} value={form.no_po || ''} onChange={e => setForm({...form, no_po: e.target.value})} />
               </div>
               <div>
                 <label className={labelClass}>Cara Pembayaran</label>
-                <select className={inputClass} >
-                  <option>Kredit 7 Hari</option>
-                  <option>Cash</option>
+                <select className={inputClass} value={form.cara_pembayaran || ''} onChange={e => setForm({...form, cara_pembayaran: e.target.value})}>
+                  <option value="">-- Pilih --</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Kredit">Kredit</option>
                 </select>
               </div>
               <div>
                 <label className={labelClass}>Salesman</label>
-                <select className={inputClass}>
-                  <option></option>
-                </select>
+                <select className={inputClass} value={form.salesman_id || ''} onChange={e => setForm({...form, salesman_id: e.target.value})}><option></option></select>
               </div>
               <div>
                 <label className={labelClass}>No. Faktur Pajak</label>
-                <div className="flex gap-2">
-                  <input type="text" className={`${inputClass} bg-cyan-50`} />
-                  <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 transition-colors"><RefreshCcw size={16} className="text-slate-600" /></button>
+                <div className="flex gap-2 w-full">
+                  <input type="text" className={`${inputClass} bg-blue-50/50`} value={form.no_faktur_pajak || ''} onChange={e => setForm({...form, no_faktur_pajak: e.target.value})} />
+                  <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><RefreshCcw size={16} className="text-gray-600" /></button>
                 </div>
               </div>
               <div>
                 <label className={labelClass}>No. Kwitansi</label>
-                <div className="flex gap-2">
-                  <input type="text" className={`${inputClass} bg-cyan-50`} />
-                  <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 transition-colors"><RefreshCcw size={16} className="text-slate-600" /></button>
+                <div className="flex gap-2 w-full">
+                  <input type="text" className={`${inputClass} bg-blue-50/50`} value={form.no_kwitansi || ''} onChange={e => setForm({...form, no_kwitansi: e.target.value})} />
+                  <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><RefreshCcw size={16} className="text-gray-600" /></button>
                 </div>
               </div>
             </div>
 
-            {/* Right Column */}
-            <div className="col-span-4 flex flex-col gap-3">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className={labelClass}>Kurs Jual</label>
-                  <input type="text" className={`${inputClass} text-right`}  />
-                </div>
-                <div className="flex-1">
-                  <label className={labelClass}>Tgl JT</label>
-                  <input type="date" className={inputClass}  />
-                </div>
+            {/* Kolom 3 */}
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className={labelClass}>Kurs Jual</label>
+                <input type="number" className={`${inputClass} text-right`} value={form.kurs_jual || ''} onChange={e => setForm({...form, kurs_jual: e.target.value})} />
               </div>
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className={labelClass}>Tgl PO</label>
-                  <input type="date" className={inputClass} />
-                </div>
-                <div className="flex-1">
-                  <label className={labelClass}>Gudang</label>
-                  <input type="text" className={`${inputClass} bg-slate-100 text-slate-500`}  disabled />
-                </div>
+              <div>
+                <label className={labelClass}>Tgl JT</label>
+                <input type="date" className={inputClass} value={form.tgl_jt || ''} onChange={e => setForm({...form, tgl_jt: e.target.value})} />
               </div>
-              <div className="flex gap-6 mt-2">
+              <div>
+                <label className={labelClass}>Tgl PO</label>
+                <input type="date" className={inputClass} value={form.tgl_po || ''} onChange={e => setForm({...form, tgl_po: e.target.value})} />
+              </div>
+              <div>
+                <label className={labelClass}>Gudang</label>
+                <select className={inputClass} value={form.gudang_id || ''} onChange={e => setForm({...form, gudang_id: e.target.value})}><option></option></select>
+              </div>
+              <div className="flex flex-wrap items-center gap-6 mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" className="w-4 h-4 text-blue-600 rounded border-slate-300" />
-                  <label className="text-xs font-semibold text-slate-700">Jasa?</label>
+                  <input type="checkbox" className="w-4 h-4 text-blue-600 rounded border-gray-300" checked={form.is_jasa || false} onChange={e => setForm({...form, is_jasa: e.target.checked})} />
+                  <label className="text-sm font-semibold text-gray-700">Jasa?</label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" className="w-4 h-4 text-blue-600 rounded border-slate-300" />
-                  <label className="text-xs font-semibold text-slate-700">Paid?</label>
+                  <input type="checkbox" className="w-4 h-4 text-blue-600 rounded border-gray-300" checked={form.is_paid || false} onChange={e => setForm({...form, is_paid: e.target.checked})} />
+                  <label className="text-sm font-semibold text-gray-700">Paid?</label>
                 </div>
               </div>
-              <div className="mt-2">
+            </div>
+
+            {/* Kolom 4 */}
+            <div className="flex flex-col gap-4 h-full">
+              <div className="flex-1 flex flex-col">
                 <label className={labelClass}>Catatan Internal</label>
-                <textarea className={`${inputClass} h-20 resize-none`} />
+                <textarea className={`${inputClass} flex-1 resize-none h-full min-h-[120px]`} value={form.catatan || ''} onChange={e => setForm({...form, catatan: e.target.value})} />
               </div>
-              
-              <div className="mt-auto">
-                <div className="text-[10px] text-slate-500 border border-slate-200 rounded p-2 bg-slate-50 flex flex-col gap-1">
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Record Created:</span>
-                    <span>-</span>
+              <div className="flex flex-col gap-3 mt-2">
+                <div className="border border-gray-200 p-3 relative rounded-md bg-gray-50 shadow-sm">
+                  <span className="absolute -top-2.5 left-3 bg-gray-50 px-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Record Created</span>
+                  <div className="flex gap-2 mt-2">
+                    <input type="text" className="w-full h-8 px-2 border border-gray-200 bg-white font-mono text-xs rounded-md" readOnly value={form.create_date ? new Date(form.create_date).toLocaleString('id-ID') : '-'} />
+                    <input type="text" className="w-24 h-8 px-2 border border-gray-200 bg-white text-center text-xs rounded-md" readOnly value={form.create_uid_name || user?.name || 'Unknown'} />
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Record Modified:</span>
-                    <span>-</span>
+                </div>
+                <div className="border border-gray-200 p-3 relative rounded-md bg-gray-50 shadow-sm">
+                  <span className="absolute -top-2.5 left-3 bg-gray-50 px-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Record Modified</span>
+                  <div className="flex gap-2 mt-2">
+                    <input type="text" className="w-full h-8 px-2 border border-gray-200 bg-white font-mono text-xs rounded-md" readOnly value={form.write_date ? new Date(form.write_date).toLocaleString('id-ID') : '-'} />
+                    <input type="text" className="w-24 h-8 px-2 border border-gray-200 bg-white text-center text-xs rounded-md" readOnly value={form.write_uid_name || user?.name || 'Unknown'} />
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
 
-        {/* Tabs Section */}
-        <div className="bg-white rounded-md shadow-sm border border-slate-200 flex flex-col overflow-hidden mb-4">
-          <div className="flex border-b border-slate-200 bg-slate-50">
+        {/* Tabs Tabel */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col shrink-0 overflow-hidden">
+          <div className="flex border-b border-gray-200 bg-slate-50">
             <button 
               onClick={() => setActiveTab('detail')}
-              className={`px-6 py-2.5 text-xs font-bold transition-colors ${activeTab === 'detail' ? 'bg-white text-blue-700 border-t-2 border-t-blue-600 border-r border-slate-200' : 'text-slate-600 hover:bg-slate-100 border-t-2 border-t-transparent border-r border-transparent'}`}>
+              className={`px-8 py-3 text-sm font-bold transition-colors ${activeTab === 'detail' ? 'bg-white text-blue-700 border-t-2 border-t-blue-600 border-r border-gray-200' : 'text-slate-600 hover:bg-slate-100 border-t-2 border-t-transparent border-r border-transparent'}`}>
               Detail Barang/Jasa
             </button>
             <button 
               onClick={() => setActiveTab('surat-jalan')}
-              className={`px-6 py-2.5 text-xs font-bold transition-colors ${activeTab === 'surat-jalan' ? 'bg-white text-blue-700 border-t-2 border-t-blue-600 border-x border-slate-200' : 'text-slate-600 hover:bg-slate-100 border-t-2 border-t-transparent border-x border-transparent'}`}>
+              className={`px-8 py-3 text-sm font-bold transition-colors ${activeTab === 'surat-jalan' ? 'bg-white text-blue-700 border-t-2 border-t-blue-600 border-x border-gray-200' : 'text-slate-600 hover:bg-slate-100 border-t-2 border-t-transparent border-x border-transparent'}`}>
               Surat Jalan
             </button>
             <button 
               onClick={() => setActiveTab('history')}
-              className={`px-6 py-2.5 text-xs font-bold transition-colors ${activeTab === 'history' ? 'bg-white text-blue-700 border-t-2 border-t-blue-600 border-x border-slate-200' : 'text-slate-600 hover:bg-slate-100 border-t-2 border-t-transparent border-x border-transparent'}`}>
+              className={`px-8 py-3 text-sm font-bold transition-colors ${activeTab === 'history' ? 'bg-white text-blue-700 border-t-2 border-t-blue-600 border-x border-gray-200' : 'text-slate-600 hover:bg-slate-100 border-t-2 border-t-transparent border-x border-transparent'}`}>
               History Pembayaran
             </button>
           </div>
           
-          <div className="p-0 overflow-x-auto min-h-[250px]">
+          <div className="overflow-x-auto min-h-[250px] p-4">
             {activeTab === 'detail' && (
-              <table className="w-full text-sm whitespace-nowrap">
+              <table className="w-full text-sm whitespace-nowrap border border-gray-200 rounded-md overflow-hidden">
                 <thead>
-                  <tr className="bg-slate-800 text-white">
-                    <th className="w-10 px-3 py-2 text-center border-r border-slate-700">No.</th>
-                    <th className="w-48 px-3 py-2 text-left border-r border-slate-700">Kode Barang</th>
-                    <th className="px-3 py-2 text-left border-r border-slate-700">Nama Barang</th>
-                    <th className="w-24 px-3 py-2 text-center border-r border-slate-700">Satuan</th>
-                    <th className="w-24 px-3 py-2 text-center border-r border-slate-700">Kuantum</th>
-                    <th className="w-32 px-3 py-2 text-right border-r border-slate-700">Harga @</th>
-                    <th className="w-20 px-3 py-2 text-center border-r border-slate-700">% Disc</th>
-                    <th className="w-32 px-3 py-2 text-right border-r border-slate-700">Discount Harga</th>
-                    <th className="w-32 px-3 py-2 text-right">Harga Jual</th>
+                  <tr className="bg-slate-100 text-slate-700 border-b border-gray-300">
+                    <th className="w-12 px-3 py-3 text-center border-r border-gray-200 font-semibold">No.</th>
+                    <th className="w-48 px-3 py-3 text-left border-r border-gray-200 font-semibold">Kode Barang</th>
+                    <th className="px-3 py-3 text-left border-r border-gray-200 font-semibold">Nama Barang</th>
+                    <th className="w-24 px-3 py-3 text-center border-r border-gray-200 font-semibold">Satuan</th>
+                    <th className="w-24 px-3 py-3 text-center border-r border-gray-200 font-semibold">Kuantum</th>
+                    <th className="w-32 px-3 py-3 text-right border-r border-gray-200 font-semibold">Harga @</th>
+                    <th className="w-20 px-3 py-3 text-center border-r border-gray-200 font-semibold">% Disc</th>
+                    <th className="w-32 px-3 py-3 text-right border-r border-gray-200 font-semibold">Discount Harga</th>
+                    <th className="w-32 px-3 py-3 text-right border-r border-gray-200 font-semibold">Harga Jual</th>
+                    <th className="w-12 px-3 py-3 text-center font-semibold">Aksi</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
-                    <td className="px-3 py-2 text-center border-r border-slate-200">
-                      <button className="p-1 hover:bg-slate-200 rounded text-slate-500"><Trash2 size={14} /></button>
+                <tbody className="divide-y divide-gray-200">
+                  {form.lines.map((line: any, idx: number) => (
+                    <tr key={idx} className="hover:bg-blue-50/50 transition-colors group">
+                      <td className="px-3 py-2 text-center border-r border-gray-200 font-medium text-slate-600">{idx + 1}</td>
+                      <td className="px-3 py-2 border-r border-gray-200">
+                        <div className="flex gap-1">
+                          <input type="text" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:border-blue-500" value={line.kode || ''} />
+                          <button className="px-2 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-sm"><Search size={14}/></button>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 border-r border-gray-200">
+                        <input type="text" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm bg-slate-50 focus:outline-none" readOnly value={line.nama || ''} />
+                      </td>
+                      <td className="px-3 py-2 border-r border-gray-200">
+                        <input type="text" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm bg-slate-50 text-center focus:outline-none" readOnly value={line.satuan || ''} />
+                      </td>
+                      <td className="px-3 py-2 border-r border-gray-200">
+                        <input type="number" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-right focus:outline-none focus:border-blue-500" value={line.kuantum || ''} />
+                      </td>
+                      <td className="px-3 py-2 border-r border-gray-200">
+                        <input type="number" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-right focus:outline-none focus:border-blue-500" value={line.harga || ''} />
+                      </td>
+                      <td className="px-3 py-2 border-r border-gray-200">
+                        <input type="number" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-center focus:outline-none focus:border-blue-500" value={line.disc_persen || ''} />
+                      </td>
+                      <td className="px-3 py-2 border-r border-gray-200">
+                        <input type="number" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-right focus:outline-none focus:border-blue-500" value={line.disc_harga || ''} />
+                      </td>
+                      <td className="px-3 py-2 border-r border-gray-200">
+                        <input type="text" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-right bg-slate-100 font-semibold text-slate-800" disabled value={line.harga_jual || ''} />
+                      </td>
+                      <td className="px-3 py-2 text-center">
+                        <button className="text-red-500 hover:text-red-700 p-1.5 rounded transition-colors opacity-0 group-hover:opacity-100 hover:bg-red-50" title="Hapus">
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className="px-3 py-3 border-r border-gray-200 text-center">
+                      <button className="w-7 h-7 mx-auto bg-slate-100 hover:bg-slate-200 text-slate-700 border border-gray-300 rounded-md flex items-center justify-center font-bold shadow-sm transition-colors" onClick={() => {
+                        setForm({...form, lines: [...form.lines, { item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, harga: 0, disc_persen: 0, disc_harga: 0, harga_jual: 0 }]});
+                      }}>+</button>
                     </td>
-                    <td className="px-3 py-1 border-r border-slate-200">
-                      <div className="flex gap-1">
-                        <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm" />
-                        <button className="px-1.5 border border-slate-300 bg-slate-100 rounded-sm"><Search size={12}/></button>
-                      </div>
-                    </td>
-                    <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm" />
-                    </td>
-                    <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-center" />
-                    </td>
-                    <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right"  />
-                    </td>
-                    <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right"  />
-                    </td>
-                    <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right"  />
-                    </td>
-                    <td className="px-3 py-1 border-r border-slate-200">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right"  />
-                    </td>
-                    <td className="px-3 py-1">
-                      <input type="text" className="w-full px-2 py-1 text-xs border border-slate-300 rounded-sm text-right bg-slate-100"  disabled />
-                    </td>
+                    <td colSpan={9} className="px-4 py-3 text-sm text-slate-500 italic bg-slate-50">Klik tombol + untuk menambah baris barang/jasa</td>
                   </tr>
                 </tbody>
               </table>
             )}
             {activeTab !== 'detail' && (
-              <div className="p-8 text-center text-slate-500 text-sm">
-                Tidak ada data.
+              <div className="p-12 text-center text-slate-500 font-medium">
+                Belum ada data riwayat.
               </div>
             )}
           </div>
         </div>
 
-        {/* Footer Summary Section */}
-        <div className="grid grid-cols-12 gap-6 bg-white rounded-md shadow-sm border border-slate-200 p-5 mb-6">
-          {/* Signatures & Notes */}
-          <div className="col-span-5 flex flex-col gap-3">
-            <div className="flex gap-4">
-              <div className="flex-1">
+        {/* Footer: Tanda Tangan & Kalkulasi */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 shrink-0">
+          
+          {/* Blok 1: Tanda Tangan (CANVAS PRESERVED) */}
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
                 <label className={labelClass}>Tanda Tangan (Nama)</label>
                 <select 
                   className={inputClass}
@@ -337,156 +480,172 @@ const Invoice: React.FC = () => {
                   ))}
                 </select>
               </div>
-              <div className="flex-1">
+              <div>
                 <label className={labelClass}>Jabatan</label>
-                <input type="text" className={`${inputClass} bg-slate-100 text-slate-500`} value={selectedTtd?.jabatan || ''} disabled />
+                <input type="text" className={`${inputClass} bg-slate-50 text-slate-500`} value={selectedTtd?.jabatan || ''} disabled />
               </div>
             </div>
-            
+            {/* CANVAS / TTD BOX PRESERVED EXACTLY AS IS */}
             {selectedTtd?.ttd_image && (
-              <div className="mt-1 mb-2">
+              <div className="mt-2 mb-2">
                 <label className={labelClass}>Tanda Tangan Digital</label>
-                <div className="border border-slate-300 rounded-sm bg-white flex items-center justify-center overflow-hidden" style={{ width: '100%', height: '120px' }}>
+                <div className="border border-gray-300 rounded-md bg-slate-50 flex items-center justify-center overflow-hidden p-2 shadow-inner" style={{ width: '100%', height: '140px' }}>
                   <img src={`data:image/png;base64,${selectedTtd.ttd_image}`} alt="Tanda Tangan" className="max-w-full max-h-full object-contain" />
                 </div>
               </div>
             )}
-
-            <div>
-              <label className={labelClass}>Keterangan</label>
-              <textarea className={`${inputClass} h-24 resize-none text-xs leading-relaxed`}  />
+            <div className="mt-auto">
+              <label className={labelClass}>Keterangan Tambahan</label>
+              <textarea className={`${inputClass} h-20 resize-none`} value={form.keterangan || ''} onChange={e => setForm({...form, keterangan: e.target.value})} />
             </div>
           </div>
 
-          {/* Left Totals */}
-          <div className="col-span-3 flex flex-col gap-2 pt-5">
+          {/* Blok 2: Summary Read-Only */}
+          <div className="bg-slate-50 border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col gap-4">
+            <h4 className="text-lg font-bold text-slate-800 border-b border-gray-200 pb-3 mb-2">Summary Piutang</h4>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-semibold text-slate-700 w-32">Nilai Invoice</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50 font-semibold`}  readOnly />
+              <span className="text-sm font-semibold text-gray-600">Nilai Invoice</span>
+              <input type="text" className={`${inputClass} w-48 text-right bg-gray-200/50 font-semibold text-slate-800`} readOnly value="0" />
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-semibold text-slate-700 w-32">Pembayaran</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50`}  readOnly />
+              <span className="text-sm font-semibold text-gray-600">Total Pembayaran</span>
+              <input type="text" className={`${inputClass} w-48 text-right bg-gray-200/50 text-slate-800`} readOnly value="0" />
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-semibold text-slate-700 w-32">Potongan</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50`}  readOnly />
+              <span className="text-sm font-semibold text-gray-600">Total Potongan</span>
+              <input type="text" className={`${inputClass} w-48 text-right bg-gray-200/50 text-slate-800`} readOnly value="0" />
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs font-semibold text-slate-700 w-32">Nota Kredit</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50`}  readOnly />
+              <span className="text-sm font-semibold text-gray-600">Nilai Nota Kredit</span>
+              <input type="text" className={`${inputClass} w-48 text-right bg-gray-200/50 text-slate-800`} readOnly value="0" />
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-semibold text-slate-700 w-32">Sisa Piutang</span>
-              <input type="text" className={`${inputClass} w-32 text-right bg-cyan-50 font-bold`}  readOnly />
+            <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-300">
+              <span className="text-base font-bold text-slate-800">Sisa Piutang</span>
+              <input type="text" className={`${inputClass} w-48 text-right bg-blue-50 font-bold text-blue-800 border-blue-200 text-lg`} readOnly value="0" />
             </div>
           </div>
 
-          {/* Right Totals */}
-          <div className="col-span-4 flex flex-col gap-2 pt-5">
-            <div className="flex justify-end items-center gap-3">
-              <span className="text-xs font-semibold text-slate-700">Jlh Harga Jual</span>
-              <input type="text" className={`${inputClass} w-40 text-right bg-cyan-50`}  readOnly />
+          {/* Blok 3: Kalkulasi Input */}
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-semibold text-gray-700">Jlh Harga Jual</span>
+              <input type="text" className={`${inputClass} w-48 text-right bg-slate-50`} readOnly value="0" />
             </div>
-            <div className="flex justify-end items-center gap-2">
-              <span className="text-xs font-semibold text-slate-700">Disc.</span>
-              <div className="flex items-center gap-1 w-40">
-                <input type="text" className={`${inputClass} w-full text-right`} defaultValue="" />
-                <span className="text-xs font-bold">%</span>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-semibold text-gray-700">Discount</span>
+              <div className="flex items-center gap-3 w-48">
+                <input type="number" className={`${inputClass} w-16 text-center`} placeholder="%" />
+                <input type="text" className={`${inputClass} flex-1 text-right`} placeholder="Rp" />
               </div>
             </div>
-            <div className="flex justify-end items-center gap-3">
-              <span className="text-xs font-semibold text-slate-700"></span>
-              <input type="text" className={`${inputClass} w-40 text-right font-semibold`}  />
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-semibold text-gray-700">Uang Muka</span>
+              <input type="text" className={`${inputClass} w-48 text-right bg-slate-50`} readOnly value="0" />
             </div>
-            <div className="flex justify-end items-center gap-3">
-              <span className="text-xs font-semibold text-slate-700">Uang Muka</span>
-              <input type="text" className={`${inputClass} w-40 text-right bg-cyan-50`}  readOnly />
-            </div>
-            <div className="flex justify-end items-center gap-3">
+            <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <input type="checkbox" className="w-4 h-4 rounded border-slate-300" />
-                <span className="text-xs font-semibold text-slate-700">Include PPN</span>
+                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <span className="text-sm font-semibold text-gray-700">Incl. PPN</span>
               </div>
-              <span className="text-xs font-semibold text-slate-700 ml-2">PPN</span>
-              <div className="flex gap-1 w-40">
-                <input type="text" className={`${inputClass} w-16 text-right`}  />
-                <input type="text" className={`${inputClass} flex-1 text-right bg-cyan-50 font-semibold`}  readOnly />
-              </div>
-            </div>
-            <div className="flex justify-end items-center gap-3">
-              <span className="text-xs font-semibold text-slate-700">PPh 22</span>
-              <div className="flex gap-1 w-40">
-                <input type="text" className={`${inputClass} w-16 text-right`}  />
-                <input type="text" className={`${inputClass} flex-1 text-right bg-cyan-50`}  readOnly />
+              <div className="flex items-center gap-3 w-48">
+                <input type="number" className={`${inputClass} w-16 text-center`} placeholder="%" />
+                <input type="text" className={`${inputClass} flex-1 text-right bg-slate-50`} readOnly value="0" />
               </div>
             </div>
-            <div className="flex justify-end items-center gap-3 mt-1 pt-2 border-t border-slate-200">
-              <span className="text-sm font-bold text-slate-800">Total</span>
-              <input type="text" className={`${inputClass} w-40 text-right bg-cyan-50 font-bold text-base py-3`}  readOnly />
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-semibold text-gray-700">PPh 22</span>
+              <div className="flex items-center gap-3 w-48">
+                <input type="number" className={`${inputClass} w-16 text-center`} placeholder="%" />
+                <input type="text" className={`${inputClass} flex-1 text-right bg-slate-50`} readOnly value="0" />
+              </div>
+            </div>
+            <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-300">
+              <span className="text-lg font-bold text-slate-800">Total Akhir</span>
+              <input type="text" className="w-48 h-12 px-4 border border-gray-400 rounded-md text-right bg-slate-800 text-white font-bold text-xl shadow-inner outline-none" readOnly value="0" />
             </div>
           </div>
         </div>
 
-        {/* Main Action Buttons */}
-        <div className="flex justify-end gap-3 mb-6">
-          <button className={btnSecondary}><X size={16} /> Batal</button>
-          <button className={btnPrimary}><Save size={16} /> Simpan Invoice</button>
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-4 shrink-0 pb-6 mt-2">
+          <button className={`${btnClass} bg-white text-slate-700 border border-gray-300 hover:bg-slate-50 px-8 py-3 text-sm`}>
+             BATAL
+          </button>
+          <button onClick={handleSaveAll} className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 px-10 py-3 text-sm shadow-md`}>
+            <Save size={18} /> SIMPAN INVOICE
+          </button>
         </div>
       </div>
 
-      {/* Filter Modal */}
-      {isFilterModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-md shadow-xl w-[450px] border border-slate-200 overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center px-5 py-4 border-b border-slate-200 bg-slate-50">
-              <div className="flex items-center gap-2 text-slate-800 font-bold text-sm">
-                <FileBox size={18} className="text-blue-600" />
-                <span>Filter Data Invoice</span>
-              </div>
-              <button 
-                onClick={() => setIsFilterModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
+      {/* Modal Tambah Invoice */}
+      {showNewInvoiceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-xl rounded-lg shadow-2xl flex flex-col overflow-hidden border border-slate-700">
+            <div className="bg-slate-800 px-6 py-4 flex justify-between items-center border-b border-slate-700">
+              <h3 className="text-white font-bold text-lg">Buat Header Invoice Baru</h3>
+              <button onClick={() => setShowNewInvoiceModal(false)} className="text-slate-400 hover:text-white transition-colors p-1 rounded-md hover:bg-slate-700">
                 <X size={20} />
               </button>
             </div>
-            <div className="p-6 flex flex-col gap-4">
-              <div className="flex items-center">
-                <label className="w-32 text-sm font-semibold text-slate-700">Nama Pembeli</label>
-                <select className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-sm text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"><option></option></select>
+            <div className="p-8 flex flex-col gap-5">
+              <div>
+                <label className={labelClass}>No. Invoice</label>
+                <div className="flex gap-3">
+                  <input type="text" className={`${inputClass} font-mono flex-1 bg-slate-50`} value={modalForm.no_invoice || ''} onChange={e => setModalForm({...modalForm, no_invoice: e.target.value})} />
+                  <button className="px-5 text-sm font-bold border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md shadow-sm transition-colors" onClick={() => setModalForm({...modalForm, no_invoice: `INV/00${Math.floor(Math.random()*100)}/06/2026`})}>
+                    Auto No
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center">
-                <label className="w-32 text-sm font-semibold text-slate-700">Cara Bayar</label>
-                <select className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-sm text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"><option></option></select>
+              <div>
+                <label className={labelClass}>Tanggal Invoice</label>
+                <input type="date" className={inputClass} value={modalForm.tgl_invoice || ''} onChange={e => setModalForm({...modalForm, tgl_invoice: e.target.value})} />
               </div>
-              <div className="flex items-center">
-                <label className="w-32 text-sm font-semibold text-slate-700">Sales</label>
-                <select className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-sm text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"><option></option></select>
+              <div>
+                <label className={labelClass}>Nama Pembeli</label>
+                <select className={inputClass} value={modalForm.pembeli_id || ''} onChange={e => setModalForm({...modalForm, pembeli_id: e.target.value})}>
+                  <option value="">-- Pilih Pembeli --</option>
+                  <option value="1">PT Pelanggan Tetap</option>
+                </select>
               </div>
-              <div className="flex items-center">
-                <label className="w-32 text-sm font-semibold text-slate-700">Proyek</label>
-                <select className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-sm text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"><option></option></select>
-              </div>
-              <div className="flex items-center">
-                <label className="w-32 text-sm font-semibold text-slate-700">Nama Item</label>
-                <select className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-sm text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"><option></option></select>
-              </div>
-              
-              <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-200">
-                <button 
-                  onClick={() => setIsFilterModalOpen(false)}
-                  className="px-4 py-2 bg-white text-slate-700 border border-slate-300 text-sm font-bold rounded-sm hover:bg-slate-50 transition-colors"
-                >
-                  Show All
-                </button>
-                <button 
-                  onClick={() => setIsFilterModalOpen(false)}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-sm hover:bg-blue-500 transition-colors"
-                >
-                  Filter
-                </button>
-              </div>
+            </div>
+            <div className="bg-slate-50 px-8 py-5 border-t border-gray-200 flex justify-end gap-3">
+              <button onClick={() => setShowNewInvoiceModal(false)} className={`${btnClass} bg-white text-slate-700 border border-gray-300 hover:bg-slate-50`}>
+                CLOSE
+              </button>
+              <button onClick={handleCreateInvoiceHeader} className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 px-6`}>
+                CREATE INVOICE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal UPDATE FP */}
+      {showFpModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-md rounded-lg shadow-2xl flex flex-col overflow-hidden border border-slate-700">
+            <div className="bg-slate-800 px-6 py-4 flex justify-between items-center border-b border-slate-700">
+              <h3 className="text-white font-bold text-lg">Konfirmasi Faktur Pajak</h3>
+              <button onClick={() => setShowFpModal(false)} className="text-slate-400 hover:text-white transition-colors p-1 rounded-md hover:bg-slate-700">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-8 flex flex-col gap-5 text-center">
+              <p className="text-sm font-medium text-slate-700">
+                Faktur Pajak untuk invoice ini telah ada. Apakah Anda ingin mengupdate datanya atau membuat Faktur Pajak Pengganti?
+              </p>
+            </div>
+            <div className="bg-slate-50 px-8 py-5 border-t border-gray-200 flex flex-col gap-3">
+              <button onClick={() => handleRouteToFp('update')} className="w-full px-4 py-2.5 text-sm font-bold rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors">
+                UPDATE DATA
+              </button>
+              <button onClick={() => handleRouteToFp('pengganti')} className="w-full px-4 py-2.5 text-sm font-bold rounded-md bg-amber-500 text-white hover:bg-amber-600 shadow-sm transition-colors">
+                BUAT PENGGANTI
+              </button>
+              <button onClick={() => setShowFpModal(false)} className="w-full px-4 py-2.5 text-sm font-bold rounded-md bg-white text-slate-700 border border-gray-300 hover:bg-slate-50 shadow-sm transition-colors mt-2">
+                BATAL
+              </button>
             </div>
           </div>
         </div>

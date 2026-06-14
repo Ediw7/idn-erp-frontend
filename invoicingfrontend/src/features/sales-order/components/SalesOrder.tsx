@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FilePlus, Trash2, Printer, Ban, Save, Search, Send, X } from 'lucide-react';
 import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useAuth } from '../../auth/contexts/AuthContext';
 import { salesOrderApi, SalesOrderData, SalesOrderLine } from '../api';
 import { setupApi, PelangganData, MataUangData, PembayaranData, SalesmanData, ItemData, GudangData } from '../../setup/api';
 import toast from 'react-hot-toast';
@@ -9,6 +10,7 @@ import toast from 'react-hot-toast';
 const SalesOrder: React.FC = () => {
   const navigate = useNavigate();
   const confirm = useConfirm();
+  const { user } = useAuth();
 
   const [dataList, setDataList] = useState<SalesOrderData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -273,7 +275,7 @@ const SalesOrder: React.FC = () => {
             <button onClick={handleVoid} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors ml-2 rounded-sm shadow-sm">
                <Ban size={14} /> VOID
             </button>
-            <button onClick={handleBuatSJClick} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors ml-2 rounded-sm shadow-sm">
+            <button onClick={handleBuatSJClick} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-green-600 border border-transparent hover:bg-green-500 transition-colors ml-2 rounded-sm shadow-sm">
                <Send size={14} /> BUAT SJ
             </button>
           </div>
@@ -368,14 +370,14 @@ const SalesOrder: React.FC = () => {
                   <span className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Record Created</span>
                   <div className="flex gap-2 mt-2">
                     <input type="text" className="w-full px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 font-mono rounded-sm" readOnly value={form.create_date ? new Date(form.create_date).toLocaleString('id-ID') : '-'} />
-                    <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.create_uid_name || 'Admin'} />
+                    <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.create_uid_name || user?.name || 'Unknown'} />
                   </div>
                 </div>
                 <div className="border border-slate-300 p-3 relative mt-3 rounded-sm bg-white shadow-sm">
                   <span className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Record Modified</span>
                   <div className="flex gap-2 mt-2">
                     <input type="text" className="w-full px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 font-mono rounded-sm" readOnly value={form.write_date ? new Date(form.write_date).toLocaleString('id-ID') : '-'} />
-                    <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.write_uid_name || 'Admin'} />
+                    <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.write_uid_name || user?.name || 'Unknown'} />
                   </div>
                 </div>
               </div>
