@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Plus, Trash2, Edit2, Save, X, Upload, FileSpreadsheet, Download } from 'lucide-react';
+import { Plus, Trash2, Edit2, Save, X, Upload, FileSpreadsheet } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, PelangganData, PembayaranData, PerkiraanData } from '../api';
 import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
@@ -24,7 +24,6 @@ const SetupPelanggan: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 20;
 
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchPelanggans = async () => {
@@ -53,7 +52,23 @@ const SetupPelanggan: React.FC = () => {
     validate: (form) => (!form.kode || !form.nama) ? 'Kode dan Nama Pelanggan harus diisi!' : null
   });
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExportExcel = () => {
+    const exportData = list.map(item => ({
+      "Kode Pelanggan": item.kode || "",
+      "Nama Pelanggan": item.nama || "",
+      "NPWP": item.npwp || "",
+      "Telepon": item.telepon || "",
+      "Contact Person": item.contact_person || "",
+      "Cara Pembayaran": pembayarans.find(p => p.id === item.pembayaran_id)?.nama || ""
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data_Pelanggan");
+    XLSX.writeFile(wb, "Data_Pelanggan.xlsx");
+  };
+
+  const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -66,17 +81,13 @@ const SetupPelanggan: React.FC = () => {
         const ws = wb.Sheets[wsname];
         const data = XLSX.utils.sheet_to_json(ws) as any[];
 
-        // Map excel data to our interface
         const itemsToImport = data.map(row => ({
           kode: row['Kode Pelanggan'] || row['KODE'],
           nama: row['Nama Pelanggan'] || row['NAMA'],
-          alamat: row['Alamat Pelanggan'] || row['ALAMAT'],
-          telepon: row['No. Telepon'] || row['TELEPON'],
-          fax: row['No. Fax'] || row['FAX'],
-          nama_wp: row['Nama Wajib Pajak'] || row['NAMA_WP'],
           npwp: row['NPWP'],
-          alamat_wp: row['Alamat Wajib Pajak'] || row['ALAMAT_WP']
-        })).filter(i => i.kode && i.nama); // Must have at least kode and nama
+          telepon: row['Telepon'] || row['TELEPON'] || row['No. Telepon'],
+          contact_person: row['Contact Person'] || row['CONTACT_PERSON']
+        })).filter(i => i.kode && i.nama);
 
         if (itemsToImport.length === 0) {
           toast.error('Format file Excel tidak valid atau data kosong.');
@@ -84,9 +95,14 @@ const SetupPelanggan: React.FC = () => {
         }
 
         setIsLoading(true);
-        const res = await setupApi.importBatchPelanggan(itemsToImport);
-        toast.success(res.message);
-        setIsImportModalOpen(false);
+        const importPromise = Promise.all(itemsToImport.map(item => setupApi.savePelanggan(item as PelangganData)));
+        
+        await toast.promise(importPromise, {
+          loading: 'Mengimpor data pelanggan...',
+          success: 'Data pelanggan berhasil diimpor!',
+          error: 'Gagal mengimpor data pelanggan.'
+        });
+
         fetchData();
       } catch (error) {
         console.error(error);
@@ -99,23 +115,7 @@ const SetupPelanggan: React.FC = () => {
     reader.readAsBinaryString(file);
   };
 
-  const downloadTemplate = () => {
-    const ws = XLSX.utils.json_to_sheet([
-      {
-        "Kode Pelanggan": "C001",
-        "Nama Pelanggan": "PT Contoh Maju",
-        "Alamat Pelanggan": "Jl. Sudirman No 1",
-        "No. Telepon": "021-123456",
-        "No. Fax": "021-123457",
-        "Nama Wajib Pajak": "PT Contoh Maju Tbk",
-        "Alamat Wajib Pajak": "Jl. Sudirman No 1",
-        "NPWP": "01.234.567.8-901.000"
-      }
-    ]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Pelanggan");
-    XLSX.writeFile(wb, "Template_Import_Pelanggan.xlsx");
-  };
+
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 text-xs transition-colors rounded-sm";
 
@@ -128,12 +128,26 @@ const SetupPelanggan: React.FC = () => {
           <p className="text-xs text-slate-300 mt-1">Daftar pelanggan, NPWP, dan aturan harga/diskon.</p>
         </div>
         <div className="flex gap-2">
+          <input 
+            type="file" 
+            accept=".xlsx, .xls" 
+            className="hidden" 
+            ref={fileInputRef} 
+            onChange={handleImportExcel} 
+          />
           <button 
-            onClick={() => setIsImportModalOpen(true)}
+            onClick={() => fileInputRef.current?.click()}
             className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-700 hover:bg-slate-600 border border-slate-600 transition-colors"
           >
             <Upload size={14} />
             <span>IMPORT DARI EXCEL</span>
+          </button>
+          <button 
+            onClick={handleExportExcel}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 transition-colors"
+          >
+            <FileSpreadsheet size={14} />
+            <span>EKSPOR KE EXCEL</span>
           </button>
           <button 
             onClick={handleAddNew}
@@ -207,50 +221,10 @@ const SetupPelanggan: React.FC = () => {
         )}
       </div>
 
-      {/* Modal Import Excel */}
-      {isImportModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white rounded shadow-xl max-w-md w-full flex flex-col">
-            <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-              <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                <FileSpreadsheet size={18} className="text-emerald-600"/> Import Data Excel
-              </h3>
-              <button onClick={() => setIsImportModalOpen(false)} className="text-slate-400 hover:text-slate-600">
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-6">
-              <p className="text-sm text-slate-600 mb-4">
-                Pilih file Excel (.xlsx atau .xls) yang berisi daftar pelanggan. Pastikan format kolom sesuai dengan template standar.
-              </p>
-              
-              <button 
-                onClick={downloadTemplate}
-                className="mb-6 flex items-center gap-2 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-              >
-                <Download size={14} /> Download Template Excel
-              </button>
-
-              <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center bg-slate-50 hover:bg-slate-100 transition-colors relative cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                <Upload size={32} className="mx-auto text-slate-400 mb-2" />
-                <p className="text-sm font-semibold text-slate-700">Klik untuk memilih file</p>
-                <p className="text-xs text-slate-500 mt-1">.xlsx, .xls didukung</p>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileUpload} 
-                  accept=".xlsx, .xls"
-                  className="hidden" 
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal Form Pelanggan */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 ">
           <div className="bg-white shadow-2xl max-w-5xl w-full flex flex-col max-h-[95vh] border border-slate-300">
             {/* Header Modern */}
             <div className="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">

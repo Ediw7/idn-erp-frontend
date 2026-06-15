@@ -288,7 +288,7 @@ const SaldoAwalInventory: React.FC = () => {
 
       {/* Form Modal/Overlay for Master-Detail */}
       {isFormOpen && (
-        <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[1px] z-30 flex items-center justify-center p-6">
+        <div className="absolute inset-0 bg-slate-900/20 z-30 flex items-center justify-center p-6">
           <div className="bg-white border border-slate-300 shadow-2xl rounded-sm w-full max-w-5xl h-full max-h-[90vh] flex flex-col overflow-hidden">
             
             {/* Modal Header */}

@@ -108,7 +108,7 @@ const SetupGudang: React.FC = () => {
 
       {/* Form Dialog/Modal Overlay */}
       {isModalOpen && (
-        <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[1px] z-30 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-slate-900/20  z-30 flex items-center justify-center p-4">
           <div className="bg-white border border-slate-300 shadow-xl rounded-sm w-full max-w-md flex flex-col overflow-hidden">
             <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between shrink-0">
               <h3 className="font-semibold text-sm">{editForm.id ? 'UBAH Gudang' : 'Tambah Gudang Baru'}</h3>

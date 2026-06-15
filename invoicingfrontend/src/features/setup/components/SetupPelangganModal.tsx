@@ -68,7 +68,7 @@ export const SetupPelangganModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
   const labelClass = "block text-xs font-semibold text-slate-700 mb-1";
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60  p-4 overflow-y-auto">
       <div className="bg-white w-full max-w-5xl rounded-md shadow-2xl flex flex-col border border-slate-700 my-8">
         
         {/* Header */}

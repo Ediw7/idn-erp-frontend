@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit2, Save, X, Search } from 'lucide-react';
+import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, ItemData, GroupBarangData, PerkiraanData, SupplierData } from '../api';
 import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
@@ -27,13 +27,13 @@ const SetupItem: React.FC = () => {
         // ignore or toast
       }
     }
-    const data = await setupApi.getItem({ kode: filterKode, nama: filterNama, group_barang_id: filterGroup || undefined });
+    const data = await setupApi.getItem();
     return data || [];
   };
 
   const {
     list, isLoading, isModalOpen, setIsModalOpen,
-    editForm, setEditForm, handleEdit, handleSave, handleDelete, fetchData
+    editForm, setEditForm, handleEdit, handleSave, handleDelete
   } = useMasterDataCRUD<ItemData>({
     fetchApi: fetchItems,
     saveApi: setupApi.saveItem,
@@ -55,13 +55,15 @@ const SetupItem: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSearch = () => {
-    setCurrentPage(1);
-    fetchData();
-  };
+  const filteredList = list.filter(item => {
+    const matchKode = item.kode?.toLowerCase().includes(filterKode.toLowerCase());
+    const matchNama = item.nama?.toLowerCase().includes(filterNama.toLowerCase());
+    const matchGroup = filterGroup ? item.group_barang_id === Number(filterGroup) : true;
+    return matchKode && matchNama && matchGroup;
+  });
 
   const ic = "w-full px-2 py-1.5 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs transition-colors rounded-sm";
-  const fmtCur = (val: number) => val ? val.toLocaleString('id-ID', { minimumFractionDigits: 2 }) : '0.00';
+  const fmtCur = (val: number | undefined | null) => val ? val.toLocaleString('id-ID', { minimumFractionDigits: 2 }) : '';
 
   return (
     <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)] relative">
@@ -78,22 +80,24 @@ const SetupItem: React.FC = () => {
       <div className="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-slate-700">Kode:</label>
-          <input type="text" value={filterKode} onChange={e => setFilterKode(e.target.value)} className="w-24 px-2 py-1 border border-slate-300 text-xs focus:outline-none focus:border-slate-500" />
+          <input type="text" value={filterKode} onChange={e => { setFilterKode(e.target.value); setCurrentPage(1); }} className="w-24 px-2 py-1 border border-slate-300 text-xs focus:outline-none focus:border-slate-500" placeholder="Cari..." />
         </div>
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-slate-700">Nama Item:</label>
-          <input type="text" value={filterNama} onChange={e => setFilterNama(e.target.value)} className="w-48 px-2 py-1 border border-slate-300 text-xs focus:outline-none focus:border-slate-500" />
+          <input type="text" value={filterNama} onChange={e => { setFilterNama(e.target.value); setCurrentPage(1); }} className="w-48 px-2 py-1 border border-slate-300 text-xs focus:outline-none focus:border-slate-500" placeholder="Cari..." />
         </div>
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-slate-700">Group:</label>
-          <select value={filterGroup} onChange={e => setFilterGroup(e.target.value)} className="w-36 px-2 py-1 border border-slate-300 text-xs focus:outline-none focus:border-slate-500">
+          <select value={filterGroup} onChange={e => { setFilterGroup(e.target.value); setCurrentPage(1); }} className="w-36 px-2 py-1 border border-slate-300 text-xs focus:outline-none focus:border-slate-500">
             <option value="">(Semua Group)</option>
             {groupBarangs.map(g => <option key={g.id} value={g.id}>{g.nama}</option>)}
           </select>
         </div>
-        <button onClick={handleSearch} className="px-4 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold flex items-center gap-2 transition-colors">
-          <Search size={14} /> Filter
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => { setFilterKode(''); setFilterNama(''); setFilterGroup(''); setCurrentPage(1); }} className="px-4 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors rounded-sm shadow-sm">
+            TAMPILKAN SEMUA
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-col bg-white">
@@ -110,16 +114,18 @@ const SetupItem: React.FC = () => {
                   <th className="px-2 py-2 border-r border-slate-300 w-48">Nama Item</th>
                   <th className="px-2 py-2 border-r border-slate-300 w-28">Group Item</th>
                   <th className="px-2 py-2 border-r border-slate-300 w-16 text-center">Satuan</th>
-                  <th className="px-2 py-2 border-r border-slate-300 w-32 text-right">Harga Jual 1</th>
-                  <th className="px-2 py-2 border-r border-slate-300 w-32 text-right">Harga Jual 2</th>
-                  <th className="px-2 py-2 border-r border-slate-300 w-32 text-right">Harga Jual 3</th>
-                  <th className="px-2 py-2 border-r border-slate-300 w-36">Supplier Utama</th>
+                  <th className="px-2 py-2 border-r border-slate-300 w-28 text-right">Harga Jual 1</th>
+                  <th className="px-2 py-2 border-r border-slate-300 w-28 text-right">Harga Jual 2</th>
+                  <th className="px-2 py-2 border-r border-slate-300 w-28 text-right">Harga Jual 3</th>
+                  <th className="px-2 py-2 border-r border-slate-300 w-32">Supplier Utama</th>
+                  <th className="px-2 py-2 border-r border-slate-300 w-24">Perk Penjualan</th>
+                  <th className="px-2 py-2 border-r border-slate-300 w-24">Perk HPP</th>
                   <th className="px-2 py-2 border-r border-slate-300 w-16 text-center">Inventory</th>
-                  <th className="px-2 py-2 w-20 text-center">Aksi</th>
+                  <th className="px-2 py-2 w-16 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-800 divide-y divide-slate-200">
-                {list.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map(item => (
+                {filteredList.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map(item => (
                   <tr key={item.id} className="hover:bg-blue-50 transition-colors">
                     <td className="px-2 py-1.5 border-r border-slate-200 font-mono">{item.kode}</td>
                     <td className="px-2 py-1.5 border-r border-slate-200 font-medium">{item.nama}</td>
@@ -128,7 +134,9 @@ const SetupItem: React.FC = () => {
                     <td className="px-2 py-1.5 border-r border-slate-200 text-right">{fmtCur(item.harga_jual_1)}</td>
                     <td className="px-2 py-1.5 border-r border-slate-200 text-right">{fmtCur(item.harga_jual_2)}</td>
                     <td className="px-2 py-1.5 border-r border-slate-200 text-right">{fmtCur(item.harga_jual_3)}</td>
-                    <td className="px-2 py-1.5 border-r border-slate-200">{item.supplier_utama || '-'}</td>
+                    <td className="px-2 py-1.5 border-r border-slate-200 truncate max-w-[120px]" title={item.supplier_utama}>{item.supplier_utama || '-'}</td>
+                    <td className="px-2 py-1.5 border-r border-slate-200 text-xs truncate max-w-[100px]" title={item.perk_penjualan_nama}>{item.perk_penjualan_nama || '-'}</td>
+                    <td className="px-2 py-1.5 border-r border-slate-200 text-xs truncate max-w-[100px]" title={item.perk_hpp_nama}>{item.perk_hpp_nama || '-'}</td>
                     <td className="px-2 py-1.5 border-r border-slate-200 text-center">
                       <input type="checkbox" checked={item.is_inventory} readOnly className="w-3.5 h-3.5 opacity-60 cursor-not-allowed" />
                     </td>
@@ -138,19 +146,19 @@ const SetupItem: React.FC = () => {
                     </td>
                   </tr>
                 ))}
-                {list.length === 0 && (
-                  <tr><td colSpan={10} className="px-4 py-8 text-center text-slate-500">Belum ada data item. Klik "Tambah Baru" untuk memulai.</td></tr>
+                {filteredList.length === 0 && (
+                  <tr><td colSpan={12} className="px-4 py-8 text-center text-slate-500">Belum ada data item. Klik "Tambah Baru" untuk memulai.</td></tr>
                 )}
               </tbody>
             </table>
-            <Pagination currentPage={currentPage} totalPages={Math.ceil(list.length / rowsPerPage)} onPageChange={setCurrentPage} totalItems={list.length} itemsPerPage={rowsPerPage} />
+            <Pagination currentPage={currentPage} totalPages={Math.ceil(filteredList.length / rowsPerPage)} onPageChange={setCurrentPage} totalItems={filteredList.length} itemsPerPage={rowsPerPage} />
           </div>
         )}
         </div>
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto pt-10 pb-10">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 overflow-y-auto pt-10 pb-10">
           <div className="bg-white shadow-xl max-w-4xl w-full flex flex-col my-auto rounded-sm">
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-800">
               <h3 className="font-bold text-white">{editForm.id ? 'UBAH Item' : 'Tambah Item Baru'}</h3>

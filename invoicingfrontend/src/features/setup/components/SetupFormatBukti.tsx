@@ -118,9 +118,15 @@ const SetupFormatBukti: React.FC = () => {
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
                 {list.map((item, index) => {
-                  const inv_sample = `${item.inv_vat_prefiks}001${item.inv_vat_sufiks}`;
-                  const so_sample = `${item.so_prefiks}001${item.so_sufiks}`;
-                  const sj_sample = `${item.sj_prefiks}001${item.sj_sufiks}`;
+                  const getSample = (prefix: string | undefined, digit: string | undefined, suffix: string | undefined) => {
+                    const d = parseInt(digit || '3', 10);
+                    const num = '1'.padStart(d, '0');
+                    return `${prefix || ''}${num}${suffix || ''}`;
+                  };
+
+                  const inv_sample = getSample(item.inv_vat_prefiks, item.inv_vat_digit, item.inv_vat_sufiks);
+                  const so_sample = getSample(item.so_prefiks, item.so_digit, item.so_sufiks);
+                  const sj_sample = getSample(item.sj_prefiks, item.sj_digit, item.sj_sufiks);
                   return (
                     <tr key={item.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-4 py-3 text-center text-slate-500">{index + 1}</td>
@@ -154,7 +160,7 @@ const SetupFormatBukti: React.FC = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 ">
           <div className="bg-white shadow-2xl w-full max-w-6xl flex flex-col h-[90vh] border border-slate-300">
             <div className="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
               <h3 className="font-semibold text-base tracking-wide">

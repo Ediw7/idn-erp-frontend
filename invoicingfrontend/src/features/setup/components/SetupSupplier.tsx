@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Plus, Trash2, Edit2, Save, X, FileSpreadsheet, Upload } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, SupplierData, PembayaranData } from '../api';
 import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
+import toast from 'react-hot-toast';
 
 const JENIS_TRANSAKSI = [
   { value: '01', label: 'Kepada Bukan Pemungut PPN (01)' },
@@ -19,6 +21,7 @@ const SetupSupplier: React.FC = () => {
   const [pembayarans, setPembayarans] = useState<PembayaranData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 20;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchSupplier = async () => {
     const [suppliersData, pembayaransData] = await Promise.all([
@@ -30,8 +33,8 @@ const SetupSupplier: React.FC = () => {
   };
 
   const {
-    list, isLoading, isModalOpen, setIsModalOpen,
-    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+    list, isLoading, setIsLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete, fetchData
   } = useMasterDataCRUD<SupplierData>({
     fetchApi: fetchSupplier,
     saveApi: setupApi.saveSupplier,
@@ -47,6 +50,69 @@ const SetupSupplier: React.FC = () => {
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 text-xs transition-colors rounded-sm";
 
+  const handleExportExcel = () => {
+    const exportData = list.map(item => ({
+      "Kode": item.kode || "",
+      "Nama Supplier": item.nama || "",
+      "NPWP": item.npwp || "",
+      "Telepon": item.telepon || "",
+      "Contact Person": item.contact_person || "",
+      "Cara Pembayaran": pembayarans.find(p => p.id === item.pembayaran_id)?.nama || ""
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data_Supplier");
+    XLSX.writeFile(wb, "Data_Supplier.xlsx");
+  };
+
+  const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const bstr = evt.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws) as any[];
+
+        const itemsToImport = data.map(row => ({
+          kode: row['Kode'] || row['KODE'],
+          nama: row['Nama Supplier'] || row['NAMA'],
+          npwp: row['NPWP'],
+          telepon: row['Telepon'] || row['TELEPON'] || row['No. Telepon'],
+          contact_person: row['Contact Person'] || row['CONTACT_PERSON']
+        })).filter(i => i.kode && i.nama);
+
+        if (itemsToImport.length === 0) {
+          toast.error('Format file Excel tidak valid atau data kosong.');
+          return;
+        }
+
+        setIsLoading(true);
+        const importPromise = Promise.all(itemsToImport.map(item => setupApi.saveSupplier(item as SupplierData)));
+        
+        await toast.promise(importPromise, {
+          loading: 'Mengimpor data supplier...',
+          success: 'Data supplier berhasil diimpor!',
+          error: 'Gagal mengimpor data supplier.'
+        });
+
+        fetchData();
+      } catch (error) {
+        console.error(error);
+        toast.error('Gagal membaca file Excel atau format salah.');
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        setIsLoading(false);
+      }
+    };
+    reader.readAsBinaryString(file);
+  };
+
   return (
     <div className="bg-white shadow-sm border border-slate-300 w-full mx-auto mt-4 h-full flex flex-col">
       {/* Header */}
@@ -55,13 +121,36 @@ const SetupSupplier: React.FC = () => {
           <h2 className="text-lg font-semibold text-white">Setup Supplier (Vendor)</h2>
           <p className="text-xs text-slate-300 mt-1">Daftar pemasok barang/jasa untuk keperluan pembelian.</p>
         </div>
-        <button 
-          onClick={handleAddNew}
-          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
-        >
-          <Plus size={14} />
-          <span>TAMBAH BARU</span>
-        </button>
+        <div className="flex gap-2">
+          <input 
+            type="file" 
+            accept=".xlsx, .xls" 
+            className="hidden" 
+            ref={fileInputRef} 
+            onChange={handleImportExcel} 
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-700 hover:bg-slate-600 border border-slate-600 transition-colors"
+          >
+            <Upload size={14} />
+            <span>IMPORT DARI EXCEL</span>
+          </button>
+          <button 
+            onClick={handleExportExcel}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 transition-colors"
+          >
+            <FileSpreadsheet size={14} />
+            <span>EKSPOR KE EXCEL</span>
+          </button>
+          <button 
+            onClick={handleAddNew}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
+          >
+            <Plus size={14} />
+            <span>TAMBAH BARU</span>
+          </button>
+        </div>
       </div>
 
       <div className="p-4 flex-1 flex flex-col min-h-0">
@@ -128,7 +217,7 @@ const SetupSupplier: React.FC = () => {
 
       {/* Modal Form Supplier */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 ">
           <div className="bg-white shadow-2xl max-w-4xl w-full flex flex-col max-h-[95vh] border border-slate-300">
             {/* Header Modern */}
             <div className="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">

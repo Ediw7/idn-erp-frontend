@@ -347,7 +347,7 @@ const Kwitansi: React.FC = () => {
 
       {/* Modal Tambah Kwitansi Header */}
       {showNewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 p-4">
           <div className="bg-white w-full max-w-lg rounded-lg shadow-2xl flex flex-col overflow-hidden border border-slate-700">
             <div className="bg-slate-800 px-6 py-4 flex justify-between items-center border-b border-slate-700">
               <h3 className="text-white font-bold text-lg">Buat Kwitansi Baru</h3>

@@ -640,7 +640,7 @@ const SalesOrder: React.FC = () => {
 
       {/* Modal Auto BUAT BARU Surat Jalan */}
       {showSjModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20">
           <div className="bg-white w-[500px] rounded-md shadow-xl flex flex-col overflow-hidden border border-slate-700">
             {/* Modal Header */}
             <div className="bg-slate-800 px-5 py-3 flex justify-between items-center">
@@ -728,7 +728,7 @@ const SalesOrder: React.FC = () => {
 
       {/* Modal Tambah SO (Header Only) */}
       {showNewSoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 p-4 overflow-y-auto">
           <div className="bg-white w-full max-w-3xl rounded-md shadow-xl flex flex-col overflow-hidden border border-slate-700 my-8">
             {/* Modal Header */}
             <div className="bg-slate-800 px-6 py-4 flex justify-between items-center">

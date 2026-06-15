@@ -452,7 +452,7 @@ const SuratJalan: React.FC = () => {
 
       {/* Modal Tambah SJ (Header Only) */}
       {showNewSjModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 p-4 overflow-y-auto">
           <div className="bg-white w-full max-w-3xl rounded-md shadow-xl flex flex-col overflow-hidden border border-slate-700 my-8">
             {/* Modal Header */}
             <div className="bg-slate-800 px-6 py-4 flex justify-between items-center">
@@ -558,7 +558,7 @@ const SuratJalan: React.FC = () => {
 
       {/* Modal Buat Invoice */}
       {showInvoiceModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-slate-900/20 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-md shadow-xl w-full max-w-lg flex flex-col overflow-hidden border border-slate-700">
             {/* Modal Header */}
             <div className="bg-slate-800 px-5 py-3 flex justify-between items-center text-white">

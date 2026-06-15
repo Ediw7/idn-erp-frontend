@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
+import { Plus, Save, X } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, BahasaData } from '../api';
+import toast from 'react-hot-toast';
 import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupBahasa: React.FC = () => {
   const {
-    list, isLoading, isModalOpen, setIsModalOpen,
-    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+    list, isLoading, setIsLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleSave, fetchData
   } = useMasterDataCRUD<BahasaData>({
     fetchApi: setupApi.getBahasa,
     saveApi: setupApi.saveBahasa,
@@ -39,7 +40,44 @@ const SetupBahasa: React.FC = () => {
   }, [filterJenis, filterNama]);
 
   const totalPages = Math.ceil(filteredList.length / rowsPerPage);
-  const paginatedList = filteredList.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+  const [localList, setLocalList] = useState<BahasaData[]>([]);
+
+  useEffect(() => {
+    setLocalList(list);
+  }, [list]);
+
+  const handleInlineEdit = (id: number | undefined, value: string) => {
+    if (!id) return;
+    setLocalList(prev => prev.map(item => item.id === id ? { ...item, judul_kustom: value } : item));
+  };
+
+  const handleBatchSave = async () => {
+    const changes = localList.filter((item) => {
+      const originalItem = list.find(l => l.id === item.id);
+      return originalItem && item.judul_kustom !== originalItem.judul_kustom;
+    });
+
+    if (changes.length === 0) {
+      toast.success('Tidak ada perubahan untuk disimpan.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const importPromise = Promise.all(changes.map(item => setupApi.saveBahasa(item)));
+      await toast.promise(importPromise, {
+        loading: 'Menyimpan perubahan bahasa...',
+        success: `${changes.length} bahasa berhasil diperbarui!`,
+        error: 'Gagal menyimpan perubahan bahasa.'
+      });
+      if (fetchData) await fetchData();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Extract unique Jenis and Nama for dropdowns
   const uniqueJenis = Array.from(new Set(list.map(item => item.jenis_objek)));
@@ -58,13 +96,22 @@ const SetupBahasa: React.FC = () => {
           <h2 className="text-lg font-semibold text-white">Setup Bahasa</h2>
           <p className="text-xs text-slate-300 mt-1">Konfigurasi penerjemahan/perubahan judul label standar sistem.</p>
         </div>
-        <button 
-          onClick={handleAddNew}
-          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
-        >
-          <Plus size={14} />
-          <span>TAMBAH LABEL</span>
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={handleBatchSave}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+          >
+            <Save size={14} />
+            <span>SIMPAN PERUBAHAN</span>
+          </button>
+          <button 
+            onClick={handleAddNew}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
+          >
+            <Plus size={14} />
+            <span>TAMBAH LABEL</span>
+          </button>
+        </div>
       </div>
       
       {/* Search Filters */}
@@ -116,24 +163,27 @@ const SetupBahasa: React.FC = () => {
                   <th className="px-4 py-3 w-40">Nama Objek</th>
                   <th className="px-4 py-3 w-1/3">Default dari Sistem</th>
                   <th className="px-4 py-3 w-1/3">Judul yang Diinginkan</th>
-                  <th className="px-4 py-3 w-28 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
-                {paginatedList.map((item, index) => (
+                {localList.filter(item => {
+                  const matchJenis = filterJenis ? item.jenis_objek.toLowerCase().includes(filterJenis.toLowerCase()) : true;
+                  const matchNama = filterNama ? item.nama_objek.toLowerCase().includes(filterNama.toLowerCase()) : true;
+                  return matchJenis && matchNama;
+                }).slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((item, index) => (
                   <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 text-center text-slate-500">{(currentPage - 1) * rowsPerPage + index + 1}</td>
-                    <td className="px-4 py-3">{item.jenis_objek}</td>
-                    <td className="px-4 py-3">{item.nama_objek}</td>
-                    <td className="px-4 py-3 text-slate-500">{item.default_sistem}</td>
-                    <td className="px-4 py-3 font-semibold text-slate-900">{item.judul_kustom || '-'}</td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="UBAH Terjemahan">
-                        <Edit2 size={14} />
-                      </button>
-                      <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus Label">
-                        <Trash2 size={14} />
-                      </button>
+                    <td className="px-4 py-2.5 text-center text-slate-500">{(currentPage - 1) * rowsPerPage + index + 1}</td>
+                    <td className="px-4 py-2.5">{item.jenis_objek}</td>
+                    <td className="px-4 py-2.5">{item.nama_objek}</td>
+                    <td className="px-4 py-2.5 text-slate-500">{item.default_sistem}</td>
+                    <td className="px-4 py-2.5">
+                      <input 
+                        type="text" 
+                        value={item.judul_kustom || ''} 
+                        onChange={(e) => handleInlineEdit(item.id, e.target.value)}
+                        className="w-full px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                        placeholder="Ketik judul kustom..."
+                      />
                     </td>
                   </tr>
                 ))}
@@ -162,7 +212,7 @@ const SetupBahasa: React.FC = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20">
           <div className="bg-white rounded shadow-xl max-w-md w-full flex flex-col">
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
               <h3 className="font-bold text-slate-800">

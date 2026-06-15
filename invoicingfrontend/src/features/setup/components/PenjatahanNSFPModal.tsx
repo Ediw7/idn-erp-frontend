@@ -83,7 +83,7 @@ export const PenjatahanNSFPModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
   const inputClass = "w-full px-2 py-1.5 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500 bg-white";
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60  p-4">
       <div className="bg-white w-full max-w-5xl rounded-md shadow-2xl flex flex-col overflow-hidden border border-slate-700">
         
         {/* Header */}

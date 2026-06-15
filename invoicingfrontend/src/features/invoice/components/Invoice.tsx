@@ -681,7 +681,7 @@ const Invoice: React.FC = () => {
 
       {/* Modal Tambah Invoice */}
       {showNewInvoiceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 p-4">
           <div className="bg-white w-full max-w-xl rounded-lg shadow-2xl flex flex-col overflow-hidden border border-slate-700">
             <div className="bg-slate-800 px-6 py-4 flex justify-between items-center border-b border-slate-700">
               <h3 className="text-white font-bold text-lg">Buat Header Invoice Baru</h3>
@@ -723,7 +723,7 @@ const Invoice: React.FC = () => {
 
       {/* Modal PERBARUI FP */}
       {showFpModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/20 p-4">
           <div className="bg-white w-full max-w-md rounded-lg shadow-2xl flex flex-col overflow-hidden border border-slate-700">
             <div className="bg-slate-800 px-6 py-4 flex justify-between items-center border-b border-slate-700">
               <h3 className="text-white font-bold text-lg">Konfirmasi Faktur Pajak</h3>

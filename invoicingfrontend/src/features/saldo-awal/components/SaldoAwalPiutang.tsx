@@ -258,7 +258,7 @@ const SaldoAwalPiutang: React.FC = () => {
 
       {/* Form Modal untuk TAMBAH BARU Saldo Awal */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/20 p-4">
           <div className="bg-white rounded-md shadow-2xl border border-slate-300 w-full max-w-2xl overflow-hidden flex flex-col">
             <div className="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
               <h3 className="font-semibold text-base tracking-wide">Tambah Saldo Awal Piutang</h3>
@@ -331,7 +331,7 @@ const SaldoAwalPiutang: React.FC = () => {
 
       {/* Customer Modal rendering actual SetupPelanggan */}
       {isCustomerModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 p-4">
           <div className="bg-white rounded-md shadow-2xl border border-slate-300 w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex justify-between items-center px-6 py-3 bg-slate-800 text-white shrink-0">
               <h3 className="font-semibold text-base">Tambah Pelanggan Baru</h3>
@@ -360,7 +360,7 @@ const SaldoAwalPiutang: React.FC = () => {
 
       {/* Migration Modal */}
       {isMigrationModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/20">
           <div className="bg-white rounded-md shadow-2xl border border-slate-300 w-[500px] overflow-hidden">
             <div className="px-4 py-3 bg-slate-800 text-white flex justify-between items-center border-b border-slate-700">
               <h3 className="font-semibold">Migrasi Data</h3>
