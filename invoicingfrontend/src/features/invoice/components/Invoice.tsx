@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, X, Printer, Search, Save, FileBox, RefreshCcw, DollarSign, FilePlus, Filter, FileText } from 'lucide-react';
+import { FilePlus, Trash2, X, Printer, Search, Save, RefreshCcw, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../auth/contexts/AuthContext';
-import { setupApi, TandaTanganData } from '../../setup/api';
+import { setupApi } from '../../setup/api';
+import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
 import { useConfirm } from '../../../contexts/ConfirmContext';
 import { SetupPelangganModal } from '../../setup/components/SetupPelangganModal';
 
@@ -13,16 +14,13 @@ const Invoice: React.FC = () => {
   const confirm = useConfirm();
 
   const [activeTab, setActiveTab] = useState('detail');
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  
   const [showNewInvoiceModal, setShowNewInvoiceModal] = useState(false);
   const [showFpModal, setShowFpModal] = useState(false);
-  
-  const [ttdList, setTtdList] = useState<TandaTanganData[]>([]);
-  const [selectedTtdId, setSelectedTtdId] = useState<number | ''>('');
 
   const emptyForm = {
     no_invoice: '',
-    tgl_invoice: TAMBAH BARU Date().toISOString().split('T')[0],
+    tgl_invoice: new Date().toISOString().split('T')[0],
     pembeli_id: '',
     alamat: '',
     npwp: '',
@@ -42,6 +40,8 @@ const Invoice: React.FC = () => {
     is_paid: false,
     catatan: '',
     keterangan: '',
+    penandatangan: 'Admin',
+    jabatan: 'Finance',
     lines: [],
     create_date: '',
     create_uid_name: '',
@@ -66,8 +66,7 @@ const Invoice: React.FC = () => {
   const fetchTtd = async () => {
     setLoadingData(true);
     try {
-        const [ttdRes, pelRes, proRes, muRes, pemRes, salRes, gudRes, itmRes] = await Promise.all([
-          setupApi.getTandaTangan().catch(() => []),
+        const [pelRes, proRes, muRes, pemRes, salRes, gudRes, itmRes] = await Promise.all([
           setupApi.getPelanggan().catch(() => []),
           setupApi.getProyek().catch(() => []),
           setupApi.getMataUang().catch(() => []),
@@ -76,15 +75,6 @@ const Invoice: React.FC = () => {
           setupApi.getGudang().catch(() => []),
           setupApi.getItem().catch(() => [])
         ]);
-        
-        const invoiceTtd = ttdRes.filter(d => d.jenis_formulir === 'Invoice');
-        setTtdList(invoiceTtd.length > 0 ? invoiceTtd : ttdRes);
-        
-        if (invoiceTtd.length > 0 && invoiceTtd[0].id) {
-          setSelectedTtdId(invoiceTtd[0].id);
-        } else if (ttdRes.length > 0 && ttdRes[0].id) {
-          setSelectedTtdId(ttdRes[0].id);
-        }
 
         setPelanggans(pelRes);
         setProyeks(proRes);
@@ -108,6 +98,18 @@ const Invoice: React.FC = () => {
         module.salesOrderApi.getAll().then(res => setSalesOrders(res)).catch(() => {});
     }).catch(() => {});
   }, []);
+
+  const { signatureData } = useSignatureAutoFill('Invoice');
+
+  useEffect(() => {
+    if (signatureData) {
+      setForm((prev: any) => ({
+        ...prev,
+        penandatangan: signatureData.nama || prev.penandatangan,
+        jabatan: signatureData.jabatan || prev.jabatan
+      }));
+    }
+  }, [signatureData]);
 
   const handlePembeliChange = (id: number | '', isModal: boolean = false) => {
     const p = pelanggans.find(x => x.id === id);
@@ -158,7 +160,6 @@ const Invoice: React.FC = () => {
     setForm({ ...form, lines: newLines });
   };
 
-  const selectedTtd = ttdList.find(t => t.id === selectedTtdId);
 
   const handleCreateInvoiceHeader = () => {
     if (!modalForm.no_invoice) {
@@ -173,7 +174,7 @@ const Invoice: React.FC = () => {
     setForm({
       ...modalForm,
       lines: [{ item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, harga: 0, disc_persen: 0, disc_harga: 0, harga_jual: 0 }],
-      create_date: TAMBAH BARU Date().toISOString(),
+      create_date: new Date().toISOString(),
       create_uid_name: user?.name || 'Unknown'
     });
     
@@ -189,7 +190,7 @@ const Invoice: React.FC = () => {
     
     setForm({
       ...form,
-      write_date: TAMBAH BARU Date().toISOString(),
+      write_date: new Date().toISOString(),
       write_uid_name: user?.name || 'Unknown'
     });
     toast.success('Invoice berhasil disimpan');
@@ -564,36 +565,37 @@ const Invoice: React.FC = () => {
         {/* Footer: Tanda Tangan & Kalkulasi */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 shrink-0">
           
-          {/* Blok 1: Tanda Tangan (CANVAS PRESERVED) */}
+          {/* Blok 1: Tanda Tangan */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col gap-4">
+            {signatureData && signatureData.ttd_image && (
+              <div className="mt-2 mb-2">
+                <img 
+                  src={`data:image/png;base64,${signatureData.ttd_image}`} 
+                  alt="Tanda Tangan" 
+                  className="h-16 w-auto object-contain border-b border-gray-300 mb-2 self-center mx-auto" 
+                />
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Tanda Tangan (Nama)</label>
-                <select 
-                  className={inputClass}
-                  value={selectedTtdId}
-                  onChange={(e) => setSelectedTtdId(e.target.value ? Number(e.target.value) : '')}
-                >
-                  <option value="" disabled>Pilih Tanda Tangan...</option>
-                  {ttdList.map(ttd => (
-                    <option key={ttd.id} value={ttd.id}>{ttd.nama}</option>
-                  ))}
-                </select>
+                <input 
+                  type="text" 
+                  className={inputClass} 
+                  value={form.penandatangan || ''} 
+                  onChange={e => setForm({...form, penandatangan: e.target.value})} 
+                />
               </div>
               <div>
                 <label className={labelClass}>Jabatan</label>
-                <input type="text" className={`${inputClass} bg-slate-50 text-slate-500`} value={selectedTtd?.jabatan || ''} disabled />
+                <input 
+                  type="text" 
+                  className={inputClass} 
+                  value={form.jabatan || ''} 
+                  onChange={e => setForm({...form, jabatan: e.target.value})} 
+                />
               </div>
             </div>
-            {/* CANVAS / TTD BOX PRESERVED EXACTLY AS IS */}
-            {selectedTtd?.ttd_image && (
-              <div className="mt-2 mb-2">
-                <label className={labelClass}>Tanda Tangan Digital</label>
-                <div className="border border-gray-300 rounded-md bg-slate-50 flex items-center justify-center overflow-hidden p-2 shadow-inner" style={{ width: '100%', height: '140px' }}>
-                  <img src={`data:image/png;base64,${selectedTtd.ttd_image}`} alt="Tanda Tangan" className="max-w-full max-h-full object-contain" />
-                </div>
-              </div>
-            )}
             <div className="mt-auto">
               <label className={labelClass}>Keterangan Tambahan</label>
               <textarea className={`${inputClass} h-20 resize-none`} value={form.keterangan || ''} onChange={e => setForm({...form, keterangan: e.target.value})} />

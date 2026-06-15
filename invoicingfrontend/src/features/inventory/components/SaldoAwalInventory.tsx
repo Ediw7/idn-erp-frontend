@@ -45,7 +45,7 @@ const SaldoAwalInventory: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState<SaldoAwalInventoryData>({
     gudang_id: null,
-    tanggal: TAMBAH BARU Date().toISOString().split('T')[0],
+    tanggal: new Date().toISOString().split('T')[0],
     keterangan: '',
     lines: []
   });
@@ -103,7 +103,7 @@ const SaldoAwalInventory: React.FC = () => {
   const handleAddNew = () => {
     setFormData({
       gudang_id: gudangs.length > 0 ? gudangs[0].id : null,
-      tanggal: TAMBAH BARU Date().toISOString().split('T')[0],
+      tanggal: new Date().toISOString().split('T')[0],
       keterangan: '',
       lines: [createEmptyLine()]
     });

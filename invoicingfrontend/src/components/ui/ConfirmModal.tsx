@@ -4,8 +4,8 @@ interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
   message: string;
-  onConfirm: () => BATALKAN;
-  onCancel: () => BATALKAN;
+  onConfirm: () => void;
+  onCancel: () => void;
   confirmText?: string;
   cancelText?: string;
   isDestructive?: boolean;
@@ -19,8 +19,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onCancel,
   confirmText = 'Hapus',
   cancelText = 'Batal',
-  isDestructive = true,
-}) => {
+  isDestructive = true }) => {
   if (!isOpen) return null;
 
   return (

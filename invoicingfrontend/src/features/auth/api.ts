@@ -81,11 +81,10 @@ export const authApi = {
     if (response.data.status === 'success') {
       return response.data.data || [];
     }
-    throw TAMBAH BARU Error(response.data.error || 'Failed to fetch users');
+    throw new Error(response.data.error || 'Failed to fetch users');
   },
 
   toggleUser: async (id: number): Promise<{message?: string; error?: string}> => {
     const response = await axiosClient.post('/api/auth/users/toggle', { id });
     return response.data;
-  },
-};
+  } };

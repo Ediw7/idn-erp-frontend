@@ -1,89 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, JenisPotonganData, PerkiraanData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupJenisPotongan: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<JenisPotonganData[]>([]);
   const [perkiraans, setPerkiraans] = useState<PerkiraanData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<JenisPotonganData>({
-    kode: '',
-    nama: '',
-    perkiraan_id: null
+
+  const fetchJenisPotongan = async () => {
+    const [data, perkiransData] = await Promise.all([
+      setupApi.getJenisPotongan(),
+      setupApi.getPerkiraan()
+    ]);
+    setPerkiraans(perkiransData || []);
+    return data || [];
+  };
+
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<JenisPotonganData>({
+    fetchApi: fetchJenisPotongan,
+    saveApi: setupApi.saveJenisPotongan,
+    deleteApi: setupApi.deleteJenisPotongan,
+    initialForm: { kode: '', nama: '', perkiraan_id: null },
+    validate: (form) => (!form.kode || !form.nama) ? 'Kode dan Jenis Potongan harus diisi!' : null
   });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [data, perkiransData] = await Promise.all([
-        setupApi.getJenisPotongan(),
-        setupApi.getPerkiraan()
-      ]);
-      setList(data || []);
-      setPerkiraans(perkiransData || []);
-    } catch (error) {
-      showMessage('Gagal memuat data jenis potongan.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
-  };
-
-  const handleAddNew = () => {
-    setEditForm({
-      kode: '',
-      nama: '',
-      perkiraan_id: null
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: JenisPotonganData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.kode || !editForm.nama) {
-      showMessage('Kode dan Jenis Potongan harus diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.saveJenisPotongan(editForm);
-      showMessage('Data Jenis Potongan berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus jenis potongan ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteJenisPotongan(id);
-      showMessage('Data berhasil dihapus!', 'success');
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
-  };
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
@@ -105,21 +46,6 @@ const SetupJenisPotongan: React.FC = () => {
       </div>
 
       <div className="p-6">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-1">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32">

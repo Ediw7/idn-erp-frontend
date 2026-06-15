@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Upload, FileSpreadsheet, Download } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, PelangganData, PembayaranData, PerkiraanData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
+import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 
 const JENIS_TRANSAKSI = [
@@ -17,145 +18,46 @@ const JENIS_TRANSAKSI = [
 ];
 
 const SetupPelanggan: React.FC = () => {
-  const [list, setList] = useState<PelangganData[]>([]);
   const [pembayarans, setPembayarans] = useState<PembayaranData[]>([]);
   const [perkiraans, setPerkiraans] = useState<PerkiraanData[]>([]);
-  
-  const confirm = useConfirm();
-  
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 20;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [editForm, setEditForm] = useState<PelangganData>({
-    kode: '',
-    is_ekspor: false,
-    nama: '',
-    alamat: '',
-    telepon: '',
-    fax: '',
-    alamat_kirim: '',
-    telepon_kirim: '',
-    fax_kirim: '',
-    nama_wp: '',
-    npwp: '',
-    nik: '',
-    alamat_wp: '',
-    jenis_transaksi: '01',
-    ket_tambahan: '',
-    email: '',
-    contact_person: '',
-    no_hp: '',
-    jabatan: '',
-    pembayaran_id: null,
-    tingkat_harga: '1',
-    diskon: 0,
-    perk_piutang_id: null,
-    keterangan: ''
+  const fetchPelanggans = async () => {
+    const [pelanggansData, pembayaransData, perkiransData] = await Promise.all([
+      setupApi.getPelanggan(),
+      setupApi.getPembayaran(),
+      setupApi.getPerkiraan()
+    ]);
+    setPembayarans(pembayaransData || []);
+    setPerkiraans(perkiransData || []);
+    return pelanggansData || [];
+  };
+
+  const {
+    list, isLoading, setIsLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete, fetchData
+  } = useMasterDataCRUD<PelangganData>({
+    fetchApi: fetchPelanggans,
+    saveApi: setupApi.savePelanggan,
+    deleteApi: setupApi.deletePelanggan,
+    initialForm: {
+      kode: '', is_ekspor: false, nama: '', alamat: '', telepon: '', fax: '', alamat_kirim: '', telepon_kirim: '',
+      fax_kirim: '', nama_wp: '', npwp: '', nik: '', alamat_wp: '', jenis_transaksi: '01', ket_tambahan: '', email: '',
+      contact_person: '', no_hp: '', jabatan: '', pembayaran_id: null, tingkat_harga: '1', diskon: 0, perk_piutang_id: null, keterangan: ''
+    },
+    validate: (form) => (!form.kode || !form.nama) ? 'Kode dan Nama Pelanggan harus diisi!' : null
   });
-
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
-
-  const fetchInitialData = async () => {
-    setIsLoading(true);
-    try {
-      const [pelanggansData, pembayaransData, perkiransData] = await Promise.all([
-        setupApi.getPelanggan(),
-        setupApi.getPembayaran(),
-        setupApi.getPerkiraan()
-      ]);
-      setList(pelanggansData || []);
-      setPembayarans(pembayaransData || []);
-      setPerkiraans(perkiransData || []);
-      setCurrentPage(1);
-    } catch (error) {
-      showMessage('Gagal memuat data pelanggan.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
-
-  const handleAddNew = () => {
-    setEditForm({
-      kode: '',
-      nama: '',
-      alamat: '',
-      telepon: '',
-      fax: '',
-      alamat_kirim: '',
-      telepon_kirim: '',
-      fax_kirim: '',
-      nama_wp: '',
-      npwp: '',
-      nik: '',
-      alamat_wp: '',
-      jenis_transaksi: '01',
-      email: '',
-      contact_person: '',
-      no_hp: '',
-      jabatan: '',
-      pembayaran_id: null,
-      tingkat_harga: '1',
-      diskon: 0,
-      perk_piutang_id: null,
-      keterangan: ''
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: PelangganData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.kode || !editForm.nama) {
-      showMessage('Kode dan Nama Pelanggan harus diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.savePelanggan(editForm);
-      showMessage('Data pelanggan berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      fetchInitialData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus pelanggan ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deletePelanggan(id);
-      showMessage('Data berhasil dihapus!', 'success');
-      fetchInitialData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
-  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = TAMBAH BARU FileReader();
+    const reader = new FileReader();
     reader.onload = async (evt) => {
       try {
         const bstr = evt.target?.result;
@@ -177,18 +79,18 @@ const SetupPelanggan: React.FC = () => {
         })).filter(i => i.kode && i.nama); // Must have at least kode and nama
 
         if (itemsToImport.length === 0) {
-          showMessage('Format file Excel tidak valid atau data kosong.', 'error');
+          toast.error('Format file Excel tidak valid atau data kosong.');
           return;
         }
 
         setIsLoading(true);
         const res = await setupApi.importBatchPelanggan(itemsToImport);
-        showMessage(res.message, 'success');
+        toast.success(res.message);
         setIsImportModalOpen(false);
-        fetchInitialData();
+        fetchData();
       } catch (error) {
         console.error(error);
-        showMessage('Gagal membaca file Excel atau format salah.', 'error');
+        toast.error('Gagal membaca file Excel atau format salah.');
       } finally {
         if (fileInputRef.current) fileInputRef.current.value = '';
         setIsLoading(false);
@@ -244,18 +146,6 @@ const SetupPelanggan: React.FC = () => {
       </div>
 
       <div className="p-4 flex-1 flex flex-col min-h-0">
-        {message && (
-          <div className={`mb-4 p-3 rounded-sm flex items-start gap-3 shadow-sm border shrink-0 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32 flex-1">

@@ -1,91 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, FakturPajakData } from '../api';
 import { format, parseISO } from 'date-fns';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupFakturPajak: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<FakturPajakData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<FakturPajakData>({
-    no_surat: '',
-    tgl_surat: '',
-    tgl_awal: '',
-    tgl_akhir: '',
-    no_seri_awal: '',
-    no_seri_akhir: ''
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<FakturPajakData>({
+    fetchApi: setupApi.getFakturPajak,
+    saveApi: setupApi.saveFakturPajak,
+    deleteApi: setupApi.deleteFakturPajak,
+    initialForm: { no_surat: '', tgl_surat: '', tgl_awal: '', tgl_akhir: '', no_seri_awal: '', no_seri_akhir: '' },
+    validate: (form) => (!form.no_surat || !form.tgl_surat || !form.tgl_awal || !form.tgl_akhir || !form.no_seri_awal || !form.no_seri_akhir) ? 'Semua kolom wajib diisi!' : null
   });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getFakturPajak();
-      setList(data || []);
-    } catch (error) {
-      showMessage('Gagal memuat data faktur pajak.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
-  };
-
-  const handleAddNew = () => {
-    setEditForm({
-      no_surat: '',
-      tgl_surat: '',
-      tgl_awal: '',
-      tgl_akhir: '',
-      no_seri_awal: '',
-      no_seri_akhir: ''
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: FakturPajakData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.no_surat || !editForm.tgl_surat || !editForm.tgl_awal || !editForm.tgl_akhir || !editForm.no_seri_awal || !editForm.no_seri_akhir) {
-      showMessage('Semua kolom wajib diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.saveFakturPajak(editForm);
-      showMessage('Data berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus data ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteFakturPajak(id);
-      showMessage('Data berhasil dihapus!', 'success');
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
-  };
 
   const formatDateDisplay = (dateString: string) => {
     if (!dateString) return '-';
@@ -116,21 +45,6 @@ const SetupFakturPajak: React.FC = () => {
       </div>
 
       <div className="p-6">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-1">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32">

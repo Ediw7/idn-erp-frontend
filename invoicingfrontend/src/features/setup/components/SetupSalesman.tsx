@@ -1,82 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, SalesmanData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupSalesman: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<SalesmanData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<SalesmanData>({
-    kode: '',
-    nama: ''
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<SalesmanData>({
+    fetchApi: setupApi.getSalesman,
+    saveApi: setupApi.saveSalesman,
+    deleteApi: setupApi.deleteSalesman,
+    initialForm: { kode: '', nama: '' },
+    validate: (form) => (!form.kode || !form.nama) ? 'Kode dan Nama Salesman harus diisi!' : null
   });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getSalesman();
-      setList(data || []);
-    } catch (error) {
-      showMessage('Gagal memuat data salesman.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
-  };
-
-  const handleAddNew = () => {
-    setEditForm({
-      kode: '',
-      nama: ''
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: SalesmanData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.kode || !editForm.nama) {
-      showMessage('Kode dan Nama Salesman harus diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.saveSalesman(editForm);
-      showMessage('Data Salesman berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus salesman ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteSalesman(id);
-      showMessage('Data berhasil dihapus!', 'success');
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
-  };
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
@@ -98,21 +35,6 @@ const SetupSalesman: React.FC = () => {
       </div>
 
       <div className="p-6">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-1">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32">

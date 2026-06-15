@@ -6,8 +6,8 @@ import { useAuth } from '../../auth/contexts/AuthContext';
 
 interface Props {
   isOpen: boolean;
-  onClose: () => BATALKAN;
-  onSaved: () => BATALKAN;
+  onClose: () => void;
+  onSaved: () => void;
 }
 
 const emptyForm: Partial<PelangganData> = {
@@ -37,7 +37,7 @@ const emptyForm: Partial<PelangganData> = {
   keterangan: ''
 };
 
-EKSPOR const SetupPelangganModal: React.FC<Props> = ({ isOpen, onClose, onSaved }) => {
+export const SetupPelangganModal: React.FC<Props> = ({ isOpen, onClose, onSaved }) => {
   const { user } = useAuth();
   const [form, setForm] = useState<Partial<PelangganData>>(emptyForm);
   const [loading, setLoading] = useState(false);

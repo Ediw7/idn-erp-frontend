@@ -1,79 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Search } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, ItemData, GroupBarangData, PerkiraanData, SupplierData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupItem: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<ItemData[]>([]);
   const [groupBarangs, setGroupBarangs] = useState<GroupBarangData[]>([]);
   const [perkiraans, setPerkiraans] = useState<PerkiraanData[]>([]);
   const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [filterKode, setFilterKode] = useState('');
   const [filterNama, setFilterNama] = useState('');
   const [filterGroup, setFilterGroup] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 20;
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<ItemData>({
-    kode: '', nama: '', group_barang_id: null, satuan: 'Pcs',
-    harga_jual_1: 0, harga_jual_2: 0, harga_jual_3: 0,
-    supplier_utama: '', perk_penjualan_id: null, perk_hpp_id: null, is_inventory: true
-  });
-
-  useEffect(() => { fetchInitialData(); }, []);
-
-  const fetchInitialData = async () => {
-    setIsLoading(true);
-    try {
-      const [groupsData, perkiransData, suppliersData] = await Promise.all([
-        setupApi.getGroupBarang(), setupApi.getPerkiraan(), setupApi.getSupplier()
-      ]);
-      setGroupBarangs(groupsData || []);
-      setPerkiraans(perkiransData || []);
-      setSuppliers(suppliersData || []);
-      await fetchItems();
-    } catch { showMessage('Gagal memuat data pendukung.', 'error'); }
-    finally { setIsLoading(false); }
-  };
 
   const fetchItems = async () => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getItem({ kode: filterKode, nama: filterNama, group_barang_id: filterGroup || undefined });
-      setList(data || []); setCurrentPage(1);
-    } catch { showMessage('Gagal memuat data item.', 'error'); }
-    finally { setIsLoading(false); }
+    if (groupBarangs.length === 0) {
+      try {
+        const [groupsData, perkiransData, suppliersData] = await Promise.all([
+          setupApi.getGroupBarang(), setupApi.getPerkiraan(), setupApi.getSupplier()
+        ]);
+        setGroupBarangs(groupsData || []);
+        setPerkiraans(perkiransData || []);
+        setSuppliers(suppliersData || []);
+      } catch (error) {
+        // ignore or toast
+      }
+    }
+    const data = await setupApi.getItem({ kode: filterKode, nama: filterNama, group_barang_id: filterGroup || undefined });
+    return data || [];
   };
 
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type }); setTimeout(() => setMessage(null), 3000);
-  };
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleEdit, handleSave, handleDelete, fetchData
+  } = useMasterDataCRUD<ItemData>({
+    fetchApi: fetchItems,
+    saveApi: setupApi.saveItem,
+    deleteApi: setupApi.deleteItem,
+    initialForm: {
+      kode: '', nama: '', group_barang_id: null, satuan: 'Pcs',
+      harga_jual_1: 0, harga_jual_2: 0, harga_jual_3: 0,
+      supplier_utama: '', perk_penjualan_id: null, perk_hpp_id: null, is_inventory: true
+    },
+    validate: (form) => (!form.kode || !form.nama) ? 'Kode dan Nama Item harus diisi!' : null
+  });
 
   const handleAddNew = () => {
-    setEditForm({ kode: '', nama: '', group_barang_id: groupBarangs.length > 0 ? groupBarangs[0].id : null, satuan: 'Pcs', harga_jual_1: 0, harga_jual_2: 0, harga_jual_3: 0, supplier_utama: '', perk_penjualan_id: null, perk_hpp_id: null, is_inventory: true });
+    setEditForm({
+      kode: '', nama: '', group_barang_id: groupBarangs.length > 0 ? groupBarangs[0].id! : null, satuan: 'Pcs',
+      harga_jual_1: 0, harga_jual_2: 0, harga_jual_3: 0,
+      supplier_utama: '', perk_penjualan_id: null, perk_hpp_id: null, is_inventory: true
+    });
     setIsModalOpen(true);
   };
 
-  const handleEdit = (item: ItemData) => { setEditForm({ ...item }); setIsModalOpen(true); };
-
-  const handleSave = async () => {
-    if (!editForm.kode || !editForm.nama) { showMessage('Kode dan Nama Item harus diisi!', 'error'); return; }
-    try {
-      await setupApi.saveItem(editForm);
-      showMessage('Data item berhasil disimpan!', 'success');
-      setIsModalOpen(false); fetchItems();
-    } catch { showMessage('Terjadi kesalahan saat menyimpan data.', 'error'); }
-  };
-
-  const handleDelete = async (id: number) => {
-    const ok = await confirm('Apakah Anda yakin ingin menghapus item ini?');
-    if (!ok) return;
-    try { await setupApi.deleteItem(id); showMessage('Data berhasil dihapus!', 'success'); fetchItems(); }
-    catch { showMessage('Terjadi kesalahan saat menghapus data.', 'error'); }
+  const handleSearch = () => {
+    setCurrentPage(1);
+    fetchData();
   };
 
   const ic = "w-full px-2 py-1.5 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs transition-colors rounded-sm";
@@ -107,19 +91,14 @@ const SetupItem: React.FC = () => {
             {groupBarangs.map(g => <option key={g.id} value={g.id}>{g.nama}</option>)}
           </select>
         </div>
-        <button onClick={fetchItems} className="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold transition-colors flex items-center gap-2">
+        <button onClick={handleSearch} className="px-4 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold flex items-center gap-2 transition-colors">
           <Search size={14} /> Filter
         </button>
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-col bg-white">
         <div className="p-4 overflow-x-auto flex-1">
-          {message && (
-          <div className={`mb-4 p-3 flex items-center justify-between border rounded-sm ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <p className="text-sm font-semibold">{message.text}</p>
-            <button onClick={() => setMessage(null)}><X size={16} /></button>
-          </div>
-        )}
+
         {isLoading ? (
           <div className="flex justify-center items-center h-32"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-700"></div></div>
         ) : (

@@ -15,8 +15,8 @@ const JENIS_TRANSAKSI = [
 ];
 
 interface SetupPelangganFormProps {
-  onClose: () => BATALKAN;
-  onSuccess: () => BATALKAN;
+  onClose: () => void;
+  onSuccess: () => void;
 }
 
 const SetupPelangganForm: React.FC<SetupPelangganFormProps> = ({ onClose, onSuccess }) => {

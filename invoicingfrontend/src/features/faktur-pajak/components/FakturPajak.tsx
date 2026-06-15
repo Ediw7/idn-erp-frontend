@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/contexts/AuthContext';
 import { setupApi, PelangganData } from '../../setup/api';
 import { PenjatahanNSFPModal } from '../../setup/components/PenjatahanNSFPModal';
 import { SetupPelangganModal } from '../../setup/components/SetupPelangganModal';
+import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
 
 const FakturPajak: React.FC = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const FakturPajak: React.FC = () => {
   const emptyForm = {
     penomoran: '',
     no_fp: '',
-    tgl_fp: TAMBAH BARU Date().toISOString().split('T')[0],
+    tgl_fp: new Date().toISOString().split('T')[0],
     pembeli_id: '',
     alamat: '',
     npwp: '',
@@ -45,8 +46,8 @@ const FakturPajak: React.FC = () => {
   
   const [eFakturForm, setEFakturForm] = useState({
     jenisPajak: 'Keluaran',
-    tahun: TAMBAH BARU Date().getFullYear().toString(),
-    bulan: (TAMBAH BARU Date().getMonth() + 1).toString(),
+    tahun: new Date().getFullYear().toString(),
+    bulan: (new Date().getMonth() + 1).toString(),
     noAwal: '',
     noAkhir: ''
   });
@@ -56,7 +57,7 @@ const FakturPajak: React.FC = () => {
 
   const [pelanggans, setPelanggans] = useState<PelangganData[]>([]);
   const [fakturPajakSetups, setFakturPajakSetups] = useState<any[]>([]);
-  const [oldFakturPajaks, setOldFakturPajaks] = useState<any[]>([]); // Placeholder for old FPs
+  const [oldFakturPajaks] = useState<any[]>([]); // Placeholder for old FPs
   const [loadingData, setLoadingData] = useState(true);
 
   const fetchData = async () => {
@@ -87,11 +88,22 @@ const FakturPajak: React.FC = () => {
         pembeli_id: pembeli_id || '',
         alamat: alamat || '',
         npwp: npwp || '',
-        lines: lines || [],
-      }));
+        lines: lines || [] }));
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
+
+  const { signatureData } = useSignatureAutoFill('Faktur Pajak');
+
+  useEffect(() => {
+    if (signatureData) {
+      setForm((prev: any) => ({
+        ...prev,
+        penandatangan: signatureData.nama || prev.penandatangan,
+        jabatan: signatureData.jabatan || prev.jabatan
+      }));
+    }
+  }, [signatureData]);
 
   const handlePembeliChange = (id: number | '') => {
     const p = pelanggans.find(x => x.id === id);
@@ -110,9 +122,9 @@ const FakturPajak: React.FC = () => {
     }
     setForm({
       ...form,
-      write_date: TAMBAH BARU Date().toISOString(),
+      write_date: new Date().toISOString(),
       write_uid_name: user?.name || 'Unknown',
-      create_date: form.create_date || TAMBAH BARU Date().toISOString(),
+      create_date: form.create_date || new Date().toISOString(),
       create_uid_name: form.create_uid_name || user?.name || 'Unknown'
     });
     toast.success('Faktur Pajak berhasil disimpan!');
@@ -137,7 +149,7 @@ const FakturPajak: React.FC = () => {
     // BUAT BARU dummy CSV content
     const csvContent = `"FK","KD_JENIS_TRANSAKSI","FG_PENGGANTI","NOMOR_FAKTUR","MASA_PAJAK","TAHUN_PAJAK","TANGGAL_FAKTUR","NPWP","NAMA","ALAMAT_LENGKAP","JUMLAH_DPP","JUMLAH_PPN","JUMLAH_PPNBM","ID_KETERANGAN_TAMBAHAN","FG_UANG_MUKA","UANG_MUKA_DPP","UANG_MUKA_PPN","UANG_MUKA_PPNBM","REFERENSI"\n`;
     
-    const blob = TAMBAH BARU Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     
     const link = document.createElement('a');
@@ -279,6 +291,15 @@ const FakturPajak: React.FC = () => {
                   <input type="number" className={`${inputClass} flex-1 text-right`} value={form.kurs_pajak || 1} onChange={e => setForm({...form, kurs_pajak: e.target.value})} />
                 </div>
               </div>
+              {signatureData && signatureData.ttd_image && (
+                <div className="mb-2">
+                  <img 
+                    src={`data:image/png;base64,${signatureData.ttd_image}`} 
+                    alt="Tanda Tangan" 
+                    className="h-16 w-auto object-contain border-b border-gray-300 mb-2" 
+                  />
+                </div>
+              )}
               <div>
                 <label className={labelClass}>Tanda Tangan</label>
                 <input type="text" className={inputClass} value={form.penandatangan || ''} onChange={e => setForm({...form, penandatangan: e.target.value})} />

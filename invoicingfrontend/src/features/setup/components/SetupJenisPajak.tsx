@@ -1,82 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, JenisPajakData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupJenisPajak: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<JenisPajakData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<JenisPajakData>({
-    kode: '',
-    nama: ''
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<JenisPajakData>({
+    fetchApi: setupApi.getJenisPajak,
+    saveApi: setupApi.saveJenisPajak,
+    deleteApi: setupApi.deleteJenisPajak,
+    initialForm: { kode: '', nama: '' },
+    validate: (form) => (!form.kode || !form.nama) ? 'Kode dan Jenis Pajak harus diisi!' : null
   });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getJenisPajak();
-      setList(data || []);
-    } catch (error) {
-      showMessage('Gagal memuat data jenis pajak.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
-  };
-
-  const handleAddNew = () => {
-    setEditForm({
-      kode: '',
-      nama: ''
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: JenisPajakData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.kode || !editForm.nama) {
-      showMessage('Kode dan Jenis Pajak harus diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.saveJenisPajak(editForm);
-      showMessage('Data Jenis Pajak berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus kode pajak ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteJenisPajak(id);
-      showMessage('Data berhasil dihapus!', 'success');
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
-  };
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
@@ -98,21 +35,6 @@ const SetupJenisPajak: React.FC = () => {
       </div>
 
       <div className="p-6 flex-1 overflow-hidden flex flex-col">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border shrink-0 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-1">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32">

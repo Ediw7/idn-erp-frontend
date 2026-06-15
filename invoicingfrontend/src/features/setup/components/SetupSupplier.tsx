@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, SupplierData, PembayaranData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const JENIS_TRANSAKSI = [
   { value: '01', label: 'Kepada Bukan Pemungut PPN (01)' },
@@ -16,120 +16,34 @@ const JENIS_TRANSAKSI = [
 ];
 
 const SetupSupplier: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<SupplierData[]>([]);
   const [pembayarans, setPembayarans] = useState<PembayaranData[]>([]);
-  
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 20;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const fetchSupplier = async () => {
+    const [suppliersData, pembayaransData] = await Promise.all([
+      setupApi.getSupplier(),
+      setupApi.getPembayaran()
+    ]);
+    setPembayarans(pembayaransData || []);
+    return suppliersData || [];
+  };
 
-  const [editForm, setEditForm] = useState<SupplierData>({
-    kode: '',
-    nama: '',
-    alamat: '',
-    telepon: '',
-    fax: '',
-    email: '',
-    contact_person: '',
-    no_hp: '',
-    nama_wp: '',
-    alamat_wp: '',
-    npwp: '',
-    tgl_pengukuhan: '',
-    no_seri_fp_masukan: '',
-    is_pkp: false,
-    jenis_transaksi: '01',
-    pembayaran_id: null,
-    keterangan: ''
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<SupplierData>({
+    fetchApi: fetchSupplier,
+    saveApi: setupApi.saveSupplier,
+    deleteApi: setupApi.deleteSupplier,
+    initialForm: {
+      kode: '', nama: '', alamat: '', telepon: '', fax: '', email: '',
+      contact_person: '', no_hp: '', nama_wp: '', alamat_wp: '', npwp: '',
+      tgl_pengukuhan: '', no_seri_fp_masukan: '', is_pkp: false,
+      jenis_transaksi: '01', pembayaran_id: null, keterangan: ''
+    },
+    validate: (form) => (!form.kode || !form.nama) ? 'Kode dan Nama Supplier harus diisi!' : null
   });
-
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
-
-  const fetchInitialData = async () => {
-    setIsLoading(true);
-    try {
-      const [suppliersData, pembayaransData] = await Promise.all([
-        setupApi.getSupplier(),
-        setupApi.getPembayaran()
-      ]);
-      setList(suppliersData || []);
-      setPembayarans(pembayaransData || []);
-      setCurrentPage(1);
-    } catch (error) {
-      showMessage('Gagal memuat data supplier.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
-
-  const handleAddNew = () => {
-    setEditForm({
-      kode: '',
-      nama: '',
-      alamat: '',
-      telepon: '',
-      fax: '',
-      email: '',
-      contact_person: '',
-      no_hp: '',
-      nama_wp: '',
-      alamat_wp: '',
-      npwp: '',
-      tgl_pengukuhan: '',
-      no_seri_fp_masukan: '',
-      is_pkp: false,
-      jenis_transaksi: '01',
-      pembayaran_id: null,
-      keterangan: ''
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: SupplierData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.kode || !editForm.nama) {
-      showMessage('Kode dan Nama Supplier harus diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.saveSupplier(editForm);
-      showMessage('Data supplier berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      fetchInitialData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus supplier ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteSupplier(id);
-      showMessage('Data berhasil dihapus!', 'success');
-      fetchInitialData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
-  };
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 text-xs transition-colors rounded-sm";
 
@@ -151,18 +65,6 @@ const SetupSupplier: React.FC = () => {
       </div>
 
       <div className="p-4 flex-1 flex flex-col min-h-0">
-        {message && (
-          <div className={`mb-4 p-3 rounded-sm flex items-start gap-3 shadow-sm border shrink-0 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32 flex-1">

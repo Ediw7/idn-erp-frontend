@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Search } from 'lucide-react';
 import { setupApi, MataUangData, KursPajakData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
+import toast from 'react-hot-toast';
 
 const SetupKursPajak: React.FC = () => {
-  const confirm = useConfirm();
   const [mataUangList, setMataUangList] = useState<MataUangData[]>([]);
   const [selectedMataUangId, setSelectedMataUangId] = useState<number | ''>('');
-  
-  const [kursPajakList, setKursPajakList] = useState<KursPajakData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<KursPajakData>({
-    mata_uang_id: 0,
-    tgl_dari: '',
-    tgl_sd: '',
-    kurs: '',
-    no_kmk: '',
-    tgl_kmk: ''
+
+  const fetchKursPajak = () => {
+    if (selectedMataUangId) return setupApi.getKursPajak(Number(selectedMataUangId));
+    return Promise.resolve([]);
+  };
+
+  const {
+    list: kursPajakList, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleEdit, handleSave, handleDelete, fetchData
+  } = useMasterDataCRUD<KursPajakData>({
+    fetchApi: fetchKursPajak,
+    saveApi: setupApi.saveKursPajak,
+    deleteApi: setupApi.deleteKursPajak,
+    initialForm: { mata_uang_id: 0, tgl_dari: '', tgl_sd: '', kurs: '', no_kmk: '', tgl_kmk: '' },
+    validate: (form) => (!form.tgl_dari || !form.tgl_sd || !form.kurs) ? 'Tanggal Dari, Tanggal s/d, dan Kurs harus diisi!' : null
   });
 
   useEffect(() => {
@@ -28,9 +30,7 @@ const SetupKursPajak: React.FC = () => {
 
   useEffect(() => {
     if (selectedMataUangId) {
-      fetchKursPajak(Number(selectedMataUangId));
-    } else {
-      setKursPajakList([]);
+      fetchData();
     }
     setIsModalOpen(false);
   }, [selectedMataUangId]);
@@ -40,34 +40,16 @@ const SetupKursPajak: React.FC = () => {
       const data = await setupApi.getMataUang();
       setMataUangList(data || []);
       if (data && data.length > 0) {
-        // Auto select first currency (usually IDR or USD) if list is not empty
         setSelectedMataUangId(data[0].id!);
       }
     } catch (error) {
-      showMessage('Gagal memuat daftar mata uang.', 'error');
+      toast.error('Gagal memuat daftar mata uang.');
     }
-  };
-
-  const fetchKursPajak = async (id: number) => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getKursPajak(id);
-      setKursPajakList(data || []);
-    } catch (error) {
-      showMessage('Gagal memuat data kurs pajak.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
   };
 
   const handleAddNew = () => {
     if (!selectedMataUangId) {
-      showMessage('Pilih Mata Uang terlebih dahulu.', 'error');
+      toast.error('Pilih Mata Uang terlebih dahulu.');
       return;
     }
     setEditForm({
@@ -79,40 +61,6 @@ const SetupKursPajak: React.FC = () => {
       tgl_kmk: ''
     });
     setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: KursPajakData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.tgl_dari || !editForm.tgl_sd || !editForm.kurs) {
-      showMessage('Tanggal Dari, Tanggal s/d, dan Kurs harus diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.saveKursPajak(editForm);
-      showMessage('Data kurs pajak berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      if (selectedMataUangId) fetchKursPajak(Number(selectedMataUangId));
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus kurs pajak ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteKursPajak(id);
-      showMessage('Data kurs pajak berhasil dihapus!', 'success');
-      if (selectedMataUangId) fetchKursPajak(Number(selectedMataUangId));
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
   };
 
   const selectedCurrencyInfo = mataUangList.find(m => m.id === Number(selectedMataUangId));
@@ -157,21 +105,6 @@ const SetupKursPajak: React.FC = () => {
       </div>
 
       <div className="p-6">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-1">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {!selectedMataUangId ? (
           <div className="text-center py-12 text-slate-500 flex flex-col items-center">

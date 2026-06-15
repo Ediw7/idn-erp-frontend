@@ -23,6 +23,8 @@ export interface SalesOrderData {
   pelanggan_alamat_kirim?: string;
   alamat_kirim: string;
   no_po: string;
+  penandatangan?: string;
+  jabatan?: string;
   tgl_po: string;
   mata_uang_id: number | null;
   mata_uang_kode?: string;
@@ -57,10 +59,10 @@ export const salesOrderApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch sales orders');
+    throw new Error(response.data.result?.message || 'Failed to fetch sales orders');
   },
 
-  SIMPAN: async (data: SalesOrderData): Promise<{ message: string; id: number }> => {
+  save: async (data: SalesOrderData): Promise<{ message: string; id: number }> => {
     const response = await axiosClient.post('/api/sales-order/SIMPAN', {
       jsonrpc: '2.0',
       params: data
@@ -68,10 +70,10 @@ export const salesOrderApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN sales order');
+    throw new Error(response.data.result?.message || 'Failed to SIMPAN sales order');
   },
 
-  HAPUS: async (id: number): Promise<{ message: string }> => {
+  delete: async (id: number): Promise<{ message: string }> => {
     const response = await axiosClient.post('/api/sales-order/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
@@ -79,7 +81,7 @@ export const salesOrderApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS sales order');
+    throw new Error(response.data.result?.message || 'Failed to HAPUS sales order');
   },
 
   autoNo: async (): Promise<{ no_so: string }> => {

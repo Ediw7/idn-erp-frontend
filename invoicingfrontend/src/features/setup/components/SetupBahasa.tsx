@@ -2,93 +2,25 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import Pagination from '../../../components/ui/Pagination';
 import { setupApi, BahasaData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupBahasa: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<BahasaData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<BahasaData>({
+    fetchApi: setupApi.getBahasa,
+    saveApi: setupApi.saveBahasa,
+    deleteApi: setupApi.deleteBahasa,
+    initialForm: { jenis_objek: 'LAPORAN', nama_objek: 'Invoice', default_sistem: '', judul_kustom: '' },
+    validate: (form) => (!form.jenis_objek || !form.nama_objek || !form.default_sistem) ? 'Jenis, Nama Objek, dan Default Sistem harus diisi!' : null
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 20;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<BahasaData>({
-    jenis_objek: 'LAPORAN',
-    nama_objek: 'Invoice',
-    default_sistem: '',
-    judul_kustom: ''
-  });
-
   const [filterJenis, setFilterJenis] = useState('LAPORAN');
   const [filterNama, setFilterNama] = useState('Invoice');
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getBahasa();
-      setList(data || []);
-    } catch (error) {
-      showMessage('Gagal memuat data setup bahasa.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
-  };
-
-  const handleAddNew = () => {
-    setEditForm({
-      jenis_objek: filterJenis || 'LAPORAN',
-      nama_objek: filterNama || 'Invoice',
-      default_sistem: '',
-      judul_kustom: ''
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: BahasaData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.jenis_objek || !editForm.nama_objek || !editForm.default_sistem) {
-      showMessage('Jenis, Nama Objek, dan Default Sistem harus diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.saveBahasa(editForm);
-      showMessage('Data berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus bahasa ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteBahasa(id);
-      showMessage('Data berhasil dihapus!', 'success');
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
-  };
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
@@ -110,8 +42,8 @@ const SetupBahasa: React.FC = () => {
   const paginatedList = filteredList.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   // Extract unique Jenis and Nama for dropdowns
-  const uniqueJenis = Array.from(TAMBAH BARU Set(list.map(item => item.jenis_objek)));
-  const uniqueNama = Array.from(TAMBAH BARU Set(list.filter(item => !filterJenis || item.jenis_objek === filterJenis).map(item => item.nama_objek)));
+  const uniqueJenis = Array.from(new Set(list.map(item => item.jenis_objek)));
+  const uniqueNama = Array.from(new Set(list.filter(item => !filterJenis || item.jenis_objek === filterJenis).map(item => item.nama_objek)));
   
   if (!uniqueJenis.includes('LAPORAN')) uniqueJenis.push('LAPORAN');
   if (!uniqueJenis.includes('Form')) uniqueJenis.push('Form');
@@ -169,18 +101,6 @@ const SetupBahasa: React.FC = () => {
       </div>
 
       <div className="p-4 flex-1 overflow-hidden flex flex-col">
-        {message && (
-          <div className={`mb-4 p-3 rounded-sm flex items-start gap-3 shadow-sm border shrink-0 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32 flex-1">

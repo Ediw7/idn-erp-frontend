@@ -11,8 +11,7 @@ const UserManagement: React.FC = () => {
 
   const { data: users = [], isLoading: loading, error: queryError } = useQuery({
     queryKey: ['users'],
-    queryFn: authApi.getUsers,
-  });
+    queryFn: authApi.getUsers });
 
   const toggleMutation = useMutation({
     mutationFn: (userId: number) => authApi.toggleUser(userId),
@@ -24,7 +23,7 @@ const UserManagement: React.FC = () => {
     }
   });
 
-  const handleToggle = (userId: number, currentStatus: boolean) => {
+  const handleToggle = async (userId: number, currentStatus: boolean) => {
     const isConfirmed = await confirm(`Apakah Anda yakin ingin ${currentStatus ? 'menonaktifkan' : 'mengaktifkan'} pengguna ini?`);
     if (isConfirmed) {
       toggleMutation.mutate(userId);

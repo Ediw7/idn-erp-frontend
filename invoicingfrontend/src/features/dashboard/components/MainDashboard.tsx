@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const MainDashboard: React.FC = () => {
   const navigate = useNavigate();
   // Get current date formatted
-  const today = TAMBAH BARU Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
     <div className="flex flex-col h-full bg-slate-50 overflow-y-auto">

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, X, Printer, Search, Save, FilePlus, Send } from 'lucide-react';
+import { FilePlus, Trash2, X, Printer, Search, Save, Send } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { setupApi, PelangganData, GudangData, ItemData } from '../../setup/api';
 import { salesOrderApi, SalesOrderData } from '../../sales-order/api';
+import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
 
 const SuratJalan: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const SuratJalan: React.FC = () => {
 
   const emptyForm = {
     no_sj: '',
-    tanggal: TAMBAH BARU Date().toISOString().split('T')[0],
+    tanggal: new Date().toISOString().split('T')[0],
     pelanggan_id: '',
     alamat_kirim: '',
     gudang_id: '',
@@ -33,6 +34,8 @@ const SuratJalan: React.FC = () => {
     no_kendaraan: '',
     no_invoice: '',
     keterangan: '',
+    penandatangan: 'Admin',
+    jabatan: 'Logistik',
     lines: [],
     create_date: '',
     create_uid_name: '',
@@ -47,9 +50,21 @@ const SuratJalan: React.FC = () => {
     fetchInitialData();
   }, []);
 
+  const { signatureData } = useSignatureAutoFill('Surat Jalan');
+
+  useEffect(() => {
+    if (signatureData) {
+      setForm((prev: any) => ({
+        ...prev,
+        penandatangan: signatureData.nama || prev.penandatangan,
+        jabatan: signatureData.jabatan || prev.jabatan
+      }));
+    }
+  }, [signatureData]);
+
   useEffect(() => {
     // Parse query params if navigating from Sales Order
-    const params = TAMBAH BARU URLSearchParams(location.search);
+    const params = new URLSearchParams(location.search);
     const so = params.get('so');
     const pelanggan = params.get('pelanggan');
     const gudang = params.get('gudang');
@@ -117,7 +132,7 @@ const SuratJalan: React.FC = () => {
     setForm({
       ...modalForm,
       lines: [{ item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, keterangan: '' }],
-      create_date: TAMBAH BARU Date().toISOString(),
+      create_date: new Date().toISOString(),
       create_uid_name: user?.name || 'Unknown'
     });
 
@@ -134,7 +149,7 @@ const SuratJalan: React.FC = () => {
     // Simulate SIMPAN to DB
     setForm({
       ...form,
-      write_date: TAMBAH BARU Date().toISOString(),
+      write_date: new Date().toISOString(),
       write_uid_name: user?.name || 'Unknown'
     });
     toast.success('Surat Jalan berhasil disimpan');
@@ -381,18 +396,54 @@ const SuratJalan: React.FC = () => {
             </div>
 
             {/* Footer Totals Box (Right Aligned) */}
-            <div className="bg-slate-50 border-t border-slate-200 p-6 flex flex-col justify-end shrink-0">
-              <div className="flex justify-end gap-6 items-center mb-6">
-                <div className="flex items-center gap-4 bg-white border border-slate-300 px-4 py-2 rounded-sm shadow-sm">
-                  <span className="text-sm font-bold text-slate-700">Total Kuantum :</span>
-                  <span className="text-lg font-mono font-bold text-blue-700">{calculateTotalQty()}</span>
+            <div className="bg-slate-50 border-t border-slate-200 p-6 flex flex-col lg:flex-row gap-8 justify-between shrink-0">
+              <div className="flex-1 max-w-xl">
+                <div className="mt-2 flex flex-col gap-4">
+                  {signatureData && signatureData.ttd_image && (
+                    <div className="mb-2">
+                      <img 
+                        src={`data:image/png;base64,${signatureData.ttd_image}`} 
+                        alt="Tanda Tangan" 
+                        className="h-16 w-auto object-contain border-b border-gray-300 mb-2" 
+                      />
+                    </div>
+                  )}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Tanda Tangan</label>
+                      <input 
+                        type="text" 
+                        className="w-full h-10 px-3 py-2 border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500 text-sm" 
+                        value={form.penandatangan || ''} 
+                        onChange={e => setForm({...form, penandatangan: e.target.value})} 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">Jabatan</label>
+                      <input 
+                        type="text" 
+                        className="w-full h-10 px-3 py-2 border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500 text-sm" 
+                        value={form.jabatan || ''} 
+                        onChange={e => setForm({...form, jabatan: e.target.value})} 
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <button onClick={handleSaveAll} className="px-8 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 rounded-sm shadow-md min-w-[250px]">
-                  <Save size={16} /> SIMPAN SURAT JALAN
-                </button>
+              <div className="w-full lg:w-[420px] flex flex-col">
+                <div className="flex justify-end gap-6 items-center mb-6 mt-4 lg:mt-0">
+                  <div className="flex items-center gap-4 bg-white border border-slate-300 px-4 py-2 rounded-sm shadow-sm">
+                    <span className="text-sm font-bold text-slate-700">Total Kuantum :</span>
+                    <span className="text-lg font-mono font-bold text-blue-700">{calculateTotalQty()}</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button onClick={handleSaveAll} className="px-8 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 rounded-sm shadow-md min-w-[250px]">
+                    <Save size={16} /> SIMPAN SURAT JALAN
+                  </button>
+                </div>
               </div>
             </div>
           </div>

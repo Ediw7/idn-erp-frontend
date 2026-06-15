@@ -5,20 +5,20 @@ import { setupApi, FakturPajakData } from '../api';
 
 interface Props {
   isOpen: boolean;
-  onClose: () => BATALKAN;
-  onSaved: () => BATALKAN;
+  onClose: () => void;
+  onSaved: () => void;
 }
 
 const emptyRow: Partial<FakturPajakData> = {
   no_surat: '',
-  tgl_surat: TAMBAH BARU Date().toISOString().split('T')[0],
-  tgl_awal: TAMBAH BARU Date().toISOString().split('T')[0],
-  tgl_akhir: TAMBAH BARU Date().toISOString().split('T')[0],
+  tgl_surat: new Date().toISOString().split('T')[0],
+  tgl_awal: new Date().toISOString().split('T')[0],
+  tgl_akhir: new Date().toISOString().split('T')[0],
   no_seri_awal: '',
   no_seri_akhir: ''
 };
 
-EKSPOR const PenjatahanNSFPModal: React.FC<Props> = ({ isOpen, onClose, onSaved }) => {
+export const PenjatahanNSFPModal: React.FC<Props> = ({ isOpen, onClose, onSaved }) => {
   const [dataList, setDataList] = useState<FakturPajakData[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);

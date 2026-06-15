@@ -8,9 +8,7 @@ const axiosClient = axios.create({
   withCredentials: true, 
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-});
+    'Accept': 'application/json' } });
 
 // Response Interceptor for global error handling
 axiosClient.interceptors.response.use(

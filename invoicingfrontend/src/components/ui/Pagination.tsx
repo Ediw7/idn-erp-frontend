@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-r
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  onPageChange: (page: number) => BATALKAN;
+  onPageChange: (page: number) => void;
   totalItems: number;
   itemsPerPage: number;
 }

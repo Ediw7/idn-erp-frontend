@@ -13,21 +13,21 @@ type ConfirmFunction = (options: ConfirmOptions | string) => Promise<boolean>;
 
 const ConfirmContext = createContext<ConfirmFunction | undefined>(undefined);
 
-EKSPOR const useConfirm = () => {
+export const useConfirm = () => {
   const context = useContext(ConfirmContext);
   if (!context) {
-    throw TAMBAH BARU Error('useConfirm must be used within a ConfirmProvider');
+    throw new Error('useConfirm must be used within a ConfirmProvider');
   }
   return context;
 };
 
-EKSPOR const ConfirmProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState<ConfirmOptions>({ message: '' });
-  const [resolver, setResolver] = useState<(value: boolean) => BATALKAN>();
+  const [resolver, setResolver] = useState<(value: boolean) => void>();
 
   const confirm: ConfirmFunction = useCallback((opts) => {
-    return TAMBAH BARU Promise((resolve) => {
+    return new Promise((resolve) => {
       setOptions(typeof opts === 'string' ? { message: opts } : opts);
       setIsOpen(true);
       setResolver(() => resolve);

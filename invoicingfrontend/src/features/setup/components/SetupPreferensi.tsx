@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { setupApi, PreferensiData } from '../api';
+import { setupApi } from '../api';
+import toast from 'react-hot-toast';
 
 const SetupPreferensi: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'sistem' | 'pajak' | 'akuntansi'>('sistem');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const backupFolderRef = useRef<HTMLInputElement>(null);
   const csvFolderRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState<PreferensiData>({
+  const [formData, setFormData] = useState<any>({
     folderDatabase: 'postgresql://db-cluster-01.ediaccounting.internal:5432',
     fileDatabase: 'edi_accounting_production',
-    direktoriPenyimpanan: 'C:\\EDI_ACCOUNTING\\DATA\\',
-    passwordDb: 'admin123',
+
+
     logoTercetak: false,
     ttdTercetak: false,
     tglSistemPajak: '2026-06-09',
@@ -63,18 +63,17 @@ const SetupPreferensi: React.FC = () => {
     footerInvoiceVat: 'Pembayaran untuk invoice ini mohon ditransfer ke rekening :\nBank BCA Cab. Sudirman\nNo. Rekening : 035-0123456\nAtas Nama PT EDI Accounting System',
     footerInvoiceNonVat: 'Pembayaran untuk invoice ini mohon ditransfer ke rekening :\nBank BCA Cab. KPO Asemka\nNo. Rekening : 001-0123456\nAtas Nama EDI Accounting',
     footerKwitansiVat: 'Catatan :\n1. Pembayaran untuk invoice ini mohon ditransfer ke rekening :\n   Bank BCA Cab. Sudirman\n   No. Rekening : 035-0123456\n   Atas Nama PT EDI Accounting System',
-    footerKwitansiNonVat: 'Catatan :\n1. Pembayaran untuk invoice ini mohon ditransfer ke rekening :\n   Bank BCA Cab. KPO Asemka\n   No. Rekening : 001-0123456\n   Atas Nama EDI Accounting',
-  });
+    footerKwitansiNonVat: 'Catatan :\n1. Pembayaran untuk invoice ini mohon ditransfer ke rekening :\n   Bank BCA Cab. KPO Asemka\n   No. Rekening : 001-0123456\n   Atas Nama EDI Accounting' });
 
   useEffect(() => {
     const fetchPreferensi = async () => {
       try {
         const data = await setupApi.getPreferensi();
         if (data && Object.keys(data).length > 0) {
-          setFormData(prev => ({ ...prev, ...data }));
+          setFormData((prev: any) => ({ ...prev, ...data }));
         }
       } catch (error) {
-        setMessage({ text: 'Gagal memuat data preferensi dari server.', type: 'error' });
+        toast.error('Gagal memuat data preferensi dari server.');
       } finally {
         setIsLoading(false);
       }
@@ -100,7 +99,7 @@ const SetupPreferensi: React.FC = () => {
       const file = e.target.files[0];
       // @ts-ignore
       const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : file.name);
-      setFormData(prev => ({ ...prev, folderBackupData: path }));
+      setFormData((prev: any) => ({ ...prev, folderBackupData: path }));
     }
   };
 
@@ -109,16 +108,16 @@ const SetupPreferensi: React.FC = () => {
       const file = e.target.files[0];
       // @ts-ignore
       const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : file.name);
-      setFormData(prev => ({ ...prev, folderCsvFaktur: path }));
+      setFormData((prev: any) => ({ ...prev, folderCsvFaktur: path }));
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = TAMBAH BARU FileReader();
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, namaFileLogo: reader.result as string }));
+        setFormData((prev: any) => ({ ...prev, namaFileLogo: reader.result as string }));
       };
       reader.readAsDataURL(file);
     }
@@ -127,19 +126,12 @@ const SetupPreferensi: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setMessage(null);
     
     try {
       const response = await setupApi.updatePreferensi(formData);
-      setMessage({ text: response.message || 'Data preferensi berhasil disimpan!', type: 'success' });
-      
-      // Auto-hide message after 1.5 seconds
-      setTimeout(() => {
-        setMessage(null);
-      }, 1500);
+      toast.success(response.message || 'Data preferensi berhasil disimpan!');
     } catch (error) {
-      setMessage({ text: 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
-      setTimeout(() => setMessage(null), 1500);
+      toast.error('Terjadi kesalahan saat menyimpan data.');
     } finally {
       setIsSaving(false);
     }
@@ -163,16 +155,6 @@ const SetupPreferensi: React.FC = () => {
       </div>
 
       <div className="p-6">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div>
-              <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-              </h3>
-              <p className="text-sm mt-1">{message.text}</p>
-            </div>
-          </div>
-        )}
 
         {/* Tab Navigation */}
         <div className="flex border-b border-slate-200 mb-6">

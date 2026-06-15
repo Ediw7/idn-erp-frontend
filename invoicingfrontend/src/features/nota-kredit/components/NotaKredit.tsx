@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Save, FileText, X, FileMinus } from 'lucide-react';
+import { Search, Save, FileText, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { setupApi, TandaTanganData } from '../../setup/api';
 

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Eraser } from 'lucide-react';
 import SignatureCanvas from 'react-signature-canvas';
 import { setupApi, TandaTanganData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
+import toast from 'react-hot-toast';
 
 const FORM_TYPES = [
   'Faktur Pajak',
@@ -16,42 +17,19 @@ const FORM_TYPES = [
 ];
 
 const SetupTandaTangan: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<TandaTanganData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<TandaTanganData>({
-    jenis_formulir: 'Faktur Pajak',
-    nama: '',
-    jabatan: '',
-    lokasi: '',
-    ttd_image: null
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleDelete, fetchData
+  } = useMasterDataCRUD<TandaTanganData>({
+    fetchApi: setupApi.getTandaTangan,
+    saveApi: setupApi.saveTandaTangan,
+    deleteApi: setupApi.deleteTandaTangan,
+    initialForm: { jenis_formulir: 'Faktur Pajak', nama: '', jabatan: '', lokasi: '', ttd_image: null }
   });
-  
+
   const sigCanvas = useRef<SignatureCanvas>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getTandaTangan();
-      setList(data || []);
-    } catch (error) {
-      showMessage('Gagal memuat data tanda tangan.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
-  };
 
   const handleAddNew = () => {
     setEditForm({
@@ -88,9 +66,9 @@ const SetupTandaTangan: React.FC = () => {
     setEditForm({ ...editForm, ttd_image: null });
   };
 
-  const handleSave = async () => {
+  const handleSimpan = async () => {
     if (!editForm.jenis_formulir || !editForm.nama) {
-      showMessage('Jenis Formulir dan Tanda Tangan (Nama) harus diisi!', 'error');
+      toast.error('Jenis Formulir dan Tanda Tangan (Nama) harus diisi!');
       return;
     }
 
@@ -103,24 +81,24 @@ const SetupTandaTangan: React.FC = () => {
 
     try {
       await setupApi.saveTandaTangan(payload);
-      showMessage('Data tanda tangan berhasil disimpan!', 'success');
+      toast.success('Berhasil! Data tanda tangan telah ditambahkan.');
       setIsModalOpen(false);
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
+      
+      // Reset form
+      setEditForm({
+        jenis_formulir: 'Faktur Pajak',
+        nama: '',
+        jabatan: '',
+        lokasi: '',
+        ttd_image: null
+      });
+      if (sigCanvas.current) {
+        sigCanvas.current.clear();
+      }
 
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus data ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteTandaTangan(id);
-      showMessage('Data berhasil dihapus!', 'success');
       fetchData();
     } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
+      toast.error('Terjadi kesalahan saat menyimpan data.');
     }
   };
 
@@ -144,21 +122,7 @@ const SetupTandaTangan: React.FC = () => {
       </div>
 
       <div className="p-6">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-1">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
+
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32">
@@ -309,7 +273,7 @@ const SetupTandaTangan: React.FC = () => {
                 Batal
               </button>
               <button 
-                onClick={handleSave}
+                onClick={handleSimpan}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors flex items-center gap-2"
               >
                 <Save size={16} /> Simpan

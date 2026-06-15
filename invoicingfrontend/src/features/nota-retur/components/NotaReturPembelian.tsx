@@ -16,7 +16,7 @@ const NotaReturPembelian: React.FC = () => {
   const [items, setItems] = useState<ItemData[]>([]);
 
   const [form, setForm] = useState<Partial<NotaReturPembelianData>>({
-    no_nota: '', tgl_nota: TAMBAH BARU Date().toISOString().split('T')[0], supplier_id: null,
+    no_nota: '', tgl_nota: new Date().toISOString().split('T')[0], supplier_id: null,
     alamat_penjual: '', jenis_retur: 'Barang Kena Pajak', gudang_id: 'Kapuk',
     atas_no_fp: '', tgl_fp: '', mata_uang_id: null, kurs_pajak: 1, tarif_ppn: 11,
     jenis_transaksi: 'Kepada Bukan Pemungut PPN (01)', status: '',
@@ -64,7 +64,7 @@ const NotaReturPembelian: React.FC = () => {
     try {
       const res = await notaReturPembelianApi.autoNo();
       setForm({
-        no_nota: res.no_nota, tgl_nota: TAMBAH BARU Date().toISOString().split('T')[0], supplier_id: null,
+        no_nota: res.no_nota, tgl_nota: new Date().toISOString().split('T')[0], supplier_id: null,
         alamat_penjual: '', jenis_retur: 'Barang Kena Pajak', gudang_id: 'Kapuk',
         atas_no_fp: '', tgl_fp: '', mata_uang_id: null, kurs_pajak: 1, tarif_ppn: 11,
         jenis_transaksi: 'Kepada Bukan Pemungut PPN (01)', status: '',
@@ -84,7 +84,7 @@ const NotaReturPembelian: React.FC = () => {
         return;
       }
       
-      await notaReturPembelianApi.SIMPAN(form as NotaReturPembelianData);
+      await notaReturPembelianApi.save(form as NotaReturPembelianData);
       const resData = await notaReturPembelianApi.getAll();
       const nData = resData || [];
       setDataList(nData);
@@ -107,7 +107,7 @@ const NotaReturPembelian: React.FC = () => {
     const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus Nota Retur Pembelian ini?');
     if (!isConfirmed) return;
     try {
-      await notaReturPembelianApi.HAPUS(form.id);
+      await notaReturPembelianApi.delete(form.id);
       const resData = await notaReturPembelianApi.getAll();
       const nData = resData || [];
       setDataList(nData);
@@ -158,7 +158,8 @@ const NotaReturPembelian: React.FC = () => {
         line.kode_barang = item.kode;
         line.nama_barang = item.nama;
         line.satuan = item.satuan || 'Pcs';
-        line.harga_satuan = item.harga_beli || item.harga_jual_1 || 0;
+        // @ts-ignore
+        line.harga_satuan = item.harga_satuan || item.harga_jual_1 || 0;
       }
     }
     
@@ -181,7 +182,7 @@ const NotaReturPembelian: React.FC = () => {
           <p className="text-xs text-slate-300 mt-1">Formulir PPN dan nota retur pembelian.</p>
         </div>
         <div className="text-sm font-semibold text-slate-600 flex items-center gap-2">
-          <span className="bg-slate-700 text-white border border-slate-600 px-3 py-1 rounded-sm shadow-sm">{form.no_nota || 'TAMBAH BARU Retur'}</span>
+          <span className="bg-slate-700 text-white border border-slate-600 px-3 py-1 rounded-sm shadow-sm">{form.no_nota || 'New Retur'}</span>
           <span className="text-xs text-slate-300">{form.supplier_id ? suppliers.find(p => p.id === form.supplier_id)?.nama : 'Belum pilih penjual'}</span>
         </div>
       </div>
@@ -410,7 +411,7 @@ const NotaReturPembelian: React.FC = () => {
             <button onClick={() => loadRecord(dataList.length - 1)} className="p-1 border border-slate-400 bg-slate-100 hover:bg-white rounded-sm shadow-sm"><ChevronsRight size={14} /></button>
           </div>
           <span className="text-xs font-bold text-slate-700 ml-3">of {dataList.length}</span>
-          <span className="text-xs text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 rounded-sm border border-slate-300">{isNew ? 'TAMBAH BARU Form' : 'Form View'}</span>
+          <span className="text-xs text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 rounded-sm border border-slate-300">{isNew ? 'New Form' : 'Form View'}</span>
         </div>
 
         {/* ACTION BUTTONS */}

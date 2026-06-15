@@ -12,11 +12,11 @@ const SuratSetoranPajak: React.FC = () => {
 
   const [form, setForm] = useState<Partial<SuratSetoranPajakData>>({
     kpp: '', nama_wp: '', npwp: '', alamat: '', kode_pos: '',
-    tahun: TAMBAH BARU Date().getFullYear().toString(), bulan: '01',
+    tahun: new Date().getFullYear().toString(), bulan: '01',
     kode_jenis_pajak: '', kode_jenis_pajak_desc: '',
     kode_jenis_setoran: '', kode_jenis_setoran_desc: '',
     uraian_pembayaran: '', no_ketetapan: '', ntpp: '',
-    jumlah: 0, tanggal: TAMBAH BARU Date().toISOString().split('T')[0],
+    jumlah: 0, tanggal: new Date().toISOString().split('T')[0],
     tanda_tangan: '', keterangan: '', ssp_pemungut: false
   });
 
@@ -54,11 +54,11 @@ const SuratSetoranPajak: React.FC = () => {
   const handleNew = () => {
     setForm({
       kpp: '', nama_wp: '', npwp: '', alamat: '', kode_pos: '',
-      tahun: TAMBAH BARU Date().getFullYear().toString(), bulan: '01',
+      tahun: new Date().getFullYear().toString(), bulan: '01',
       kode_jenis_pajak: '', kode_jenis_pajak_desc: '',
       kode_jenis_setoran: '', kode_jenis_setoran_desc: '',
       uraian_pembayaran: '', no_ketetapan: '', ntpp: '',
-      jumlah: 0, tanggal: TAMBAH BARU Date().toISOString().split('T')[0],
+      jumlah: 0, tanggal: new Date().toISOString().split('T')[0],
       tanda_tangan: '', keterangan: '', ssp_pemungut: false
     });
     setIsNew(true);
@@ -66,7 +66,7 @@ const SuratSetoranPajak: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      await sspApi.SIMPAN(form as SuratSetoranPajakData);
+      await sspApi.save(form as SuratSetoranPajakData);
       const resData = await sspApi.getAll();
       const d = resData || [];
       setDataList(d);
@@ -88,7 +88,7 @@ const SuratSetoranPajak: React.FC = () => {
     const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus SSP ini?');
     if (!isConfirmed) return;
     try {
-      await sspApi.HAPUS(form.id);
+      await sspApi.delete(form.id);
       const resData = await sspApi.getAll();
       const d = resData || [];
       setDataList(d);
@@ -257,7 +257,7 @@ const SuratSetoranPajak: React.FC = () => {
             <button onClick={() => loadRecord(dataList.length - 1)} className="p-1 border border-slate-400 bg-slate-100 hover:bg-white shadow-sm"><ChevronsRight size={14} /></button>
           </div>
           <span className="text-xs font-bold text-slate-700 ml-3">of {dataList.length}</span>
-          <span className="text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 border border-slate-300 text-xs">{isNew ? 'TAMBAH BARU Form' : 'Form View'}</span>
+          <span className="text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 border border-slate-300 text-xs">{isNew ? 'New Form' : 'Form View'}</span>
         </div>
 
         <button onClick={handleSave} className="flex items-center gap-1.5 px-6 py-1.5 bg-blue-700 border border-blue-800 hover:bg-blue-800 text-white font-bold shadow-sm">

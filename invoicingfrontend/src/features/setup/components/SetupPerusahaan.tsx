@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { setupApi, CompanyData } from '../api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 const SetupPerusahaan: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profil' | 'perpajakan'>('profil');
@@ -29,28 +30,24 @@ const SetupPerusahaan: React.FC = () => {
     tahun_buku_start: '1',
     tahun_buku_end: '12',
     kode_klu: '',
-    wajib_ppnbm: false,
-  });
+    wajib_ppnbm: false });
   
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
 
   const queryClient = useQueryClient();
 
   const { data: initialData, isLoading } = useQuery({
     queryKey: ['perusahaan'],
-    queryFn: setupApi.getPerusahaan,
-  });
+    queryFn: setupApi.getPerusahaan });
 
   const mutation = useMutation({
     mutationFn: (data: CompanyData) => setupApi.updatePerusahaan(data),
     onSuccess: (response) => {
-      setMessage({ text: response.message || 'Data berhasil disimpan!', type: 'success' });
+      toast.success(response.message || 'Data berhasil disimpan!');
       queryClient.invalidateQueries({ queryKey: ['perusahaan'] });
-      setTimeout(() => setMessage(null), 1500);
     },
     onError: (error: any) => {
-      setMessage({ text: error.message || 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
-      setTimeout(() => setMessage(null), 1500);
+      toast.error(error.message || 'Terjadi kesalahan saat menyimpan data.');
     }
   });
 
@@ -81,8 +78,7 @@ const SetupPerusahaan: React.FC = () => {
         tahun_buku_start: initialData.tahun_buku_start || '1',
         tahun_buku_end: initialData.tahun_buku_end || '12',
         kode_klu: initialData.kode_klu || '',
-        wajib_ppnbm: initialData.wajib_ppnbm || false,
-      });
+        wajib_ppnbm: initialData.wajib_ppnbm || false });
     }
   }, [initialData]);
 
@@ -99,7 +95,6 @@ const SetupPerusahaan: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
     mutation.mutate(formData);
   };
 
@@ -121,26 +116,6 @@ const SetupPerusahaan: React.FC = () => {
       </div>
 
       <div className="p-6">
-        {message && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-slate-900/20 backdrop-blur-sm transition-opacity">
-            <div className={`p-6 rounded-md shadow-xl border-t-4 max-w-sm w-full mx-4 transform transition-all scale-100 bg-white ${message.type === 'success' ? 'border-emerald-500' : 'border-red-500'}`}>
-              <div className="flex flex-col items-center text-center">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${message.type === 'success' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
-                  {message.type === 'success' ? (
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                  ) : (
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
-                  )}
-                </div>
-                <h3 className="text-lg font-bold text-slate-800">
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-2 text-slate-500 font-medium">{message.text}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Tab Navigation */}
         <div className="flex border-b border-slate-200 mb-6">
           <button 

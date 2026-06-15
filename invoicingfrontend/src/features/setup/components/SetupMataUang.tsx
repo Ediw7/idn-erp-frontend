@@ -1,82 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, MataUangData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupMataUang: React.FC = () => {
-  const confirm = useConfirm();
-  const [mataUangList, setMataUangList] = useState<MataUangData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<MataUangData>({ kode: '', nama: '', per: '' });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getMataUang();
-      setMataUangList(data || []);
-    } catch (error) {
-      setMessage({ text: 'Gagal memuat data mata uang dari server.', type: 'error' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAddNew = () => {
-    setEditForm({ kode: '', nama: '', per: '' });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: MataUangData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-
-  const handleSave = async () => {
-    if (!editForm.kode || !editForm.nama) {
-      setMessage({ text: 'Kode dan Mata Uang harus diisi!', type: 'error' });
-      return;
-    }
-
-    try {
-      await setupApi.saveMataUang(editForm);
-      setMessage({ text: 'Data mata uang berhasil disimpan!', type: 'success' });
-      setIsModalOpen(false);
-      fetchData();
-      
-      // Auto-hide message after 3 seconds
-      setTimeout(() => {
-        setMessage(null);
-      }, 3000);
-    } catch (error) {
-      setMessage({ text: 'Terjadi kesalahan saat menyimpan data.', type: 'error' });
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus mata uang ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteMataUang(id);
-      setMessage({ text: 'Data mata uang berhasil dihapus!', type: 'success' });
-      fetchData();
-      
-      // Auto-hide message after 3 seconds
-      setTimeout(() => {
-        setMessage(null);
-      }, 3000);
-    } catch (error) {
-      setMessage({ text: 'Terjadi kesalahan saat menghapus data.', type: 'error' });
-    }
-  };
+  const {
+    list: mataUangList, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<MataUangData>({
+    fetchApi: setupApi.getMataUang,
+    saveApi: setupApi.saveMataUang,
+    deleteApi: setupApi.deleteMataUang,
+    initialForm: { kode: '', nama: '', per: '' },
+    validate: (form) => (!form.kode || !form.nama) ? 'Kode dan Mata Uang harus diisi!' : null
+  });
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
@@ -98,21 +35,6 @@ const SetupMataUang: React.FC = () => {
       </div>
 
       <div className="p-6">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-1">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32">

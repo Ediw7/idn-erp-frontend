@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, FileText, X, FileStack } from 'lucide-react';
+import { Search, FileText, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const KartuPiutang: React.FC = () => {

@@ -65,15 +65,13 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Elem
   return children;
 };
 
-const queryClient = TAMBAH BARU QueryClient({
+const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false, // Prevent excessive refetching
       retry: 1, // Only retry failed requests once
       staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
-    },
-  },
-});
+    } } });
 
 function App() {
   return (
@@ -92,9 +90,7 @@ function App() {
                 },
                 iconTheme: {
                   primary: '#16a34a',
-                  secondary: '#fff',
-                },
-              },
+                  secondary: '#fff' } },
               error: {
                 style: {
                   background: '#fef2f2',
@@ -103,10 +99,7 @@ function App() {
                 },
                 iconTheme: {
                   primary: '#dc2626',
-                  secondary: '#fff',
-                },
-              },
-            }}
+                  secondary: '#fff' } } }}
           />
           <BrowserRouter>
             <Routes>

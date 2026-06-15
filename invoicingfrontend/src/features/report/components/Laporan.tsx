@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 const Laporan: React.FC = () => {
   const location = useLocation();
-  const searchParams = TAMBAH BARU URLSearchParams(location.search);
+  const searchParams = new URLSearchParams(location.search);
   const initialReport = searchParams.get('reportName') || location.state?.initialReport || 'Sales Order (A4 / Kwarto / 1/2 Kwarto)';
   const soNumber = searchParams.get('so_number') || '';
   const sjNumber = searchParams.get('sj_number') || '';

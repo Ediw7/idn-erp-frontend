@@ -1,85 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, Search, X, Save } from 'lucide-react';
 import { setupApi, GudangData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
-import toast from 'react-hot-toast';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupGudang: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<GudangData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editForm, setEditForm] = useState<GudangData>({
-    kode_gudang: '',
-    nama_gudang: '',
-    lokasi: '',
-    is_default: false
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<GudangData>({
+    fetchApi: setupApi.getGudang,
+    saveApi: setupApi.saveGudang,
+    deleteApi: setupApi.deleteGudang,
+    initialForm: { kode_gudang: '', nama_gudang: '', lokasi: '', is_default: false },
+    validate: (form) => (!form.kode_gudang || !form.nama_gudang) ? 'Kode Gudang dan Nama Gudang harus diisi!' : null
   });
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getGudang();
-      setList(data || []);
-    } catch (error) {
-      console.error('Failed to load', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredData = list.filter(item => 
     item.nama_gudang.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.kode_gudang.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddNew = () => {
-    setEditForm({
-      kode_gudang: '',
-      nama_gudang: '',
-      lokasi: '',
-      is_default: false
-    });
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (item: GudangData) => {
-    setEditForm({ ...item });
-    setIsFormOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.kode_gudang || !editForm.nama_gudang) {
-      toast.error('Kode Gudang dan Nama Gudang harus diisi!');
-      return;
-    }
-
-    try {
-      await setupApi.saveGudang(editForm);
-      setIsFormOpen(false);
-      fetchData();
-    } catch (error) {
-      toast.error('Terjadi kesalahan saat menyimpan data.');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus gudang ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteGudang(id);
-      fetchData();
-    } catch (error) {
-      toast.error('Terjadi kesalahan saat menghapus data.');
-    }
-  };
 
   const inputClass = "w-full px-3 py-1.5 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white";
 
@@ -165,12 +107,12 @@ const SetupGudang: React.FC = () => {
       </div>
 
       {/* Form Dialog/Modal Overlay */}
-      {isFormOpen && (
+      {isModalOpen && (
         <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[1px] z-30 flex items-center justify-center p-4">
           <div className="bg-white border border-slate-300 shadow-xl rounded-sm w-full max-w-md flex flex-col overflow-hidden">
             <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between shrink-0">
               <h3 className="font-semibold text-sm">{editForm.id ? 'UBAH Gudang' : 'Tambah Gudang Baru'}</h3>
-              <button onClick={() => setIsFormOpen(false)} className="text-slate-300 hover:text-white transition-colors">
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-300 hover:text-white transition-colors">
                 <X size={16} />
               </button>
             </div>
@@ -226,7 +168,7 @@ const SetupGudang: React.FC = () => {
             
             <div className="bg-slate-50 border-t border-slate-200 px-5 py-3 flex justify-end gap-2 shrink-0">
               <button 
-                onClick={() => setIsFormOpen(false)}
+                onClick={() => setIsModalOpen(false)}
                 className="px-4 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 transition-colors"
               >
                 BATAL

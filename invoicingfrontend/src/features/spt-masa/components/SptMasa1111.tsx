@@ -11,9 +11,9 @@ const SptMasa1111: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [form, setForm] = useState<Partial<SptMasa1111Data>>({
-    tahun: TAMBAH BARU Date().getFullYear().toString(),
+    tahun: new Date().getFullYear().toString(),
     masa_awal: '01', masa_akhir: '01', pembetulan_ke: 0,
-    tanggal_spt: TAMBAH BARU Date().toISOString().split('T')[0], is_locked: false,
+    tanggal_spt: new Date().toISOString().split('T')[0], is_locked: false,
     dpp_ekspor: 0, ppn_ekspor: 0,
     dpp_dipungut_sendiri: 0, ppn_dipungut_sendiri: 0,
     dpp_dipungut_pemungut: 0, ppn_dipungut_pemungut: 0,
@@ -61,9 +61,9 @@ const SptMasa1111: React.FC = () => {
 
   const handleNew = () => {
     setForm({
-      tahun: TAMBAH BARU Date().getFullYear().toString(),
+      tahun: new Date().getFullYear().toString(),
       masa_awal: '01', masa_akhir: '01', pembetulan_ke: 0,
-      tanggal_spt: TAMBAH BARU Date().toISOString().split('T')[0], is_locked: false,
+      tanggal_spt: new Date().toISOString().split('T')[0], is_locked: false,
       dpp_ekspor: 0, ppn_ekspor: 0,
       dpp_dipungut_sendiri: 0, ppn_dipungut_sendiri: 0,
       dpp_dipungut_pemungut: 0, ppn_dipungut_pemungut: 0,
@@ -82,7 +82,7 @@ const SptMasa1111: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      await sptMasaApi.SIMPAN(form as SptMasa1111Data);
+      await sptMasaApi.save(form as SptMasa1111Data);
       const resData = await sptMasaApi.getAll();
       const d = resData || [];
       setDataList(d);
@@ -104,7 +104,7 @@ const SptMasa1111: React.FC = () => {
     const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus SPT ini?');
     if (!isConfirmed) return;
     try {
-      await sptMasaApi.HAPUS(form.id);
+      await sptMasaApi.delete(form.id);
       const resData = await sptMasaApi.getAll();
       const d = resData || [];
       setDataList(d);
@@ -134,7 +134,7 @@ const SptMasa1111: React.FC = () => {
   const numProps = (field: keyof SptMasa1111Data) => ({
     type: "number",
     className: inputClass,
-    value: form[field] || '',
+    value: (form[field] as string | number) || '',
     onChange: (e: any) => setForm({ ...form, [field]: Number(e.target.value) })
   });
 
@@ -380,7 +380,7 @@ const SptMasa1111: React.FC = () => {
             <button onClick={() => loadRecord(dataList.length - 1)} className="p-1 border border-slate-400 bg-slate-100 hover:bg-white shadow-sm"><ChevronsRight size={14} /></button>
           </div>
           <span className="font-bold text-slate-700 ml-3">of {dataList.length}</span>
-          <span className="text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 border border-slate-300">{isNew ? 'TAMBAH BARU Form' : 'Form View'}</span>
+          <span className="text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 border border-slate-300">{isNew ? 'New Form' : 'Form View'}</span>
         </div>
 
         <button onClick={handleSave} className="flex items-center gap-1.5 px-6 py-1.5 bg-blue-700 border border-blue-800 hover:bg-blue-800 text-white font-bold shadow-sm">

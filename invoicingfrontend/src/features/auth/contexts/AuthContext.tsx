@@ -4,13 +4,13 @@ import { UserProfile } from '../api';
 interface AuthContextType {
   isAuthenticated: boolean;
   user: UserProfile | null;
-  login: (user: UserProfile) => BATALKAN;
-  logout: () => BATALKAN;
+  login: (user: UserProfile) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-EKSPOR const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return localStorage.getItem('edi_user') !== null;
   });

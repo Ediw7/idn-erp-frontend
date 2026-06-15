@@ -1,89 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
 import { setupApi, JenisSetoranData, JenisPajakData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 
 const SetupJenisSetoran: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<JenisSetoranData[]>([]);
   const [pajaks, setPajaks] = useState<JenisPajakData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<JenisSetoranData>({
-    jenis_pajak_id: null,
-    kode: '',
-    nama: ''
+
+  const fetchJenisSetoran = async () => {
+    const [data, pajaksData] = await Promise.all([
+      setupApi.getJenisSetoran(),
+      setupApi.getJenisPajak()
+    ]);
+    setPajaks(pajaksData || []);
+    return data || [];
+  };
+
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<JenisSetoranData>({
+    fetchApi: fetchJenisSetoran,
+    saveApi: setupApi.saveJenisSetoran,
+    deleteApi: setupApi.deleteJenisSetoran,
+    initialForm: { jenis_pajak_id: null, kode: '', nama: '' },
+    validate: (form) => (!form.jenis_pajak_id || !form.kode || !form.nama) ? 'MAP, Kode, dan Jenis Setoran harus diisi!' : null
   });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [data, pajaksData] = await Promise.all([
-        setupApi.getJenisSetoran(),
-        setupApi.getJenisPajak()
-      ]);
-      setList(data || []);
-      setPajaks(pajaksData || []);
-    } catch (error) {
-      showMessage('Gagal memuat data jenis setoran.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 3000);
-  };
-
-  const handleAddNew = () => {
-    setEditForm({
-      jenis_pajak_id: null,
-      kode: '',
-      nama: ''
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: JenisSetoranData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async () => {
-    if (!editForm.jenis_pajak_id || !editForm.kode || !editForm.nama) {
-      showMessage('MAP, Kode, dan Jenis Setoran harus diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.saveJenisSetoran(editForm);
-      showMessage('Data Jenis Setoran berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data.', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus kode setoran ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteJenisSetoran(id);
-      showMessage('Data berhasil dihapus!', 'success');
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
-  };
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
@@ -107,21 +48,6 @@ const SetupJenisSetoran: React.FC = () => {
       </div>
 
       <div className="p-6 flex-1 overflow-hidden flex flex-col">
-        {message && (
-          <div className={`mb-6 p-4 rounded-sm flex items-start gap-3 shadow-sm border shrink-0 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h3 className={`text-sm font-bold ${message.type === 'success' ? 'text-emerald-800' : 'text-red-800'}`}>
-                  {message.type === 'success' ? 'Berhasil' : 'Peringatan'}
-                </h3>
-                <p className="text-sm mt-1">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32">

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Plus, Trash2, Save, X, Settings2 } from 'lucide-react';
 import { setupApi, FormatBuktiData } from '../api';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
 import toast from 'react-hot-toast';
 
 const TRANSACTIONS = [
@@ -38,37 +38,19 @@ const emptyForm: FormatBuktiData = {
 };
 
 const SetupFormatBukti: React.FC = () => {
-  const confirm = useConfirm();
-  const [list, setList] = useState<FormatBuktiData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState<FormatBuktiData>(emptyForm);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const data = await setupApi.getFormatBukti();
-      setList(data || []);
-    } catch (error) {
-      showMessage('Gagal memuat data format bukti.', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const showMessage = (text: string, type: 'success' | 'error') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
+  const {
+    list, isLoading, isModalOpen, setIsModalOpen,
+    editForm, setEditForm, handleEdit, handleSave, handleDelete
+  } = useMasterDataCRUD<FormatBuktiData>({
+    fetchApi: setupApi.getFormatBukti,
+    saveApi: setupApi.saveFormatBukti,
+    deleteApi: setupApi.deleteFormatBukti,
+    initialForm: emptyForm,
+    validate: (form) => !form.periode ? 'Periode (yyyymm) harus diisi!' : null
+  });
 
   const handleAddNew = () => {
-    const today = TAMBAH BARU Date();
+    const today = new Date();
     const currentPeriode = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}`;
     const sufiks = `/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
     
@@ -82,39 +64,7 @@ const SetupFormatBukti: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (item: FormatBuktiData) => {
-    setEditForm({ ...item });
-    setIsModalOpen(true);
-  };
 
-  const handleSave = async () => {
-    if (!editForm.periode) {
-      showMessage('Periode (yyyymm) harus diisi!', 'error');
-      return;
-    }
-
-    try {
-      await setupApi.saveFormatBukti(editForm);
-      showMessage('Data format bukti berhasil disimpan!', 'success');
-      setIsModalOpen(false);
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menyimpan data (Pastikan Periode unik).', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus format ini?');
-    if (!isConfirmed) return;
-    
-    try {
-      await setupApi.deleteFormatBukti(id);
-      showMessage('Data berhasil dihapus!', 'success');
-      fetchData();
-    } catch (error) {
-      showMessage('Terjadi kesalahan saat menghapus data.', 'error');
-    }
-  };
 
   const handleApplySufiksToAll = () => {
     const sufiksRef = editForm.inv_vat_sufiks;
@@ -148,18 +98,6 @@ const SetupFormatBukti: React.FC = () => {
       </div>
 
       <div className="p-4 flex-1 flex flex-col min-h-0">
-        {message && (
-          <div className={`mb-4 p-3 rounded-sm flex items-start gap-3 shadow-sm border shrink-0 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}`}>
-            <div className="flex-1 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold">{message.text}</p>
-              </div>
-              <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-slate-600">
-                <X size={16} />
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center items-center h-32 flex-1">

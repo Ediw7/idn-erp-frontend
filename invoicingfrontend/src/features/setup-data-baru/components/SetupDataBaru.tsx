@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 const SetupDataBaru: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    namaPerusahaan: '',
+    namaPerusahaan: 'PT. EDI ACCOUNTING',
     alamatPerusahaan: '',
     npwp: '',
     kota: '',
@@ -16,8 +16,7 @@ const SetupDataBaru: React.FC = () => {
     periodeSerial: '',
     noSerial: '',
     folderData: 'C:\\krishand\\invc\\601\\',
-    tahunPembukuan: '2026',
-  });
+    tahunPembukuan: '2026' });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
