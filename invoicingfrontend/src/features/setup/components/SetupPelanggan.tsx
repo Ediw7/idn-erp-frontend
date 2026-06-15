@@ -155,7 +155,7 @@ const SetupPelanggan: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
+    const reader = TAMBAH BARU FileReader();
     reader.onload = async (evt) => {
       try {
         const bstr = evt.target?.result;
@@ -287,7 +287,7 @@ const SetupPelanggan: React.FC = () => {
                     <td className="px-4 py-2.5">{item.contact_person || '-'}</td>
                     <td className="px-4 py-2.5">{item.pembayaran_nama || '-'}</td>
                     <td className="px-4 py-2.5 flex justify-center gap-2">
-                      <button onClick={(e) => { e.stopPropagation(); handleEdit(item); }} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
+                      <button onClick={(e) => { e.stopPropagation(); handleEdit(item); }} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="UBAH">
                         <Edit2 size={14} />
                       </button>
                       <button onClick={(e) => { e.stopPropagation(); handleDelete(item.id!); }} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
@@ -365,7 +365,7 @@ const SetupPelanggan: React.FC = () => {
             {/* Header Modern */}
             <div className="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
               <h3 className="font-semibold text-base tracking-wide">
-                {editForm.id ? 'Edit Pelanggan' : 'Tambah Pelanggan Baru'}
+                {editForm.id ? 'UBAH Pelanggan' : 'Tambah Pelanggan Baru'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-300 hover:text-white transition-colors">
                 <X size={20} />

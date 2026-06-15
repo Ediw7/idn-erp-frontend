@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 const Laporan: React.FC = () => {
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
+  const searchParams = TAMBAH BARU URLSearchParams(location.search);
   const initialReport = searchParams.get('reportName') || location.state?.initialReport || 'Sales Order (A4 / Kwarto / 1/2 Kwarto)';
   const soNumber = searchParams.get('so_number') || '';
   const sjNumber = searchParams.get('sj_number') || '';
@@ -226,7 +226,7 @@ const Laporan: React.FC = () => {
           {/* Footer Action */}
           <div className="bg-slate-100 px-8 py-5 border-t border-slate-200 flex justify-end gap-4 shrink-0">
             <button onClick={() => setIsPreviewOpen(true)} className="px-8 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-sm hover:bg-blue-500 shadow-sm transition-colors">Preview Laporan</button>
-            <button className="px-8 py-2.5 bg-slate-700 text-white text-sm font-bold rounded-sm hover:bg-slate-600 shadow-sm transition-colors">Print Data</button>
+            <button className="px-8 py-2.5 bg-slate-700 text-white text-sm font-bold rounded-sm hover:bg-slate-600 shadow-sm transition-colors">CETAK Data</button>
           </div>
         </div>
       </div>
@@ -311,7 +311,7 @@ const Laporan: React.FC = () => {
               </div>
             </div>
             <div className="bg-slate-200 px-6 py-3 flex justify-end gap-3 shrink-0 border-t border-slate-300">
-              <button className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-sm hover:bg-blue-500 shadow-sm flex items-center gap-2">Print Document</button>
+              <button className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-sm hover:bg-blue-500 shadow-sm flex items-center gap-2">CETAK Document</button>
               <button className="px-6 py-2 bg-slate-700 text-white text-sm font-bold rounded-sm hover:bg-slate-600 shadow-sm flex items-center gap-2">Download PDF</button>
             </div>
           </div>

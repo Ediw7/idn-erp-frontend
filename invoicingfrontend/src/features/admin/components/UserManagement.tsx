@@ -31,7 +31,7 @@ const UserManagement: React.FC = () => {
     if (isConfirmed) {
       try {
         const response = await authApi.toggleUser(userId);
-        if (response.error) throw new Error(response.error);
+        if (response.error) throw TAMBAH BARU Error(response.error);
         await fetchUsers(); // Refresh data
       } catch (err: any) {
         toast.error(err.message || 'Gagal mengubah status pengguna');

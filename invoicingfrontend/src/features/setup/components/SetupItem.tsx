@@ -154,7 +154,7 @@ const SetupItem: React.FC = () => {
                       <input type="checkbox" checked={item.is_inventory} readOnly className="w-3.5 h-3.5 opacity-60 cursor-not-allowed" />
                     </td>
                     <td className="px-2 py-1.5 flex justify-center gap-1">
-                      <button onClick={() => handleEdit(item)} className="p-1 text-blue-600 hover:bg-blue-100 rounded" title="Edit"><Edit2 size={13} /></button>
+                      <button onClick={() => handleEdit(item)} className="p-1 text-blue-600 hover:bg-blue-100 rounded" title="UBAH"><Edit2 size={13} /></button>
                       <button onClick={() => handleDelete(item.id!)} className="p-1 text-red-600 hover:bg-red-100 rounded" title="Hapus"><Trash2 size={13} /></button>
                     </td>
                   </tr>
@@ -174,7 +174,7 @@ const SetupItem: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto pt-10 pb-10">
           <div className="bg-white shadow-xl max-w-4xl w-full flex flex-col my-auto rounded-sm">
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-800">
-              <h3 className="font-bold text-white">{editForm.id ? 'Edit Item' : 'Tambah Item Baru'}</h3>
+              <h3 className="font-bold text-white">{editForm.id ? 'UBAH Item' : 'Tambah Item Baru'}</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-300 hover:text-white"><X size={20} /></button>
             </div>
             <div className="p-6">

@@ -16,7 +16,7 @@ const NotaReturPenjualan: React.FC = () => {
   const [items, setItems] = useState<ItemData[]>([]);
 
   const [form, setForm] = useState<Partial<NotaReturData>>({
-    no_nota: '', tgl_nota: new Date().toISOString().split('T')[0], pelanggan_id: null,
+    no_nota: '', tgl_nota: TAMBAH BARU Date().toISOString().split('T')[0], pelanggan_id: null,
     alamat_pembeli: '', jenis_transaksi: 'Kepada Bukan Pemungut PPN (01)',
     gudang_id: 'Kapuk', jenis_retur: 'Barang Kena Pajak',
     atas_no_fp: '', tgl_fp: '', atas_no_invoice: '', mata_uang_id: null,
@@ -65,7 +65,7 @@ const NotaReturPenjualan: React.FC = () => {
     try {
       const res = await notaReturApi.autoNo();
       setForm({
-        no_nota: res.no_nota, tgl_nota: new Date().toISOString().split('T')[0], pelanggan_id: null,
+        no_nota: res.no_nota, tgl_nota: TAMBAH BARU Date().toISOString().split('T')[0], pelanggan_id: null,
         alamat_pembeli: '', jenis_transaksi: 'Kepada Bukan Pemungut PPN (01)',
         gudang_id: 'Kapuk', jenis_retur: 'Barang Kena Pajak',
         atas_no_fp: '', tgl_fp: '', atas_no_invoice: '', mata_uang_id: null,
@@ -86,7 +86,7 @@ const NotaReturPenjualan: React.FC = () => {
         return;
       }
       
-      await notaReturApi.save(form as NotaReturData);
+      await notaReturApi.SIMPAN(form as NotaReturData);
       const resData = await notaReturApi.getAll();
       const nData = resData || [];
       setDataList(nData);
@@ -109,7 +109,7 @@ const NotaReturPenjualan: React.FC = () => {
     const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus Nota Retur ini?');
     if (!isConfirmed) return;
     try {
-      await notaReturApi.delete(form.id);
+      await notaReturApi.HAPUS(form.id);
       const resData = await notaReturApi.getAll();
       const nData = resData || [];
       setDataList(nData);
@@ -184,7 +184,7 @@ const NotaReturPenjualan: React.FC = () => {
           <p className="text-xs text-slate-300 mt-1">Formulir PPN dan nota retur penjualan.</p>
         </div>
         <div className="text-sm font-semibold text-slate-600 flex items-center gap-2">
-          <span className="bg-slate-700 text-white border border-slate-600 px-3 py-1 rounded-sm shadow-sm">{form.no_nota || 'New Retur'}</span>
+          <span className="bg-slate-700 text-white border border-slate-600 px-3 py-1 rounded-sm shadow-sm">{form.no_nota || 'TAMBAH BARU Retur'}</span>
           <span className="text-xs text-slate-300">{form.pelanggan_id ? pelanggans.find(p => p.id === form.pelanggan_id)?.nama : 'Belum pilih pembeli'}</span>
         </div>
       </div>
@@ -427,16 +427,16 @@ const NotaReturPenjualan: React.FC = () => {
             <button onClick={() => loadRecord(dataList.length - 1)} className="p-1 border border-slate-400 bg-slate-100 hover:bg-white rounded-sm shadow-sm"><ChevronsRight size={14} /></button>
           </div>
           <span className="text-xs font-bold text-slate-700 ml-3">of {dataList.length}</span>
-          <span className="text-xs text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 rounded-sm border border-slate-300">{isNew ? 'New Form' : 'Form View'}</span>
+          <span className="text-xs text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 rounded-sm border border-slate-300">{isNew ? 'TAMBAH BARU Form' : 'Form View'}</span>
         </div>
 
         {/* ACTION BUTTONS */}
         <div className="flex items-center gap-2">
-          <button onClick={handleNew} className="flex items-center gap-1.5 px-4 py-1.5 bg-white border border-slate-400 hover:bg-slate-100 rounded-sm text-xs font-bold text-slate-800 shadow-sm"><FilePlus size={14} /> NEW</button>
-          <button onClick={handleSave} className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 border border-blue-700 hover:bg-blue-700 rounded-sm text-xs font-bold text-white shadow-sm"><Save size={14} /> SAVE</button>
-          <button onClick={handleDelete} disabled={isNew} className="flex items-center gap-1.5 px-4 py-1.5 bg-white border border-slate-400 hover:bg-slate-100 rounded-sm text-xs font-bold text-slate-800 shadow-sm disabled:opacity-50 disabled:bg-slate-100"><Trash2 size={14} /> DELETE</button>
+          <button onClick={handleNew} className="flex items-center gap-1.5 px-4 py-1.5 bg-white border border-slate-400 hover:bg-slate-100 rounded-sm text-xs font-bold text-slate-800 shadow-sm"><FilePlus size={14} /> TAMBAH BARU </button>
+          <button onClick={handleSave} className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 border border-blue-700 hover:bg-blue-700 rounded-sm text-xs font-bold text-white shadow-sm"><Save size={14} /> SIMPAN </button>
+          <button onClick={handleDelete} disabled={isNew} className="flex items-center gap-1.5 px-4 py-1.5 bg-white border border-slate-400 hover:bg-slate-100 rounded-sm text-xs font-bold text-slate-800 shadow-sm disabled:opacity-50 disabled:bg-slate-100"><Trash2 size={14} /> HAPUS </button>
           <div className="w-px h-6 bg-slate-400 mx-2"></div>
-          <button className="flex items-center gap-1.5 px-4 py-1.5 bg-white border border-slate-400 hover:bg-slate-100 rounded-sm text-xs font-bold text-slate-800 shadow-sm"><Printer size={14} /> REPORT</button>
+          <button className="flex items-center gap-1.5 px-4 py-1.5 bg-white border border-slate-400 hover:bg-slate-100 rounded-sm text-xs font-bold text-slate-800 shadow-sm"><Printer size={14} /> LAPORAN </button>
         </div>
       </div>
 

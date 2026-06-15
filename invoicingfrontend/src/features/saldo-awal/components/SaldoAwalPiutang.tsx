@@ -85,7 +85,7 @@ const SaldoAwalPiutang: React.FC = () => {
       return;
     }
     try {
-      const res = await axiosClient.post('/api/saldo-awal-piutang/create', editForm);
+      const res = await axiosClient.post('/api/saldo-awal-piutang/BUAT BARU', editForm);
       if (res.data.status === 'success') {
         setIsFormOpen(false);
         fetchData();
@@ -101,10 +101,10 @@ const SaldoAwalPiutang: React.FC = () => {
     const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus data ini?');
     if (!isConfirmed) return;
     try {
-      await axiosClient.post('/api/saldo-awal-piutang/delete', { id });
+      await axiosClient.post('/api/saldo-awal-piutang/HAPUS', { id });
       fetchData();
     } catch (error) {
-      console.error('Failed to delete', error);
+      console.error('Failed to HAPUS', error);
       toast.error('Gagal menghapus data');
     }
   };
@@ -115,7 +115,7 @@ const SaldoAwalPiutang: React.FC = () => {
     if (!isConfirmed) return;
     
     try {
-      const res = await axiosClient.post('/api/saldo-awal-piutang/update', {
+      const res = await axiosClient.post('/api/saldo-awal-piutang/PERBARUI', {
         id: row.id,
         is_paid: !row.is_paid
       });
@@ -125,7 +125,7 @@ const SaldoAwalPiutang: React.FC = () => {
         toast.error(res.data.message);
       }
     } catch (error) {
-      console.error('Failed to update status', error);
+      console.error('Failed to PERBARUI status', error);
       toast.error('Gagal mengupdate status lunas');
     }
   };
@@ -256,7 +256,7 @@ const SaldoAwalPiutang: React.FC = () => {
         </div>
       </div>
 
-      {/* Form Modal untuk NEW Saldo Awal */}
+      {/* Form Modal untuk TAMBAH BARU Saldo Awal */}
       {isFormOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-md shadow-2xl border border-slate-300 w-full max-w-2xl overflow-hidden flex flex-col">
@@ -368,7 +368,7 @@ const SaldoAwalPiutang: React.FC = () => {
             </div>
             
             <div className="p-2 border-b border-slate-200 bg-slate-50 flex gap-2">
-              <button onClick={() => setIsMigrationModalOpen(false)} className="px-4 py-1.5 bg-white border border-slate-300 shadow-sm text-sm font-medium rounded-sm hover:bg-slate-100">Cancel</button>
+              <button onClick={() => setIsMigrationModalOpen(false)} className="px-4 py-1.5 bg-white border border-slate-300 shadow-sm text-sm font-medium rounded-sm hover:bg-slate-100"> BATAL </button>
               <button 
                 onClick={handleMigration} 
                 disabled={isMigrating}

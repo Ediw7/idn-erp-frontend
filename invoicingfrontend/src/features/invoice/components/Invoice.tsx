@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { setupApi, TandaTanganData } from '../../setup/api';
-import { useConfirm } from '../../contexts/ConfirmContext';
+import { useConfirm } from '../../../contexts/ConfirmContext';
+import { SetupPelangganModal } from '../../setup/components/SetupPelangganModal';
 
 const Invoice: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Invoice: React.FC = () => {
 
   const emptyForm = {
     no_invoice: '',
-    tgl_invoice: new Date().toISOString().split('T')[0],
+    tgl_invoice: TAMBAH BARU Date().toISOString().split('T')[0],
     pembeli_id: '',
     alamat: '',
     npwp: '',
@@ -51,24 +52,111 @@ const Invoice: React.FC = () => {
   const [form, setForm] = useState<any>(emptyForm);
   const [modalForm, setModalForm] = useState<any>(emptyForm);
 
-  useEffect(() => {
-    const fetchTtd = async () => {
-      try {
-        const data = await setupApi.getTandaTangan();
-        const invoiceTtd = data.filter(d => d.jenis_formulir === 'Invoice');
-        setTtdList(invoiceTtd.length > 0 ? invoiceTtd : data);
+  const [pelanggans, setPelanggans] = useState<any[]>([]);
+  const [proyeks, setProyeks] = useState<any[]>([]);
+  const [mataUangs, setMataUangs] = useState<any[]>([]);
+  const [pembayarans, setPembayarans] = useState<any[]>([]);
+  const [salesmans, setSalesmans] = useState<any[]>([]);
+  const [gudangs, setGudangs] = useState<any[]>([]);
+  const [items, setItems] = useState<any[]>([]);
+  const [salesOrders, setSalesOrders] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
+  const [showPelangganModal, setShowPelangganModal] = useState(false);
+
+  const fetchTtd = async () => {
+    setLoadingData(true);
+    try {
+        const [ttdRes, pelRes, proRes, muRes, pemRes, salRes, gudRes, itmRes] = await Promise.all([
+          setupApi.getTandaTangan().catch(() => []),
+          setupApi.getPelanggan().catch(() => []),
+          setupApi.getProyek().catch(() => []),
+          setupApi.getMataUang().catch(() => []),
+          setupApi.getPembayaran().catch(() => []),
+          setupApi.getSalesman().catch(() => []),
+          setupApi.getGudang().catch(() => []),
+          setupApi.getItem().catch(() => [])
+        ]);
+        
+        const invoiceTtd = ttdRes.filter(d => d.jenis_formulir === 'Invoice');
+        setTtdList(invoiceTtd.length > 0 ? invoiceTtd : ttdRes);
         
         if (invoiceTtd.length > 0 && invoiceTtd[0].id) {
           setSelectedTtdId(invoiceTtd[0].id);
-        } else if (data.length > 0 && data[0].id) {
-          setSelectedTtdId(data[0].id);
+        } else if (ttdRes.length > 0 && ttdRes[0].id) {
+          setSelectedTtdId(ttdRes[0].id);
         }
+
+        setPelanggans(pelRes);
+        setProyeks(proRes);
+        setMataUangs(muRes);
+        setPembayarans(pemRes);
+        setSalesmans(salRes);
+        setGudangs(gudRes);
+        setItems(itmRes);
       } catch (error) {
-        console.error('Failed to fetch tanda tangan:', error);
+        console.error('Failed to fetch data:', error);
+      } finally {
+        setLoadingData(false);
       }
-    };
+  };
+
+  useEffect(() => {
     fetchTtd();
+    
+    // Attempt to fetch Sales Orders dynamically if the API is available
+    import('../../sales-order/api').then(module => {
+        module.salesOrderApi.getAll().then(res => setSalesOrders(res)).catch(() => {});
+    }).catch(() => {});
   }, []);
+
+  const handlePembeliChange = (id: number | '', isModal: boolean = false) => {
+    const p = pelanggans.find(x => x.id === id);
+    if (isModal) {
+      setModalForm({
+        ...modalForm,
+        pembeli_id: id,
+        alamat: p?.alamat_wp || p?.alamat || '',
+        npwp: p?.npwp || ''
+      });
+    } else {
+      setForm({
+        ...form,
+        pembeli_id: id,
+        alamat: p?.alamat_wp || p?.alamat || '',
+        npwp: p?.npwp || ''
+      });
+    }
+  };
+
+  const handleItemChange = (idx: number, id: number | '') => {
+    const item = items.find(x => x.id === id);
+    const newLines = [...form.lines];
+    if (item) {
+      newLines[idx] = {
+        ...newLines[idx],
+        item_id: item.id,
+        kode: item.kode,
+        nama: item.nama,
+        satuan: item.satuan,
+        harga: item.harga_jual_1 || 0,
+        harga_jual: item.harga_jual_1 || 0,
+        kuantum: newLines[idx].kuantum || 1,
+        disc_persen: newLines[idx].disc_persen || 0,
+        disc_harga: newLines[idx].disc_harga || 0
+      };
+    } else {
+      newLines[idx] = {
+        ...newLines[idx],
+        item_id: '',
+        kode: '',
+        nama: '',
+        satuan: '',
+        harga: 0,
+        harga_jual: 0
+      };
+    }
+    setForm({ ...form, lines: newLines });
+  };
 
   const selectedTtd = ttdList.find(t => t.id === selectedTtdId);
 
@@ -85,7 +173,7 @@ const Invoice: React.FC = () => {
     setForm({
       ...modalForm,
       lines: [{ item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, harga: 0, disc_persen: 0, disc_harga: 0, harga_jual: 0 }],
-      create_date: new Date().toISOString(),
+      create_date: TAMBAH BARU Date().toISOString(),
       create_uid_name: user?.name || 'Unknown'
     });
     
@@ -101,7 +189,7 @@ const Invoice: React.FC = () => {
     
     setForm({
       ...form,
-      write_date: new Date().toISOString(),
+      write_date: TAMBAH BARU Date().toISOString(),
       write_uid_name: user?.name || 'Unknown'
     });
     toast.success('Invoice berhasil disimpan');
@@ -142,7 +230,7 @@ const Invoice: React.FC = () => {
     setShowFpModal(true);
   };
 
-  const handleRouteToFp = (action: 'update' | 'pengganti') => {
+  const handleRouteToFp = (action: 'PERBARUI' | 'pengganti') => {
     setShowFpModal(false);
     navigate('/faktur-pajak', {
       state: {
@@ -204,13 +292,13 @@ const Invoice: React.FC = () => {
             onClick={handleUpdateFpClick}
             className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700`}
           >
-             UPDATE FP
+             PERBARUI FP
           </button>
           <button 
             onClick={handleCreateKwitansi}
             className={`${btnClass} bg-indigo-600 text-white hover:bg-indigo-700`}
           >
-             UPDATE KWITANSI
+             PERBARUI KWITANSI
           </button>
           <button 
             className={`${btnClass} bg-green-600 text-white hover:bg-green-700`}
@@ -242,10 +330,11 @@ const Invoice: React.FC = () => {
               <div>
                 <label className={labelClass}>Nama Pembeli</label>
                 <div className="flex gap-2 w-full">
-                  <select className={inputClass} value={form.pembeli_id || ''} onChange={e => setForm({...form, pembeli_id: e.target.value})}>
-                    <option value="">-- Pilih --</option>
+                  <select className={inputClass} value={form.pembeli_id || ''} onChange={e => handlePembeliChange(e.target.value ? Number(e.target.value) : '')}>
+                    <option value="">{loadingData ? 'Loading data...' : '-- Pilih Pembeli --'}</option>
+                    {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama} - {p.alamat}</option>)}
                   </select>
-                  <button onClick={() => navigate('/setup/pelanggan')} className="px-3 font-bold border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md text-gray-600 transition-colors">+</button>
+                  <button onClick={() => setShowPelangganModal(true)} className="px-3 font-bold border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md text-gray-600 transition-colors">+</button>
                 </div>
               </div>
               <div>
@@ -258,7 +347,10 @@ const Invoice: React.FC = () => {
               </div>
               <div>
                 <label className={labelClass}>Proyek</label>
-                <select className={inputClass} value={form.proyek || ''} onChange={e => setForm({...form, proyek: e.target.value})}><option></option></select>
+                <select className={inputClass} value={form.proyek || ''} onChange={e => setForm({...form, proyek: e.target.value})}>
+                  <option value="">{loadingData ? 'Loading data...' : '-- Pilih Proyek --'}</option>
+                  {proyeks.map(p => <option key={p.id} value={p.kode}>{p.nama}</option>)}
+                </select>
               </div>
             </div>
 
@@ -266,15 +358,18 @@ const Invoice: React.FC = () => {
             <div className="flex flex-col gap-4">
               <div>
                 <label className={labelClass}>Mata Uang</label>
-                <select className={inputClass} value={form.mata_uang} onChange={e => setForm({...form, mata_uang: e.target.value})}>
+                <select className={inputClass} value={form.mata_uang || 'IDR'} onChange={e => setForm({...form, mata_uang: e.target.value})}>
                   <option value="IDR">IDR</option>
-                  <option value="USD">USD</option>
+                  {mataUangs.map(m => m.kode !== 'IDR' && <option key={m.id} value={m.kode}>{m.kode}</option>)}
                 </select>
               </div>
               <div>
                 <label className={labelClass}>No. SO</label>
                 <div className="flex gap-2 w-full">
-                  <input type="text" className={inputClass} value={form.no_so || ''} onChange={e => setForm({...form, no_so: e.target.value})} />
+                  <select className={inputClass} value={form.no_so || ''} onChange={e => setForm({...form, no_so: e.target.value})}>
+                    <option value="">{loadingData ? 'Loading...' : '-- Pilih SO --'}</option>
+                    {salesOrders.map((so, idx) => <option key={idx} value={so.no_so}>{so.no_so}</option>)}
+                  </select>
                   <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><Search size={16} className="text-gray-600" /></button>
                 </div>
               </div>
@@ -285,14 +380,16 @@ const Invoice: React.FC = () => {
               <div>
                 <label className={labelClass}>Cara Pembayaran</label>
                 <select className={inputClass} value={form.cara_pembayaran || ''} onChange={e => setForm({...form, cara_pembayaran: e.target.value})}>
-                  <option value="">-- Pilih --</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Kredit">Kredit</option>
+                  <option value="">{loadingData ? 'Loading data...' : '-- Pilih --'}</option>
+                  {pembayarans.map(p => <option key={p.id} value={p.nama}>{p.nama}</option>)}
                 </select>
               </div>
               <div>
                 <label className={labelClass}>Salesman</label>
-                <select className={inputClass} value={form.salesman_id || ''} onChange={e => setForm({...form, salesman_id: e.target.value})}><option></option></select>
+                <select className={inputClass} value={form.salesman_id || ''} onChange={e => setForm({...form, salesman_id: e.target.value ? Number(e.target.value) : ''})}>
+                  <option value="">{loadingData ? 'Loading data...' : '-- Pilih Salesman --'}</option>
+                  {salesmans.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
+                </select>
               </div>
               <div>
                 <label className={labelClass}>No. Faktur Pajak</label>
@@ -326,7 +423,10 @@ const Invoice: React.FC = () => {
               </div>
               <div>
                 <label className={labelClass}>Gudang</label>
-                <select className={inputClass} value={form.gudang_id || ''} onChange={e => setForm({...form, gudang_id: e.target.value})}><option></option></select>
+                <select className={inputClass} value={form.gudang_id || ''} onChange={e => setForm({...form, gudang_id: e.target.value ? Number(e.target.value) : ''})}>
+                  <option value="">{loadingData ? 'Loading data...' : '-- Pilih Gudang --'}</option>
+                  {gudangs.map(g => <option key={g.id} value={g.id}>{g.nama_gudang}</option>)}
+                </select>
               </div>
               <div className="flex flex-wrap items-center gap-6 mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
                 <div className="flex items-center gap-2">
@@ -409,10 +509,10 @@ const Invoice: React.FC = () => {
                     <tr key={idx} className="hover:bg-blue-50/50 transition-colors group">
                       <td className="px-3 py-2 text-center border-r border-gray-200 font-medium text-slate-600">{idx + 1}</td>
                       <td className="px-3 py-2 border-r border-gray-200">
-                        <div className="flex gap-1">
-                          <input type="text" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:border-blue-500" value={line.kode || ''} />
-                          <button className="px-2 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-sm"><Search size={14}/></button>
-                        </div>
+                        <select className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:border-blue-500" value={line.item_id || ''} onChange={(e) => handleItemChange(idx, e.target.value ? Number(e.target.value) : '')}>
+                          <option value="">{loadingData ? 'Loading...' : '-- Pilih Kode Barang --'}</option>
+                          {items.map(i => <option key={i.id} value={i.id}>{i.kode}</option>)}
+                        </select>
                       </td>
                       <td className="px-3 py-2 border-r border-gray-200">
                         <input type="text" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm bg-slate-50 focus:outline-none" readOnly value={line.nama || ''} />
@@ -603,25 +703,23 @@ const Invoice: React.FC = () => {
               </div>
               <div>
                 <label className={labelClass}>Nama Pembeli</label>
-                <select className={inputClass} value={modalForm.pembeli_id || ''} onChange={e => setModalForm({...modalForm, pembeli_id: e.target.value})}>
-                  <option value="">-- Pilih Pembeli --</option>
-                  <option value="1">PT Pelanggan Tetap</option>
-                </select>
+                <div className="flex gap-3">
+                  <select className={`${inputClass} flex-1`} value={modalForm.pembeli_id || ''} onChange={e => handlePembeliChange(e.target.value ? Number(e.target.value) : '', true)}>
+                    <option value="">{loadingData ? 'Loading data...' : '-- Pilih Pembeli --'}</option>
+                    {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama} - {p.alamat}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
             <div className="bg-slate-50 px-8 py-5 border-t border-gray-200 flex justify-end gap-3">
-              <button onClick={() => setShowNewInvoiceModal(false)} className={`${btnClass} bg-white text-slate-700 border border-gray-300 hover:bg-slate-50`}>
-                CLOSE
-              </button>
-              <button onClick={handleCreateInvoiceHeader} className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 px-6`}>
-                CREATE INVOICE
-              </button>
+              <button onClick={() => setShowNewInvoiceModal(false)} className={`${btnClass} bg-white text-slate-700 border border-gray-300 hover:bg-slate-50`}> TUTUP </button>
+              <button onClick={handleCreateInvoiceHeader} className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 px-6`}> BUAT INVOICE </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal UPDATE FP */}
+      {/* Modal PERBARUI FP */}
       {showFpModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-md rounded-lg shadow-2xl flex flex-col overflow-hidden border border-slate-700">
@@ -637,8 +735,8 @@ const Invoice: React.FC = () => {
               </p>
             </div>
             <div className="bg-slate-50 px-8 py-5 border-t border-gray-200 flex flex-col gap-3">
-              <button onClick={() => handleRouteToFp('update')} className="w-full px-4 py-2.5 text-sm font-bold rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors">
-                UPDATE DATA
+              <button onClick={() => handleRouteToFp('PERBARUI')} className="w-full px-4 py-2.5 text-sm font-bold rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors">
+                PERBARUI DATA
               </button>
               <button onClick={() => handleRouteToFp('pengganti')} className="w-full px-4 py-2.5 text-sm font-bold rounded-md bg-amber-500 text-white hover:bg-amber-600 shadow-sm transition-colors">
                 BUAT PENGGANTI
@@ -650,6 +748,11 @@ const Invoice: React.FC = () => {
           </div>
         </div>
       )}
+      <SetupPelangganModal 
+        isOpen={showPelangganModal} 
+        onClose={() => setShowPelangganModal(false)} 
+        onSaved={fetchTtd} 
+      />
     </div>
   );
 };

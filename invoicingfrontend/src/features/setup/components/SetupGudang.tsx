@@ -149,7 +149,7 @@ const SetupGudang: React.FC = () => {
                       ) : '-'}
                     </td>
                     <td className="px-4 py-2 text-center flex items-center justify-center gap-2">
-                      <button onClick={() => handleEdit(row)} className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors hover:bg-blue-50" title="Edit">
+                      <button onClick={() => handleEdit(row)} className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors hover:bg-blue-50" title="UBAH">
                         <Edit2 size={14} />
                       </button>
                       <button onClick={() => handleDelete(row.id!)} className="text-red-500 hover:text-red-700 p-1 rounded transition-colors hover:bg-red-50" title="Hapus">
@@ -169,7 +169,7 @@ const SetupGudang: React.FC = () => {
         <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[1px] z-30 flex items-center justify-center p-4">
           <div className="bg-white border border-slate-300 shadow-xl rounded-sm w-full max-w-md flex flex-col overflow-hidden">
             <div className="bg-slate-800 text-white px-4 py-3 flex items-center justify-between shrink-0">
-              <h3 className="font-semibold text-sm">{editForm.id ? 'Edit Gudang' : 'Tambah Gudang Baru'}</h3>
+              <h3 className="font-semibold text-sm">{editForm.id ? 'UBAH Gudang' : 'Tambah Gudang Baru'}</h3>
               <button onClick={() => setIsFormOpen(false)} className="text-slate-300 hover:text-white transition-colors">
                 <X size={16} />
               </button>

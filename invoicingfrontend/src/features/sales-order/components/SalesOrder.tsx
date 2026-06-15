@@ -5,6 +5,7 @@ import { useConfirm } from '../../../contexts/ConfirmContext';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { salesOrderApi, SalesOrderData, SalesOrderLine } from '../api';
 import { setupApi, PelangganData, MataUangData, PembayaranData, SalesmanData, ItemData, GudangData } from '../../setup/api';
+import { SetupPelangganModal } from '../../setup/components/SetupPelangganModal';
 import toast from 'react-hot-toast';
 
 const SalesOrder: React.FC = () => {
@@ -21,6 +22,7 @@ const SalesOrder: React.FC = () => {
   const [salesmans, setSalesmans] = useState<SalesmanData[]>([]);
   const [items, setItems] = useState<ItemData[]>([]);
   const [gudangs, setGudangs] = useState<GudangData[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
   const [periode, setPeriode] = useState('2026-06');
   const [activeTab, setActiveTab] = useState<'detail' | 'surat_jalan' | 'outstanding'>('detail');
@@ -31,14 +33,15 @@ const SalesOrder: React.FC = () => {
     alamat_kirim: '',
     no_so: '',
     gudang_id: '',
-    tanggal: new Date().toISOString().split('T')[0]
+    tanggal: TAMBAH BARU Date().toISOString().split('T')[0]
   });
 
   const [showNewSoModal, setShowNewSoModal] = useState(false);
+  const [showPelangganModal, setShowPelangganModal] = useState(false);
   const [newSoForm, setNewSoForm] = useState<Partial<SalesOrderData>>({});
 
   const [form, setForm] = useState<Partial<SalesOrderData>>({
-    no_so: '', tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
+    no_so: '', tgl_so: TAMBAH BARU Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
     no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
     tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
     potongan_harga: 0, ppn_persen: 10, ongkos_angkut: 0, 
@@ -52,11 +55,16 @@ const SalesOrder: React.FC = () => {
   }, []);
 
   const fetchInitialData = async () => {
+    setLoadingData(true);
     try {
       const [resSo, p, m, py, s, i, g] = await Promise.all([
-        salesOrderApi.getAll(), setupApi.getPelanggan(), setupApi.getMataUang(),
-        setupApi.getPembayaran(), setupApi.getSalesman(), setupApi.getItem(),
-        setupApi.getGudang()
+        salesOrderApi.getAll().catch(() => []), 
+        setupApi.getPelanggan().catch(() => []), 
+        setupApi.getMataUang().catch(() => []),
+        setupApi.getPembayaran().catch(() => []), 
+        setupApi.getSalesman().catch(() => []), 
+        setupApi.getItem().catch(() => []),
+        setupApi.getGudang().catch(() => [])
       ]);
 
       const soData = resSo || [];
@@ -71,6 +79,8 @@ const SalesOrder: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to fetch data', error);
+    } finally {
+      setLoadingData(false);
     }
   };
 
@@ -78,18 +88,18 @@ const SalesOrder: React.FC = () => {
     try {
       const res = await salesOrderApi.autoNo();
       setNewSoForm({
-        no_so: res.no_so, tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
+        no_so: res.no_so, tgl_so: TAMBAH BARU Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
         no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
         tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
         potongan_harga: 0, ppn_persen: 10, ongkos_angkut: 0, 
-        lines: [] // Empty lines for new header
+        lines: [] // Empty lines for TAMBAH BARU header
       });
       setShowNewSoModal(true);
     } catch (e) {
       console.error(e);
       // Fallback
       setNewSoForm({
-        no_so: '', tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
+        no_so: '', tgl_so: TAMBAH BARU Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
         lines: []
       });
       setShowNewSoModal(true);
@@ -98,7 +108,7 @@ const SalesOrder: React.FC = () => {
 
   const handleCreateNewSo = async () => {
     try {
-      const savedRes = await salesOrderApi.save(newSoForm as SalesOrderData);
+      const savedRes = await salesOrderApi.SIMPAN(newSoForm as SalesOrderData);
       const resSo = await salesOrderApi.getAll();
       const soData = resSo || [];
       setDataList(soData);
@@ -142,14 +152,14 @@ const SalesOrder: React.FC = () => {
       alamat_kirim: form.alamat_kirim || '',
       no_so: form.no_so || '',
       gudang_id: '',
-      tanggal: new Date().toISOString().split('T')[0]
+      tanggal: TAMBAH BARU Date().toISOString().split('T')[0]
     });
     setShowSjModal(true);
   };
 
   const handleSave = async () => {
     try {
-      await salesOrderApi.save(form as SalesOrderData);
+      await salesOrderApi.SIMPAN(form as SalesOrderData);
       const resSo = await salesOrderApi.getAll();
       const soData = resSo || [];
       setDataList(soData);
@@ -172,7 +182,7 @@ const SalesOrder: React.FC = () => {
     const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus Sales Order ini?');
     if (!isConfirmed) return;
     try {
-      await salesOrderApi.delete(form.id);
+      await salesOrderApi.HAPUS(form.id);
       const resSo = await salesOrderApi.getAll();
       const soData = resSo || [];
       setDataList(soData);
@@ -182,7 +192,7 @@ const SalesOrder: React.FC = () => {
         setForm(soData[0]);
       } else {
         setForm({
-          no_so: '', tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
+          no_so: '', tgl_so: TAMBAH BARU Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
           no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
           tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
           potongan_harga: 0, ppn_persen: 10, ongkos_angkut: 0, 
@@ -273,8 +283,7 @@ const SalesOrder: React.FC = () => {
                <Printer size={14} /> CETAK
             </button>
             <button onClick={handleVoid} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors ml-2 rounded-sm shadow-sm">
-               <Ban size={14} /> VOID
-            </button>
+               <Ban size={14} /> BATALKAN </button>
             <button onClick={handleBuatSJClick} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-green-600 border border-transparent hover:bg-green-500 transition-colors ml-2 rounded-sm shadow-sm">
                <Send size={14} /> BUAT SJ
             </button>
@@ -303,10 +312,13 @@ const SalesOrder: React.FC = () => {
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Nama Pelanggan</label>
-                  <select className={inputClass} value={form.pelanggan_id || ''} onChange={e => handlePelangganChange(Number(e.target.value))}>
-                    <option value="">-- Pilih --</option>
-                    {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
-                  </select>
+                  <div className="flex gap-2 w-full">
+                    <select className={inputClass} value={form.pelanggan_id || ''} onChange={e => handlePelangganChange(Number(e.target.value))}>
+                      <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
+                      {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
+                    </select>
+                    <button className="px-3 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm font-bold text-slate-600 transition-colors" onClick={() => setShowPelangganModal(true)}>+</button>
+                  </div>
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Dikirim ke Alamat</label>
@@ -327,21 +339,21 @@ const SalesOrder: React.FC = () => {
                 <div className="flex items-start">
                   <label className={labelClass}>Mata Uang</label>
                   <select className={`${inputClass} w-48`} value={form.mata_uang_id || ''} onChange={e => setForm({ ...form, mata_uang_id: Number(e.target.value) || null })}>
-                    <option value="">-- Pilih --</option>
+                    <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
                     {mataUangs.map(m => <option key={m.id} value={m.id}>{m.kode}</option>)}
                   </select>
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Cara Pembayaran</label>
                   <select className={inputClass} value={form.pembayaran_id || ''} onChange={e => setForm({ ...form, pembayaran_id: Number(e.target.value) || null })}>
-                    <option value="">-- Pilih --</option>
+                    <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
                     {pembayarans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
                   </select>
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Salesman</label>
                   <select className={inputClass} value={form.salesman_id || ''} onChange={e => setForm({ ...form, salesman_id: Number(e.target.value) || null })}>
-                    <option value="">-- Pilih --</option>
+                    <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
                     {salesmans.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
                   </select>
                 </div>
@@ -362,8 +374,7 @@ const SalesOrder: React.FC = () => {
                     <input type="checkbox" checked={form.is_closed} onChange={e => setForm({ ...form, is_closed: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" /> Closed
                   </label>
                   <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
-                    <input type="checkbox" checked={form.is_void} onChange={e => setForm({ ...form, is_void: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" /> Void
-                  </label>
+                    <input type="checkbox" checked={form.is_void} onChange={e => setForm({ ...form, is_void: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" /> BATALKAN </label>
                 </div>
 
                 <div className="border border-slate-300 p-3 relative mt-2 rounded-sm bg-white shadow-sm">
@@ -419,7 +430,7 @@ const SalesOrder: React.FC = () => {
                           <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">{idx + 1}</td>
                           <td className="px-3 py-1.5 border-r border-slate-200">
                             <select className="w-full px-2 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 bg-white" value={line.item_id || ''} onChange={e => updateLine(idx, 'item_id', Number(e.target.value) || null)}>
-                              <option value=""></option>
+                              <option value="">{loadingData ? 'Loading...' : '-- Pilih Item --'}</option>
                               {items.map(i => <option key={i.id} value={i.id}>{i.kode} - {i.nama}</option>)}
                             </select>
                           </td>
@@ -534,7 +545,7 @@ const SalesOrder: React.FC = () => {
                 />
               </div>
 
-              {/* Totals & Save Button */}
+              {/* Totals & SIMPAN Button */}
               <div className="w-full lg:w-[420px] flex flex-col">
                 <div className="flex flex-col gap-2 mb-6">
                   <div className="flex items-center justify-between">
@@ -583,13 +594,13 @@ const SalesOrder: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal Auto Create Surat Jalan */}
+      {/* Modal Auto BUAT BARU Surat Jalan */}
       {showSjModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white w-[500px] rounded-md shadow-xl flex flex-col overflow-hidden border border-slate-700">
             {/* Modal Header */}
             <div className="bg-slate-800 px-5 py-3 flex justify-between items-center">
-              <h3 className="text-white font-semibold text-sm">Auto Create Surat Jalan</h3>
+              <h3 className="text-white font-semibold text-sm">Auto BUAT BARU Surat Jalan</h3>
               <button onClick={() => setShowSjModal(false)} className="text-slate-300 hover:text-white transition-colors">
                 <X size={18} />
               </button>
@@ -656,7 +667,7 @@ const SalesOrder: React.FC = () => {
                 onClick={() => setShowSjModal(false)}
                 className="px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-sm shadow-sm hover:bg-slate-50 transition-colors"
               >
-                TUTUP / CLOSE
+                TUTUP / TUTUP
               </button>
               <button 
                 onClick={() => {
@@ -664,7 +675,7 @@ const SalesOrder: React.FC = () => {
                 }}
                 className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 border border-transparent rounded-sm shadow-sm hover:bg-blue-700 transition-colors"
               >
-                BUAT SURAT JALAN / CREATE
+                BUAT SURAT JALAN / BUAT BARU
               </button>
             </div>
           </div>
@@ -797,6 +808,11 @@ const SalesOrder: React.FC = () => {
           </div>
         </div>
       )}
+      <SetupPelangganModal 
+        isOpen={showPelangganModal} 
+        onClose={() => setShowPelangganModal(false)} 
+        onSaved={fetchInitialData} 
+      />
     </>
   );
 };

@@ -270,15 +270,15 @@ export const setupApi = {
     if (response.data.status === 'success') {
       return response.data.data;
     }
-    throw new Error(response.data.message || 'Failed to fetch perusahaan');
+    throw TAMBAH BARU Error(response.data.message || 'Failed to fetch perusahaan');
   },
 
   updatePerusahaan: async (data: CompanyData): Promise<{ message: string; id: number }> => {
-    const response = await axiosClient.post('/api/setup/perusahaan/save', data);
+    const response = await axiosClient.post('/api/setup/perusahaan/SIMPAN', data);
     if (response.data.status === 'success') {
       return response.data;
     }
-    throw new Error(response.data.message || 'Failed to update perusahaan');
+    throw TAMBAH BARU Error(response.data.message || 'Failed to PERBARUI perusahaan');
   },
 
   getPreferensi: async (): Promise<PreferensiData> => {
@@ -289,18 +289,18 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch preferensi');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch preferensi');
   },
 
   updatePreferensi: async (data: PreferensiData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/preferensi/save', {
+    const response = await axiosClient.post('/api/setup/preferensi/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to update preferensi');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to PERBARUI preferensi');
   },
 
   getMataUang: async (): Promise<MataUangData[]> => {
@@ -311,29 +311,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch mata uang');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch mata uang');
   },
 
   saveMataUang: async (data: MataUangData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/matauang/save', {
+    const response = await axiosClient.post('/api/setup/matauang/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save mata uang');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN mata uang');
   },
 
   deleteMataUang: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/matauang/delete', {
+    const response = await axiosClient.post('/api/setup/matauang/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete mata uang');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS mata uang');
   },
 
   getKursPajak: async (mata_uang_id: number): Promise<KursPajakData[]> => {
@@ -344,29 +344,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch kurs pajak');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch kurs pajak');
   },
 
   saveKursPajak: async (data: KursPajakData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/kurspajak/save', {
+    const response = await axiosClient.post('/api/setup/kurspajak/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save kurs pajak');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN kurs pajak');
   },
 
   deleteKursPajak: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/kurspajak/delete', {
+    const response = await axiosClient.post('/api/setup/kurspajak/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete kurs pajak');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS kurs pajak');
   },
 
   getTandaTangan: async (): Promise<TandaTanganData[]> => {
@@ -377,29 +377,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch tanda tangan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch tanda tangan');
   },
 
   saveTandaTangan: async (data: TandaTanganData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/tandatangan/save', {
+    const response = await axiosClient.post('/api/setup/tandatangan/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save tanda tangan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN tanda tangan');
   },
 
   deleteTandaTangan: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/tandatangan/delete', {
+    const response = await axiosClient.post('/api/setup/tandatangan/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete tanda tangan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS tanda tangan');
   },
 
   getPerkiraan: async (filters?: { no_perkiraan?: string; nama_perkiraan?: string }): Promise<PerkiraanData[]> => {
@@ -410,29 +410,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch perkiraan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch perkiraan');
   },
 
   savePerkiraan: async (data: PerkiraanData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/perkiraan/save', {
+    const response = await axiosClient.post('/api/setup/perkiraan/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save perkiraan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN perkiraan');
   },
 
   deletePerkiraan: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/perkiraan/delete', {
+    const response = await axiosClient.post('/api/setup/perkiraan/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete perkiraan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS perkiraan');
   },
 
   getGudang: async (): Promise<GudangData[]> => {
@@ -443,29 +443,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch gudang');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch gudang');
   },
 
   saveGudang: async (data: GudangData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/gudang/save', {
+    const response = await axiosClient.post('/api/setup/gudang/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save gudang');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN gudang');
   },
 
   deleteGudang: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/gudang/delete', {
+    const response = await axiosClient.post('/api/setup/gudang/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete gudang');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS gudang');
   },
 
   getGroupBarang: async (): Promise<GroupBarangData[]> => {
@@ -476,29 +476,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch group barang');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch group barang');
   },
 
   saveGroupBarang: async (data: GroupBarangData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/groupbarang/save', {
+    const response = await axiosClient.post('/api/setup/groupbarang/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save group barang');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN group barang');
   },
 
   deleteGroupBarang: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/groupbarang/delete', {
+    const response = await axiosClient.post('/api/setup/groupbarang/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete group barang');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS group barang');
   },
 
   getItem: async (filters?: { kode?: string; nama?: string; group_barang_id?: number | string }): Promise<ItemData[]> => {
@@ -509,29 +509,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch item');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch item');
   },
 
   saveItem: async (data: ItemData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/item/save', {
+    const response = await axiosClient.post('/api/setup/item/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save item');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN item');
   },
 
   deleteItem: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/item/delete', {
+    const response = await axiosClient.post('/api/setup/item/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete item');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS item');
   },
 
   getPembayaran: async (): Promise<PembayaranData[]> => {
@@ -542,29 +542,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch pembayaran');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch pembayaran');
   },
 
   savePembayaran: async (data: PembayaranData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/pembayaran/save', {
+    const response = await axiosClient.post('/api/setup/pembayaran/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save pembayaran');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN pembayaran');
   },
 
   deletePembayaran: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/pembayaran/delete', {
+    const response = await axiosClient.post('/api/setup/pembayaran/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete pembayaran');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS pembayaran');
   },
 
   getPelanggan: async (): Promise<PelangganData[]> => {
@@ -575,29 +575,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch pelanggan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch pelanggan');
   },
 
   savePelanggan: async (data: PelangganData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/pelanggan/save', {
+    const response = await axiosClient.post('/api/setup/pelanggan/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save pelanggan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN pelanggan');
   },
 
   deletePelanggan: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/pelanggan/delete', {
+    const response = await axiosClient.post('/api/setup/pelanggan/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete pelanggan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS pelanggan');
   },
 
   importBatchPelanggan: async (items: Partial<PelangganData>[]): Promise<{ message: string }> => {
@@ -608,7 +608,7 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to import pelanggan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to import pelanggan');
   },
 
   getSupplier: async (): Promise<SupplierData[]> => {
@@ -619,29 +619,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch supplier');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch supplier');
   },
 
   saveSupplier: async (data: SupplierData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/supplier/save', {
+    const response = await axiosClient.post('/api/setup/supplier/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save supplier');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN supplier');
   },
 
   deleteSupplier: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/supplier/delete', {
+    const response = await axiosClient.post('/api/setup/supplier/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete supplier');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS supplier');
   },
 
   getProyek: async (): Promise<ProyekData[]> => {
@@ -652,29 +652,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch proyek');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch proyek');
   },
 
   saveProyek: async (data: ProyekData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/proyek/save', {
+    const response = await axiosClient.post('/api/setup/proyek/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save proyek');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN proyek');
   },
 
   deleteProyek: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/proyek/delete', {
+    const response = await axiosClient.post('/api/setup/proyek/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete proyek');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS proyek');
   },
 
   getSalesman: async (): Promise<SalesmanData[]> => {
@@ -685,29 +685,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch salesman');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch salesman');
   },
 
   saveSalesman: async (data: SalesmanData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/salesman/save', {
+    const response = await axiosClient.post('/api/setup/salesman/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save salesman');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN salesman');
   },
 
   deleteSalesman: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/salesman/delete', {
+    const response = await axiosClient.post('/api/setup/salesman/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete salesman');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS salesman');
   },
 
   getJenisPotongan: async (): Promise<JenisPotonganData[]> => {
@@ -718,29 +718,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch jenis potongan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch jenis potongan');
   },
 
   saveJenisPotongan: async (data: JenisPotonganData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/jenis_potongan/save', {
+    const response = await axiosClient.post('/api/setup/jenis_potongan/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save jenis potongan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN jenis potongan');
   },
 
   deleteJenisPotongan: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/jenis_potongan/delete', {
+    const response = await axiosClient.post('/api/setup/jenis_potongan/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete jenis potongan');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS jenis potongan');
   },
 
   getFormatBukti: async (): Promise<FormatBuktiData[]> => {
@@ -751,29 +751,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch format bukti');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch format bukti');
   },
 
   saveFormatBukti: async (data: FormatBuktiData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/format_bukti/save', {
+    const response = await axiosClient.post('/api/setup/format_bukti/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save format bukti');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN format bukti');
   },
 
   deleteFormatBukti: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/format_bukti/delete', {
+    const response = await axiosClient.post('/api/setup/format_bukti/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete format bukti');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS format bukti');
   },
 
   getFakturPajak: async (): Promise<FakturPajakData[]> => {
@@ -784,29 +784,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch faktur pajak');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch faktur pajak');
   },
 
   saveFakturPajak: async (data: FakturPajakData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/faktur_pajak/save', {
+    const response = await axiosClient.post('/api/setup/faktur_pajak/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save faktur pajak');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN faktur pajak');
   },
 
   deleteFakturPajak: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/faktur_pajak/delete', {
+    const response = await axiosClient.post('/api/setup/faktur_pajak/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete faktur pajak');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS faktur pajak');
   },
 
   getJenisPajak: async (): Promise<JenisPajakData[]> => {
@@ -817,29 +817,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch jenis pajak');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch jenis pajak');
   },
 
   saveJenisPajak: async (data: JenisPajakData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/jenis_pajak/save', {
+    const response = await axiosClient.post('/api/setup/jenis_pajak/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save jenis pajak');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN jenis pajak');
   },
 
   deleteJenisPajak: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/jenis_pajak/delete', {
+    const response = await axiosClient.post('/api/setup/jenis_pajak/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete jenis pajak');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS jenis pajak');
   },
 
   getJenisSetoran: async (): Promise<JenisSetoranData[]> => {
@@ -850,29 +850,29 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch jenis setoran');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch jenis setoran');
   },
 
   saveJenisSetoran: async (data: JenisSetoranData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/jenis_setoran/save', {
+    const response = await axiosClient.post('/api/setup/jenis_setoran/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save jenis setoran');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN jenis setoran');
   },
 
   deleteJenisSetoran: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/jenis_setoran/delete', {
+    const response = await axiosClient.post('/api/setup/jenis_setoran/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete jenis setoran');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS jenis setoran');
   },
 
   getBahasa: async (): Promise<BahasaData[]> => {
@@ -883,18 +883,18 @@ export const setupApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch setup bahasa');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch setup bahasa');
   },
 
   saveBahasa: async (data: BahasaData): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/setup/bahasa/save', {
+    const response = await axiosClient.post('/api/setup/bahasa/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save setup bahasa');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN setup bahasa');
   },
 
   deleteBahasa: async (id: number): Promise<{ message: string }> => {

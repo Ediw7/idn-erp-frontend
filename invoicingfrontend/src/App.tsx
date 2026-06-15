@@ -65,7 +65,7 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Elem
   return children;
 };
 
-const queryClient = new QueryClient({
+const queryClient = TAMBAH BARU QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false, // Prevent excessive refetching

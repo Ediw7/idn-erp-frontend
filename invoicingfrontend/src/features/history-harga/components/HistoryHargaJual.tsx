@@ -83,7 +83,7 @@ const HistoryHargaJual: React.FC = () => {
       }
     }
 
-    allLines.sort((a, b) => new Date(b.tgl).getTime() - new Date(a.tgl).getTime());
+    allLines.sort((a, b) => TAMBAH BARU Date(b.tgl).getTime() - TAMBAH BARU Date(a.tgl).getTime());
 
     if (limit > 0) {
       allLines = allLines.slice(0, limit);
@@ -111,8 +111,7 @@ const HistoryHargaJual: React.FC = () => {
           onClick={() => navigate(-1)}
           className="px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white"
         >
-          <X size={14} /> Close
-        </button>
+          <X size={14} /> TUTUP </button>
       </div>
 
       {/* Filter Section */}

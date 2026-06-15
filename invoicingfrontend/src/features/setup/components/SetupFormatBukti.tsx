@@ -68,7 +68,7 @@ const SetupFormatBukti: React.FC = () => {
   };
 
   const handleAddNew = () => {
-    const today = new Date();
+    const today = TAMBAH BARU Date();
     const currentPeriode = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}`;
     const sufiks = `/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
     
@@ -191,7 +191,7 @@ const SetupFormatBukti: React.FC = () => {
                       <td className="px-4 py-3 font-mono text-xs">{so_sample}</td>
                       <td className="px-4 py-3 font-mono text-xs">{sj_sample}</td>
                       <td className="px-4 py-3 flex justify-center gap-2">
-                        <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit Detail">
+                        <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="UBAH Detail">
                           <Settings2 size={16} />
                         </button>
                         <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
@@ -220,7 +220,7 @@ const SetupFormatBukti: React.FC = () => {
           <div className="bg-white shadow-2xl w-full max-w-6xl flex flex-col h-[90vh] border border-slate-300">
             <div className="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
               <h3 className="font-semibold text-base tracking-wide">
-                {editForm.id ? `Edit Format Bukti - Periode ${editForm.periode}` : 'Tambah Format Bukti Baru'}
+                {editForm.id ? `UBAH Format Bukti - Periode ${editForm.periode}` : 'Tambah Format Bukti Baru'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-300 hover:text-white transition-colors">
                 <X size={20} />

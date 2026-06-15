@@ -22,14 +22,12 @@ const KartuPiutang: React.FC = () => {
             onClick={() => navigate(-1)}
             className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors"
           >
-            <X size={14} /> Close
-          </button>
+            <X size={14} /> TUTUP </button>
           <button 
             onClick={() => navigate('/laporan', { state: { initialReport: 'Kartu Piutang (A4)' } })}
             className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors"
           >
-            <FileText size={14} /> Report
-          </button>
+            <FileText size={14} /> LAPORAN </button>
           <button className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors">
             <Search size={14} /> Search
           </button>

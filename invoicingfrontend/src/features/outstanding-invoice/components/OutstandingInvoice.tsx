@@ -18,8 +18,7 @@ const OutstandingInvoice: React.FC = () => {
             onClick={() => navigate(-1)}
             className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors"
           >
-            <X size={14} /> CLOSE
-          </button>
+            <X size={14} /> TUTUP </button>
         </div>
       </div>
 

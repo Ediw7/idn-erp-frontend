@@ -87,7 +87,7 @@ const SetupJenisSetoran: React.FC = () => {
 
   const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
-  // Derive selected pajak name for display in edit row
+  // Derive selected pajak name for display in UBAH row
 
   return (
     <div className="bg-white shadow-sm border border-slate-300 max-w-6xl mx-auto mt-8 flex flex-col max-h-[85vh]">
@@ -149,7 +149,7 @@ const SetupJenisSetoran: React.FC = () => {
                     <td className="px-4 py-3 font-medium">{item.kode}</td>
                     <td className="px-4 py-3">{item.nama}</td>
                     <td className="px-4 py-3 flex justify-center gap-2">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
+                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="UBAH">
                         <Edit2 size={14} />
                       </button>
                       <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
@@ -177,7 +177,7 @@ const SetupJenisSetoran: React.FC = () => {
           <div className="bg-white rounded shadow-xl max-w-md w-full flex flex-col">
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
               <h3 className="font-bold text-slate-800">
-                {editForm.id ? 'Edit Jenis Setoran' : 'Tambah Jenis Setoran'}
+                {editForm.id ? 'UBAH Jenis Setoran' : 'Tambah Jenis Setoran'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X size={20} />

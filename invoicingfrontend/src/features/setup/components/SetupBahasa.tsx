@@ -16,13 +16,13 @@ const SetupBahasa: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<BahasaData>({
-    jenis_objek: 'Report',
+    jenis_objek: 'LAPORAN',
     nama_objek: 'Invoice',
     default_sistem: '',
     judul_kustom: ''
   });
 
-  const [filterJenis, setFilterJenis] = useState('Report');
+  const [filterJenis, setFilterJenis] = useState('LAPORAN');
   const [filterNama, setFilterNama] = useState('Invoice');
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const SetupBahasa: React.FC = () => {
 
   const handleAddNew = () => {
     setEditForm({
-      jenis_objek: filterJenis || 'Report',
+      jenis_objek: filterJenis || 'LAPORAN',
       nama_objek: filterNama || 'Invoice',
       default_sistem: '',
       judul_kustom: ''
@@ -110,10 +110,10 @@ const SetupBahasa: React.FC = () => {
   const paginatedList = filteredList.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   // Extract unique Jenis and Nama for dropdowns
-  const uniqueJenis = Array.from(new Set(list.map(item => item.jenis_objek)));
-  const uniqueNama = Array.from(new Set(list.filter(item => !filterJenis || item.jenis_objek === filterJenis).map(item => item.nama_objek)));
+  const uniqueJenis = Array.from(TAMBAH BARU Set(list.map(item => item.jenis_objek)));
+  const uniqueNama = Array.from(TAMBAH BARU Set(list.filter(item => !filterJenis || item.jenis_objek === filterJenis).map(item => item.nama_objek)));
   
-  if (!uniqueJenis.includes('Report')) uniqueJenis.push('Report');
+  if (!uniqueJenis.includes('LAPORAN')) uniqueJenis.push('LAPORAN');
   if (!uniqueJenis.includes('Form')) uniqueJenis.push('Form');
   if (!uniqueNama.includes('Invoice')) uniqueNama.push('Invoice');
   if (!uniqueNama.includes('Kwitansi')) uniqueNama.push('Kwitansi');
@@ -208,7 +208,7 @@ const SetupBahasa: React.FC = () => {
                     <td className="px-4 py-3 text-slate-500">{item.default_sistem}</td>
                     <td className="px-4 py-3 font-semibold text-slate-900">{item.judul_kustom || '-'}</td>
                     <td className="px-4 py-3 flex justify-center gap-2">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit Terjemahan">
+                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="UBAH Terjemahan">
                         <Edit2 size={14} />
                       </button>
                       <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus Label">
@@ -246,7 +246,7 @@ const SetupBahasa: React.FC = () => {
           <div className="bg-white rounded shadow-xl max-w-md w-full flex flex-col">
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
               <h3 className="font-bold text-slate-800">
-                {editForm.id ? 'Edit Setup Bahasa' : 'Tambah Setup Bahasa'}
+                {editForm.id ? 'UBAH Setup Bahasa' : 'Tambah Setup Bahasa'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X size={20} />
@@ -261,7 +261,7 @@ const SetupBahasa: React.FC = () => {
                     value={editForm.jenis_objek} 
                     onChange={e => setEditForm({...editForm, jenis_objek: e.target.value})} 
                     className={inputClass}
-                    placeholder="Report / Form"
+                    placeholder="LAPORAN / Form"
                   />
                 </div>
                 <div>

@@ -45,8 +45,7 @@ const SetupDataBaru: React.FC = () => {
             onClick={() => navigate(-1)}
             className="flex items-center gap-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold text-white transition-colors"
           >
-            <X size={14} /> CANCEL
-          </button>
+            <X size={14} /> BATAL </button>
           <button 
             onClick={handleSave}
             className="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 border border-blue-600 rounded-sm text-xs font-semibold text-white transition-colors shadow-sm"

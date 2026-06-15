@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { setupApi, PreferensiData } from '../api';
 
 const SetupPreferensi: React.FC = () => {
@@ -6,6 +6,9 @@ const SetupPreferensi: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  const backupFolderRef = useRef<HTMLInputElement>(null);
+  const csvFolderRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<PreferensiData>({
     folderDatabase: 'postgresql://db-cluster-01.ediaccounting.internal:5432',
@@ -29,7 +32,7 @@ const SetupPreferensi: React.FC = () => {
     tglSistem: '2026-06-09',
     batasWaktuEdit: '7',
     folderBackupData: 's3://ediaccounting-enterprise-backup/daily',
-    folderCsvFaktur: 's3://ediaccounting-efaktur-export/csv',
+    folderCsvFaktur: 's3://ediaccounting-efaktur-EKSPOR/csv',
     namaFileLogo: 'https://cdn.ediaccounting.com/assets/corporate_logo.png',
     lebarLogo: 0.90,
     tinggiLogo: 0.75,
@@ -92,41 +95,32 @@ const SetupPreferensi: React.FC = () => {
     setFormData({ ...formData, [name]: finalValue });
   };
 
-  const handleFolderPicker = async (fieldName: keyof PreferensiData) => {
-    try {
+  const handleBackupFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
       // @ts-ignore
-      if (window.showDirectoryPicker) {
-        // @ts-ignore
-        const dirHandle = await window.showDirectoryPicker();
-        setFormData(prev => ({ ...prev, [fieldName]: dirHandle.name }));
-      } else {
-        setMessage({ 
-          text: 'Fitur akses folder otomatis diblokir oleh keamanan browser. Silakan ketik path folder secara manual.', 
-          type: 'error' 
-        });
-        setTimeout(() => setMessage(null), 4000);
-      }
-    } catch (err: any) {
-      console.log('Folder selection cancelled', err);
+      const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : file.name);
+      setFormData(prev => ({ ...prev, folderBackupData: path }));
     }
   };
 
-  const handleFilePicker = async (fieldName: keyof PreferensiData) => {
-    try {
+  const handleCsvFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
       // @ts-ignore
-      if (window.showOpenFilePicker) {
-        // @ts-ignore
-        const [fileHandle] = await window.showOpenFilePicker();
-        setFormData(prev => ({ ...prev, [fieldName]: fileHandle.name }));
-      } else {
-        setMessage({ 
-          text: 'Fitur akses file otomatis diblokir oleh keamanan browser. Silakan ketik lokasi file secara manual.', 
-          type: 'error' 
-        });
-        setTimeout(() => setMessage(null), 4000);
-      }
-    } catch (err: any) {
-      console.log('File selection cancelled', err);
+      const path = file.path || (file.webkitRelativePath ? file.webkitRelativePath.split('/')[0] : file.name);
+      setFormData(prev => ({ ...prev, folderCsvFaktur: path }));
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = TAMBAH BARU FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, namaFileLogo: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -223,15 +217,19 @@ const SetupPreferensi: React.FC = () => {
                 <div>
                   <label className={labelClass}>Folder Backup Data</label>
                   <div className="flex gap-2">
-                    <input type="text" name="folderBackupData" value={formData.folderBackupData} onChange={handleChange} className={inputClass} />
-                    <button type="button" onClick={() => handleFolderPicker('folderBackupData')} className="px-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200">...</button>
+                    <input type="text" name="folderBackupData" value={formData.folderBackupData} onChange={handleChange} className={inputClass} placeholder="Pilih folder backup..." />
+                    <button type="button" onClick={() => backupFolderRef.current?.click()} className="px-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200 transition-colors font-bold rounded-sm">...</button>
+                    {/* @ts-ignore */}
+                    <input type="file" ref={backupFolderRef} onChange={handleBackupFolderChange} webkitdirectory="true" directory="true" className="hidden" />
                   </div>
                 </div>
                 <div>
                   <label className={labelClass}>Folder File CSV e-Faktur</label>
                   <div className="flex gap-2">
-                    <input type="text" name="folderCsvFaktur" value={formData.folderCsvFaktur} onChange={handleChange} className={inputClass} />
-                    <button type="button" onClick={() => handleFolderPicker('folderCsvFaktur')} className="px-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200">...</button>
+                    <input type="text" name="folderCsvFaktur" value={formData.folderCsvFaktur} onChange={handleChange} className={inputClass} placeholder="Pilih folder ekspor..." />
+                    <button type="button" onClick={() => csvFolderRef.current?.click()} className="px-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200 transition-colors font-bold rounded-sm">...</button>
+                    {/* @ts-ignore */}
+                    <input type="file" ref={csvFolderRef} onChange={handleCsvFolderChange} webkitdirectory="true" directory="true" className="hidden" />
                   </div>
                 </div>
               </div>
@@ -239,10 +237,22 @@ const SetupPreferensi: React.FC = () => {
               <div className="space-y-4">
                 <h3 className="text-sm font-bold text-slate-800 border-b pb-2 mb-4">Pengaturan Aplikasi</h3>
                 <div>
-                  <label className={labelClass}>Nama File Logo</label>
-                  <div className="flex gap-2">
-                    <input type="text" name="namaFileLogo" value={formData.namaFileLogo} onChange={handleChange} className={inputClass} />
-                    <button type="button" onClick={() => handleFilePicker('namaFileLogo')} className="px-3 bg-slate-100 border border-slate-300 text-slate-600 hover:bg-slate-200">...</button>
+                  <label className={labelClass}>Logo Perusahaan</label>
+                  <div className="flex items-start gap-4 p-3 border border-dashed border-slate-300 bg-slate-50 rounded-sm">
+                    <div className="flex-1 flex flex-col justify-center">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileChange} 
+                        className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-2">Maksimal ukuran file 2MB. Format: JPG, PNG.</p>
+                    </div>
+                    {formData.namaFileLogo && (
+                      <div className="w-24 h-24 border border-slate-200 bg-white flex items-center justify-center p-1 shadow-sm shrink-0">
+                        <img src={formData.namaFileLogo} alt="Logo Preview" className="max-w-full max-h-full object-contain" />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">

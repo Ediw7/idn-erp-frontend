@@ -24,7 +24,7 @@ const SuratJalan: React.FC = () => {
 
   const emptyForm = {
     no_sj: '',
-    tanggal: new Date().toISOString().split('T')[0],
+    tanggal: TAMBAH BARU Date().toISOString().split('T')[0],
     pelanggan_id: '',
     alamat_kirim: '',
     gudang_id: '',
@@ -49,7 +49,7 @@ const SuratJalan: React.FC = () => {
 
   useEffect(() => {
     // Parse query params if navigating from Sales Order
-    const params = new URLSearchParams(location.search);
+    const params = TAMBAH BARU URLSearchParams(location.search);
     const so = params.get('so');
     const pelanggan = params.get('pelanggan');
     const gudang = params.get('gudang');
@@ -117,7 +117,7 @@ const SuratJalan: React.FC = () => {
     setForm({
       ...modalForm,
       lines: [{ item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, keterangan: '' }],
-      create_date: new Date().toISOString(),
+      create_date: TAMBAH BARU Date().toISOString(),
       create_uid_name: user?.name || 'Unknown'
     });
 
@@ -131,10 +131,10 @@ const SuratJalan: React.FC = () => {
       return;
     }
 
-    // Simulate save to DB
+    // Simulate SIMPAN to DB
     setForm({
       ...form,
-      write_date: new Date().toISOString(),
+      write_date: TAMBAH BARU Date().toISOString(),
       write_uid_name: user?.name || 'Unknown'
     });
     toast.success('Surat Jalan berhasil disimpan');
@@ -203,8 +203,7 @@ const SuratJalan: React.FC = () => {
               }}
               className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
             >
-              <FilePlus size={14} /> AUTO CREATE SJ
-            </button>
+              <FilePlus size={14} /> BUAT SJ OTOMATIS </button>
             <button
               onClick={() => {
                 const reportName = 'Surat Jalan (A4 / Kwarto / 1/2 Kwarto) - Font 10';
@@ -227,8 +226,7 @@ const SuratJalan: React.FC = () => {
               }}
               className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-green-600 border border-transparent hover:bg-green-500 transition-colors ml-2 rounded-sm shadow-sm"
             >
-              <Send size={14} /> CREATE INVOICE
-            </button>
+              <Send size={14} /> BUAT INVOICE </button>
           </div>
         </div>
 
@@ -496,15 +494,12 @@ const SuratJalan: React.FC = () => {
               <button
                 onClick={() => setShowNewSjModal(false)}
                 className="px-6 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-sm shadow-sm hover:bg-slate-50 transition-colors"
-              >
-                CLOSE
-              </button>
+              > TUTUP </button>
               <button
                 onClick={handleCreateSJ}
                 className="px-8 py-2.5 text-sm font-semibold text-white bg-blue-600 border border-transparent rounded-sm shadow-sm hover:bg-blue-700 transition-colors flex items-center gap-2"
               >
-                <Save size={16} /> CREATE
-              </button>
+                <Save size={16} /> BUAT BARU </button>
             </div>
           </div>
         </div>
@@ -568,17 +563,14 @@ const SuratJalan: React.FC = () => {
             <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
               <button
                 onClick={() => setShowInvoiceModal(false)}
-                className="px-6 py-2 bg-white text-slate-700 border border-slate-300 text-sm font-semibold rounded-sm hover:bg-slate-50 transition-colors">
-                CLOSE
-              </button>
+                className="px-6 py-2 bg-white text-slate-700 border border-slate-300 text-sm font-semibold rounded-sm hover:bg-slate-50 transition-colors"> TUTUP </button>
               <button
                 onClick={() => {
                   toast.success('Draft Invoice berhasil digenerate!');
                   navigate('/invoice');
                 }}
                 className="px-8 py-2 bg-green-600 text-white text-sm font-bold rounded-sm hover:bg-green-500 shadow-sm transition-colors flex items-center gap-2">
-                <Send size={16} /> CREATE
-              </button>
+                <Send size={16} /> BUAT BARU </button>
             </div>
           </div>
         </div>

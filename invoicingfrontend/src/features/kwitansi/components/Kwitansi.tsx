@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FilePlus, Printer, Trash2, Save, X, Search } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { setupApi, PelangganData } from '../../setup/api';
 
 // Fungsi merubah angka menjadi teks terbilang (Bahasa Indonesia)
 const angkaMenjadiTerbilang = (angka: number): string => {
@@ -33,7 +34,7 @@ const Kwitansi: React.FC = () => {
 
   const emptyForm = {
     no_kwitansi: '',
-    tgl_kwitansi: new Date().toISOString().split('T')[0],
+    tgl_kwitansi: TAMBAH BARU Date().toISOString().split('T')[0],
     no_invoice: '',
     pembeli_id: '',
     alamat: '',
@@ -48,9 +49,25 @@ const Kwitansi: React.FC = () => {
 
   const [form, setForm] = useState<any>(emptyForm);
   const [showNewModal, setShowNewModal] = useState(false);
+  const [pelanggans, setPelanggans] = useState<PelangganData[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]); // Placeholder for fetched invoices
+  const [loadingData, setLoadingData] = useState(true);
 
   // Tangkap data dari navigasi (misalnya dari halaman Invoice)
   useEffect(() => {
+    const fetchData = async () => {
+      setLoadingData(true);
+      try {
+        const pelRes = await setupApi.getPelanggan();
+        setPelanggans(pelRes);
+      } catch (err) {
+        console.error("Failed to fetch pelanggan:", err);
+      } finally {
+        setLoadingData(false);
+      }
+    };
+    fetchData();
+
     if (location.state) {
       const { no_invoice, pembeli_id, alamat, jumlah, keterangan } = location.state;
       setForm((prev: any) => ({
@@ -73,6 +90,15 @@ const Kwitansi: React.FC = () => {
       ...form,
       jumlah: num,
       terbilang: formatTerbilang(num)
+    });
+  };
+
+  const handlePembeliChange = (id: number | '') => {
+    const p = pelanggans.find(x => x.id === id);
+    setForm({
+      ...form,
+      pembeli_id: id,
+      alamat: p?.alamat_wp || p?.alamat || ''
     });
   };
 
@@ -170,18 +196,21 @@ const Kwitansi: React.FC = () => {
             <div>
               <label className={labelClass}>No. Invoice Ref.</label>
               <div className="flex gap-2 w-full">
-                <input type="text" className={inputClass} value={form.no_invoice || ''} onChange={e => setForm({...form, no_invoice: e.target.value})} />
+                <select className={inputClass} value={form.no_invoice || ''} onChange={e => setForm({...form, no_invoice: e.target.value})}>
+                  <option value="">{loadingData ? 'Loading...' : '-- Pilih Invoice --'}</option>
+                  {invoices.map((inv, idx) => <option key={idx} value={inv.no_invoice}>{inv.no_invoice}</option>)}
+                </select>
                 <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><Search size={16} className="text-gray-600" /></button>
               </div>
             </div>
             <div>
               <label className={labelClass}>Sudah Terima Dari</label>
               <div className="flex gap-2 w-full">
-                <select className={inputClass} value={form.pembeli_id || ''} onChange={e => setForm({...form, pembeli_id: e.target.value})}>
-                  <option value="">-- Pilih Pelanggan --</option>
-                  <option value="1">PT Pelanggan Tetap</option>
+                <select className={inputClass} value={form.pembeli_id || ''} onChange={e => handlePembeliChange(e.target.value ? Number(e.target.value) : '')}>
+                  <option value="">{loadingData ? 'Loading data...' : '-- Pilih Pelanggan --'}</option>
+                  {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama} - {p.alamat}</option>)}
                 </select>
-                <button className="px-3 font-bold border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md text-gray-600 transition-colors">+</button>
+                <button className="px-3 font-bold border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md text-gray-600 transition-colors" onClick={() => navigate('/setup/pelanggan')}>+</button>
               </div>
             </div>
 
@@ -313,9 +342,7 @@ const Kwitansi: React.FC = () => {
               </div>
             </div>
             <div className="bg-slate-50 px-8 py-5 border-t border-gray-200 flex justify-end gap-3">
-              <button onClick={() => setShowNewModal(false)} className={`${btnClass} bg-white text-slate-700 border border-gray-300 hover:bg-slate-50`}>
-                CLOSE
-              </button>
+              <button onClick={() => setShowNewModal(false)} className={`${btnClass} bg-white text-slate-700 border border-gray-300 hover:bg-slate-50`}> TUTUP </button>
               <button onClick={() => {
                 if(!form.no_kwitansi) { toast.error("Isi No Kwitansi"); return; }
                 setShowNewModal(false);

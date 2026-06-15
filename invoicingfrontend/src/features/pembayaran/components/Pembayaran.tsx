@@ -31,8 +31,7 @@ const Pembayaran: React.FC = () => {
         </div>
         <div className="flex gap-1.5 shrink-0 ml-4">
           <button className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-sm text-xs font-semibold flex items-center gap-1 transition-colors text-white whitespace-nowrap">
-            <FileText size={14} /> Report
-          </button>
+            <FileText size={14} /> LAPORAN </button>
         </div>
       </div>
 
@@ -212,7 +211,7 @@ const Pembayaran: React.FC = () => {
                     <input type="text" className="w-full px-2 py-1 border border-slate-300 rounded-sm text-xs" />
                   </td>
                 </tr>
-                {/* Empty new row */}
+                {/* Empty TAMBAH BARU row */}
                 <tr className="border-b border-slate-200">
                   <td className="px-2 py-1 text-center border-r border-slate-200 font-bold">*</td>
                   <td className="px-2 py-1 border-r border-slate-200">

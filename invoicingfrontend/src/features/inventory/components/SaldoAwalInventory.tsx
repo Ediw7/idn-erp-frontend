@@ -45,7 +45,7 @@ const SaldoAwalInventory: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState<SaldoAwalInventoryData>({
     gudang_id: null,
-    tanggal: new Date().toISOString().split('T')[0],
+    tanggal: TAMBAH BARU Date().toISOString().split('T')[0],
     keterangan: '',
     lines: []
   });
@@ -103,7 +103,7 @@ const SaldoAwalInventory: React.FC = () => {
   const handleAddNew = () => {
     setFormData({
       gudang_id: gudangs.length > 0 ? gudangs[0].id : null,
-      tanggal: new Date().toISOString().split('T')[0],
+      tanggal: TAMBAH BARU Date().toISOString().split('T')[0],
       keterangan: '',
       lines: [createEmptyLine()]
     });
@@ -123,7 +123,7 @@ const SaldoAwalInventory: React.FC = () => {
     if (!isConfirmed) return;
 
     try {
-      const response = await axiosClient.post('/api/inventory/saldo-awal/delete', { id });
+      const response = await axiosClient.post('/api/inventory/saldo-awal/HAPUS', { id });
       if (response.data.result?.status === 'success') {
         fetchData();
       } else {
@@ -149,7 +149,7 @@ const SaldoAwalInventory: React.FC = () => {
     const dataToSave = { ...formData, lines: validLines };
 
     try {
-      const response = await axiosClient.post('/api/inventory/saldo-awal/save', dataToSave);
+      const response = await axiosClient.post('/api/inventory/saldo-awal/SIMPAN', dataToSave);
       if (response.data.result?.status === 'success') {
         setIsFormOpen(false);
         fetchData();
@@ -271,7 +271,7 @@ const SaldoAwalInventory: React.FC = () => {
                       {calcDocTotal(row.lines).toLocaleString('id-ID', { minimumFractionDigits: 2 })}
                     </td>
                     <td className="px-4 py-2 text-center flex items-center justify-center gap-2">
-                      <button onClick={() => handleEdit(row)} className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors hover:bg-blue-50" title="Edit">
+                      <button onClick={() => handleEdit(row)} className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors hover:bg-blue-50" title="UBAH">
                         <Edit2 size={14} />
                       </button>
                       <button onClick={() => handleDelete(row.id!)} className="text-red-500 hover:text-red-700 p-1 rounded transition-colors hover:bg-red-50" title="Hapus">
@@ -293,7 +293,7 @@ const SaldoAwalInventory: React.FC = () => {
             
             {/* Modal Header */}
             <div className="bg-slate-800 text-white px-5 py-3 flex items-center justify-between shrink-0">
-              <h3 className="font-semibold">{formData.id ? 'Edit Saldo Awal Persediaan' : 'Tambah Saldo Awal Baru'}</h3>
+              <h3 className="font-semibold">{formData.id ? 'UBAH Saldo Awal Persediaan' : 'Tambah Saldo Awal Baru'}</h3>
               <button onClick={() => setIsFormOpen(false)} className="text-slate-300 hover:text-white transition-colors">
                 <X size={18} />
               </button>

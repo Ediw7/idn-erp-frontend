@@ -81,7 +81,7 @@ export const authApi = {
     if (response.data.status === 'success') {
       return response.data.data || [];
     }
-    throw new Error(response.data.error || 'Failed to fetch users');
+    throw TAMBAH BARU Error(response.data.error || 'Failed to fetch users');
   },
 
   toggleUser: async (id: number): Promise<{message?: string; error?: string}> => {

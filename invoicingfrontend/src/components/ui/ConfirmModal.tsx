@@ -4,8 +4,8 @@ interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
   message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
+  onConfirm: () => BATALKAN;
+  onCancel: () => BATALKAN;
   confirmText?: string;
   cancelText?: string;
   isDestructive?: boolean;
@@ -44,7 +44,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
             <button
               onClick={() => {
                 onConfirm();
-                onCancel(); // Auto close on confirm
+                onCancel(); // Auto TUTUP on confirm
               }}
               className={`px-4 py-2 text-sm font-semibold text-white rounded transition-colors ${
                 isDestructive 

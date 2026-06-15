@@ -185,7 +185,7 @@ const SetupPerkiraan: React.FC = () => {
                       <input type="checkbox" checked={item.kas_bank} readOnly className="w-4 h-4 text-slate-400 border-slate-300 rounded opacity-70 cursor-not-allowed" />
                     </td>
                     <td className="px-4 py-3 flex justify-center gap-2">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
+                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="UBAH">
                         <Edit2 size={14} />
                       </button>
                       <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
@@ -221,7 +221,7 @@ const SetupPerkiraan: React.FC = () => {
           <div className="bg-white rounded shadow-xl max-w-md w-full flex flex-col">
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
               <h3 className="font-bold text-slate-800">
-                {editForm.id ? 'Edit Perkiraan' : 'Tambah Perkiraan'}
+                {editForm.id ? 'UBAH Perkiraan' : 'Tambah Perkiraan'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X size={20} />

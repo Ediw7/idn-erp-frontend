@@ -11,9 +11,9 @@ const SptMasa1111: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [form, setForm] = useState<Partial<SptMasa1111Data>>({
-    tahun: new Date().getFullYear().toString(),
+    tahun: TAMBAH BARU Date().getFullYear().toString(),
     masa_awal: '01', masa_akhir: '01', pembetulan_ke: 0,
-    tanggal_spt: new Date().toISOString().split('T')[0], is_locked: false,
+    tanggal_spt: TAMBAH BARU Date().toISOString().split('T')[0], is_locked: false,
     dpp_ekspor: 0, ppn_ekspor: 0,
     dpp_dipungut_sendiri: 0, ppn_dipungut_sendiri: 0,
     dpp_dipungut_pemungut: 0, ppn_dipungut_pemungut: 0,
@@ -61,9 +61,9 @@ const SptMasa1111: React.FC = () => {
 
   const handleNew = () => {
     setForm({
-      tahun: new Date().getFullYear().toString(),
+      tahun: TAMBAH BARU Date().getFullYear().toString(),
       masa_awal: '01', masa_akhir: '01', pembetulan_ke: 0,
-      tanggal_spt: new Date().toISOString().split('T')[0], is_locked: false,
+      tanggal_spt: TAMBAH BARU Date().toISOString().split('T')[0], is_locked: false,
       dpp_ekspor: 0, ppn_ekspor: 0,
       dpp_dipungut_sendiri: 0, ppn_dipungut_sendiri: 0,
       dpp_dipungut_pemungut: 0, ppn_dipungut_pemungut: 0,
@@ -82,7 +82,7 @@ const SptMasa1111: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      await sptMasaApi.save(form as SptMasa1111Data);
+      await sptMasaApi.SIMPAN(form as SptMasa1111Data);
       const resData = await sptMasaApi.getAll();
       const d = resData || [];
       setDataList(d);
@@ -104,7 +104,7 @@ const SptMasa1111: React.FC = () => {
     const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus SPT ini?');
     if (!isConfirmed) return;
     try {
-      await sptMasaApi.delete(form.id);
+      await sptMasaApi.HAPUS(form.id);
       const resData = await sptMasaApi.getAll();
       const d = resData || [];
       setDataList(d);
@@ -157,13 +157,13 @@ const SptMasa1111: React.FC = () => {
 
         {/* Action Header */}
         <div className="bg-slate-200 border-b border-slate-400 px-2 py-1.5 flex gap-1 sticky top-9 z-20 shadow-sm">
-          <button onClick={handleNew} className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold flex items-center gap-1"><FilePlus size={14}/> New</button>
-          <button onClick={handleDelete} className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold flex items-center gap-1"><Trash2 size={14}/> Delete</button>
-          <button className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold">Close</button>
+          <button onClick={handleNew} className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold flex items-center gap-1"><FilePlus size={14}/> TAMBAH BARU </button>
+          <button onClick={handleDelete} className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold flex items-center gap-1"><Trash2 size={14}/> HAPUS </button>
+          <button className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold"> TUTUP </button>
           <button className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold font-mono">AB</button>
           <button className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold flex items-center gap-1"><Copy size={14}/> Copy Data</button>
-          <button className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold">Auto Create SSP</button>
-          <button className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold flex items-center gap-1"><Printer size={14}/> Report</button>
+          <button className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold">Auto BUAT BARU SSP</button>
+          <button className="px-3 py-1 bg-white border border-slate-400 hover:bg-slate-100 shadow-sm font-bold flex items-center gap-1"><Printer size={14}/> LAPORAN </button>
           <button className="px-3 py-1 bg-slate-300 border border-slate-400 hover:bg-slate-400 shadow-sm font-bold flex items-center gap-1"><Lock size={14}/> Lock SPT</button>
         </div>
 
@@ -368,7 +368,7 @@ const SptMasa1111: React.FC = () => {
         </div>
       </div>
 
-      {/* GLOBAL FOOTER: Record Navigation & Save Button */}
+      {/* GLOBAL FOOTER: Record Navigation & SIMPAN Button */}
       <div className="bg-slate-200 border-t-2 border-slate-400 px-6 py-2.5 flex items-center justify-between shrink-0 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] z-20">
         <div className="flex items-center">
           <span className="font-bold text-slate-700 mr-3">Record:</span>
@@ -380,7 +380,7 @@ const SptMasa1111: React.FC = () => {
             <button onClick={() => loadRecord(dataList.length - 1)} className="p-1 border border-slate-400 bg-slate-100 hover:bg-white shadow-sm"><ChevronsRight size={14} /></button>
           </div>
           <span className="font-bold text-slate-700 ml-3">of {dataList.length}</span>
-          <span className="text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 border border-slate-300">{isNew ? 'New Form' : 'Form View'}</span>
+          <span className="text-slate-500 ml-6 font-mono bg-slate-100 px-2 py-0.5 border border-slate-300">{isNew ? 'TAMBAH BARU Form' : 'Form View'}</span>
         </div>
 
         <button onClick={handleSave} className="flex items-center gap-1.5 px-6 py-1.5 bg-blue-700 border border-blue-800 hover:bg-blue-800 text-white font-bold shadow-sm">

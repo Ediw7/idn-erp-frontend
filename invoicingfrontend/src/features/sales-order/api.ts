@@ -57,29 +57,29 @@ export const salesOrderApi = {
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch sales orders');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to fetch sales orders');
   },
 
-  save: async (data: SalesOrderData): Promise<{ message: string; id: number }> => {
-    const response = await axiosClient.post('/api/sales-order/save', {
+  SIMPAN: async (data: SalesOrderData): Promise<{ message: string; id: number }> => {
+    const response = await axiosClient.post('/api/sales-order/SIMPAN', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save sales order');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to SIMPAN sales order');
   },
 
-  delete: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/sales-order/delete', {
+  HAPUS: async (id: number): Promise<{ message: string }> => {
+    const response = await axiosClient.post('/api/sales-order/HAPUS', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete sales order');
+    throw TAMBAH BARU Error(response.data.result?.message || 'Failed to HAPUS sales order');
   },
 
   autoNo: async (): Promise<{ no_so: string }> => {
