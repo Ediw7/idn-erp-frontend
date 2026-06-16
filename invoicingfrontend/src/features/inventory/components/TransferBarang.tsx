@@ -140,12 +140,10 @@ const TransferBarang: React.FC = () => {
   const readOnlyClass = "w-full px-2 py-1.5 bg-gray-50 border border-slate-200 text-slate-500 rounded text-sm focus:outline-none";
 
   return (
-    <div className="bg-slate-50 min-h-[calc(100vh-4rem)] p-8">
-      {/* 1. Outer Container */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden w-full">
+    <div className="w-full h-full bg-white rounded-none flex flex-col shadow-sm border border-slate-300">
         
         {/* 2. Header Banner Gelap */}
-        <div className="p-6 bg-slate-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="p-6 bg-slate-900 w-full rounded-none flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-white tracking-wide">Bukti Transfer Barang</h2>
             <p className="text-sm text-slate-300 mt-1">Form perpindahan stok barang antar gudang</p>
@@ -176,7 +174,7 @@ const TransferBarang: React.FC = () => {
         </div>
 
         {/* 3. Body Form Utama */}
-        <div className="p-6 bg-white">
+        <div className="p-6 bg-white w-full rounded-none">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             
             <div className="lg:col-span-1">
@@ -352,7 +350,6 @@ const TransferBarang: React.FC = () => {
 
         </div>
       </div>
-    </div>
   );
 };
 

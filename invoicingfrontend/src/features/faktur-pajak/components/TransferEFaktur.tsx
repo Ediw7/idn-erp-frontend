@@ -122,12 +122,10 @@ const TransferEFakturForm: React.FC = () => {
   const inputClass = "w-full px-3 py-2 border border-slate-300 bg-white rounded-sm text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all disabled:opacity-50";
 
   return (
-    <div className="bg-slate-50 min-h-[calc(100vh-4rem)] p-8">
-      {/* 1. Outer Container (Sesuai Saldo Awal) */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden w-full">
+    <div className="w-full h-full bg-white rounded-none flex flex-col shadow-sm border border-slate-300">
         
         {/* 2. Header Banner Gelap (Full Width) */}
-        <div className="p-6 bg-slate-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="p-6 bg-slate-900 w-full rounded-none flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-white tracking-wide">Transfer ke Program e-Faktur</h2>
             <p className="text-sm text-slate-300 mt-1">Ekspor data faktur pajak ke format CSV (Skema Impor e-Faktur DJP)</p>
@@ -259,7 +257,6 @@ const TransferEFakturForm: React.FC = () => {
         </div>
 
       </div>
-    </div>
   );
 };
 

@@ -162,12 +162,10 @@ const PenerimaanBarang: React.FC = () => {
   const readOnlyClass = "w-full px-3 py-2 border border-slate-200 bg-gray-50 text-gray-500 rounded-sm text-sm font-semibold focus:outline-none";
 
   return (
-    <div className="bg-slate-50 min-h-[calc(100vh-4rem)] p-8">
-      {/* 1. Outer Container (Sesuai Saldo Awal) */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden w-full">
+    <div className="w-full h-full bg-white rounded-none flex flex-col shadow-sm border border-slate-300">
         
         {/* 2. Header Banner Gelap */}
-        <div className="p-6 bg-slate-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="p-6 bg-slate-900 w-full rounded-none flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-white tracking-wide">Bukti Penerimaan Barang</h2>
             <p className="text-sm text-slate-300 mt-1">Form input penerimaan barang dari supplier ke gudang</p>
@@ -198,7 +196,7 @@ const PenerimaanBarang: React.FC = () => {
         </div>
 
         {/* 3. Body Form Utama */}
-        <div className="p-6 bg-white">
+        <div className="p-6 bg-white w-full rounded-none">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
             
             {/* Kolom Kiri */}
@@ -427,7 +425,6 @@ const PenerimaanBarang: React.FC = () => {
 
         </div>
       </div>
-    </div>
   );
 };
 

@@ -58,12 +58,10 @@ const ProsesHPP: React.FC = () => {
   const inputClass = "w-full md:w-1/3 px-3 py-2 border border-slate-300 bg-white rounded-sm text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all disabled:opacity-50 disabled:bg-gray-100";
 
   return (
-    <div className="bg-slate-50 min-h-[calc(100vh-4rem)] p-8">
-      {/* 1. Outer Container */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden w-full max-w-4xl mx-auto">
+    <div className="w-full h-full bg-white rounded-none flex flex-col shadow-sm border border-slate-300">
         
         {/* 2. Header Banner Gelap */}
-        <div className="p-6 bg-slate-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="p-6 bg-slate-900 w-full rounded-none flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-white tracking-wide">Proses Perhitungan HPP</h2>
             <p className="text-sm text-slate-300 mt-1">Modul utilitas untuk menghitung ulang Harga Pokok Penjualan (HPP) Inventory</p>
@@ -90,7 +88,7 @@ const ProsesHPP: React.FC = () => {
         </div>
 
         {/* 3. Body Form Area */}
-        <div className="p-6 bg-white">
+        <div className="p-6 bg-white w-full rounded-none">
           
           {/* Kotak Informasi */}
           <div className="flex items-start gap-3 bg-blue-50 text-blue-800 p-4 rounded-md mb-8 border border-blue-100">
@@ -157,7 +155,6 @@ const ProsesHPP: React.FC = () => {
 
         </div>
       </div>
-    </div>
   );
 };
 

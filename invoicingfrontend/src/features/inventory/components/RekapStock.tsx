@@ -79,12 +79,10 @@ const RekapStock: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-50 min-h-[calc(100vh-4rem)] p-8">
-      {/* 1. Outer Container */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden w-full">
+    <div className="w-full h-full bg-white rounded-none flex flex-col shadow-sm border border-slate-300">
         
         {/* 2. Header Banner Gelap */}
-        <div className="p-6 bg-slate-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="p-6 bg-slate-900 w-full rounded-none flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-white tracking-wide">Rekap Stock Barang</h2>
             <p className="text-sm text-slate-300 mt-1">Laporan Saldo Barang dan Outstanding SO</p>
@@ -110,7 +108,7 @@ const RekapStock: React.FC = () => {
         </div>
 
         {/* 3. Filter Area */}
-        <div className="p-6 bg-white border-b border-slate-200">
+        <div className="p-6 bg-white border-b border-slate-200 w-full rounded-none">
           <div className="w-full md:w-1/3">
             <label className="block text-sm font-semibold text-slate-700 mb-2">Pilih Group Barang</label>
             <div className="relative">
@@ -133,7 +131,7 @@ const RekapStock: React.FC = () => {
         </div>
 
         {/* 4. Tabel Rekap (Read-Only) */}
-        <div className="bg-white">
+        <div className="bg-white w-full rounded-none">
           <div className="overflow-x-auto min-h-[500px] custom-scrollbar">
             <table className="w-full text-sm text-left">
               <thead className="bg-gray-50 text-gray-700 text-xs uppercase font-semibold border-b border-slate-200 sticky top-0 shadow-sm z-10">
@@ -191,7 +189,6 @@ const RekapStock: React.FC = () => {
         </div>
 
       </div>
-    </div>
   );
 };
 

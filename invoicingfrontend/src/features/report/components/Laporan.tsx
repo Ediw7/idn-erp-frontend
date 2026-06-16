@@ -1,322 +1,363 @@
 import React, { useState } from 'react';
-import { X, FileText, Search } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { Printer } from 'lucide-react';
+import axiosClient from '../../../lib/axiosClient';
+import toast from 'react-hot-toast';
+
+const REPORT_TYPES = [
+  { id: 'so_1', title: 'Sales Order (A4 / Kwarto / 1/2 Kwarto)', type: 'item' },
+  { id: 'sj_1', title: 'Surat Jalan (A4 / Kwarto / 1/2 Kwarto)', type: 'item' },
+  { id: 'sj_2', title: 'Surat Jalan (A4 / Kwarto / 1/2 Kwarto) - Font 10', type: 'item' },
+  { id: 'sj_3', title: 'Surat Jalan Kop Surat (A4)', type: 'item' },
+  { id: 'inv_1', title: 'Invoice (A4 / Kuarto)', type: 'item' },
+  { id: 'inv_2', title: 'Invoice (A4 / Kuarto) - Font 10', type: 'item' },
+  { id: 'inv_3', title: 'Invoice Kop Surat (A4)', type: 'item' },
+  { id: 'inv_4', title: 'Invoice Kop Surat (A4) - Font 10', type: 'item' },
+  { id: 'inv_5', title: 'Invoice (1/2 Kuarto)', type: 'item' },
+  { id: 'inv_6', title: 'Invoice (1/2 Kuarto) - Font 10', type: 'item' },
+  { id: 'inv_7', title: 'Invoice Sederhana - Tanpa Disc & DP (A4 / Letter / Kuarto)', type: 'item' },
+  { id: 'inv_8', title: 'Invoice Plus Kwitansi', type: 'item' },
+  { id: 'inv_9', title: 'Invoice Plus Surat Jalan (1 SJ / 1 Invoice)', type: 'item' },
+  { id: 'inv_10', title: 'Invoice Plus Surat Jalan (1 SJ / 1 Invoice) - Font 10', type: 'item' },
+  { id: 'inv_11', title: 'Invoice w/ Disc (A4 / Kuarto)', type: 'item' },
+  { id: 'kwi_1', title: 'Kwitansi (1/2 Kwarto)', type: 'item' },
+  { id: 'nk_1', title: 'Nota Kredit (1/2 Kwarto)', type: 'item' },
+  { id: 'lbl_1', title: 'Label Amplop', type: 'item' },
+
+  { id: 'h_fp', title: 'Faktur Pajak', type: 'header' },
+  { id: 'fp_1', title: 'Faktur Pajak Hal 1 & 2 (A4)', type: 'item' },
+  { id: 'fp_2', title: 'Faktur Pajak Hal 3 (A4)', type: 'item' },
+  { id: 'fp_3', title: 'Faktur Pajak Hal 4 (A4)', type: 'item' },
+  { id: 'fp_4', title: 'Faktur Pajak (Pre-printed Form)', type: 'item' },
+  { id: 'fp_5', title: 'Faktur Pajak (Continuous Paper)', type: 'item' },
+  { id: 'fp_6', title: 'Faktur Pajak Multi Pages Hal 1 (A4)', type: 'item' },
+  { id: 'fp_7', title: 'Faktur Pajak Multi Pages Hal 2 (A4)', type: 'item' },
+  { id: 'fp_8', title: 'Faktur Pajak Multi Pages Hal 3 (A4)', type: 'item' },
+
+  { id: 'h_nr', title: 'Nota Retur', type: 'header' },
+  { id: 'nr_1', title: 'Nota Retur Penjualan (A4)', type: 'item' },
+  { id: 'nr_2', title: 'Nota Retur Pembelian (A4)', type: 'item' },
+
+  { id: 'h_spt', title: 'SPT Masa', type: 'header' },
+  { id: 'spt_1', title: 'SPT Masa PPN 1111 (Legal)', type: 'item' },
+  { id: 'spt_2', title: 'SPT Masa PPN 1111 AB (Legal/Folio)', type: 'item' },
+  { id: 'spt_3', title: 'SPT Masa PPN 1111 A1 (Legal/Folio)', type: 'item' },
+  { id: 'spt_4', title: 'SPT Masa PPN 1111 A2 (Legal/Folio)', type: 'item' },
+  { id: 'spt_5', title: 'SPT Masa PPN 1111 B1 (Legal/Folio)', type: 'item' },
+  { id: 'spt_6', title: 'SPT Masa PPN 1111 B2 (Legal/Folio)', type: 'item' },
+  { id: 'spt_7', title: 'SPT Masa PPN 1111 B3 (Legal/Folio)', type: 'item' },
+  { id: 'spt_8', title: 'Lampiran Daftar Faktur Pajak Diganggung - 1111 A (Legal/Folio)', type: 'item' }
+];
 
 const Laporan: React.FC = () => {
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const initialReport = searchParams.get('reportName') || location.state?.initialReport || 'Sales Order (A4 / Kwarto / 1/2 Kwarto)';
-  const soNumber = searchParams.get('so_number') || '';
-  const sjNumber = searchParams.get('sj_number') || '';
+  const [selectedReport, setSelectedReport] = useState(REPORT_TYPES[0].id);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [activeReportItem, setActiveReportItem] = useState(initialReport);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  // Filter States
+  const [filter, setFilter] = useState({
+    tahun: new Date().getFullYear().toString(),
+    bulan: '',
+    pembetulan: '0',
+    dari_no_so: '', sampai_no_so: '',
+    dari_no_sj: '', sampai_no_sj: '',
+    dari_no_invoice: '', sampai_no_invoice: '',
+    dari_no_kwitansi: '', sampai_no_kwitansi: '',
+    dari_no_faktur_pajak: '', sampai_no_faktur_pajak: '',
+    dari_no_nk: '', sampai_no_nk: '',
+    dari_no_po: '', sampai_no_po: '',
+    no_retur_penjualan: '',
+    no_retur_pembelian: '',
+    dari_tanggal: '', sampai_tanggal: '',
+    nama_pelanggan: '',
+    nama_proyek: '',
+    metode_pembayaran: '',
+    gudang: '',
+    dari_kode_barang: '', sampai_kode_barang: '',
+    salesman: ''
+  });
 
-  const inputClass = "w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm";
+  const handleFilterChange = (field: string, value: string) => {
+    setFilter(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCetakPDF = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    const toastId = toast.loading('Sedang meng-generate dokumen PDF...');
+
+    try {
+      const response = await axiosClient.post('/api/reports/generate', {
+        reportType: selectedReport,
+        filters: filter
+      }, {
+        responseType: 'blob',
+        timeout: 30000 
+      });
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const fileUrl = window.URL.createObjectURL(blob);
+      window.open(fileUrl, '_blank');
+      
+      toast.success('Laporan berhasil di-generate!', { id: toastId });
+    } catch (error: any) {
+      console.error('Failed to generate PDF:', error);
+      toast.error('Gagal men-generate laporan. Pastikan koneksi server berjalan.', { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isSoActive = selectedReport.startsWith('so_');
+  const isSjActive = selectedReport.startsWith('sj_');
+  const isInvActive = selectedReport.startsWith('inv_');
+
+  const rowClass = "grid grid-cols-12 gap-4 items-center mb-3";
+  const labelClass = "col-span-4 text-sm font-medium text-gray-700";
+  const inputWrapperClass = "col-span-8 flex gap-2 items-center";
+  const inputClass = "w-full h-9 px-3 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed";
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
-      {/* Header Info */}
-      <div className="px-6 py-4 bg-white border-b border-slate-200 shrink-0">
-        <h1 className="text-xl font-bold text-slate-800">Menu Laporan</h1>
-        <p className="text-sm text-slate-500 mt-1">Cetak dan tinjau berbagai laporan dokumen transaksi.</p>
-      </div>
-
-      <div className="flex-1 p-6 flex flex-col overflow-hidden">
-        <div className="bg-white rounded-md shadow-sm border border-slate-200 w-full h-full flex flex-col overflow-hidden">
-          
-          <div className="flex flex-1 overflow-hidden">
-            {/* Sidebar List Laporan */}
-            <div className="w-1/3 bg-slate-800 text-slate-300 overflow-y-auto border-r border-slate-700 text-sm">
-              {[
-                'Sales Order (A4 / Kwarto / 1/2 Kwarto)',
-                'Surat Jalan (A4 / Kwarto / 1/2 Kwarto)',
-                'Surat Jalan (A4 / Kwarto / 1/2 Kwarto) - Font 10',
-                'Daftar Outstanding Invoice Per Pelanggan (A4)',
-                'Daftar Penjualan Per Kode Barang',
-                'Rangkumana Penjualan Per Kode Barang',
-                'Daftar Penjualan Per Pelanggan - Barang',
-                'Kartu Piutang (A4)',
-                'Laporan Piutang Per Invoice (A4)',
-                'Rangkuman Piutang Dagang',
-                'Rangkuman Piutang Dagang Per Proyek',
-                'Analisa Umur Piutang Berdasarkan Tgl Invoice',
-                'Analisa Umur Piutang Berdasarkan Tgl JT',
-                'Rangkuman Analisa Umur Piutang Berdasarkan Tgl JT',
-                'Daftar Pembayaran Invoice',
-                'Daftar Pembayaran Invoice Per Pelanggan',
-                'Daftar Cek/Giro Diterima',
-                'Kartu Stock Barang',
-                'Kartu HPP Barang',
-                'Quantity Akhir Per Gudang - Kode Barang',
-                'Invoice (A4 / Kwarto)',
-                'Invoice Kop Surat (A4)',
-                'Invoice Sederhana - Tanpa Disc & DP',
-                'Kwitansi (1/2 Kwarto)',
-                'Nota Kredit (1/2 Kwarto)'
-              ].map(item => (
-                <div 
-                  key={item}
-                  onClick={() => setActiveReportItem(item)}
-                  className={`px-4 py-3 cursor-pointer transition-colors ${activeReportItem === item ? 'bg-yellow-100 text-slate-800 font-semibold border-l-4 border-yellow-500' : 'hover:bg-slate-700'}`}
-                >
-                  - {item}
-                </div>
-              ))}
-              
-              <div className="mt-4 px-4 py-2 font-bold text-white border-b border-t border-slate-700 bg-slate-900">Faktur Pajak</div>
-              {['Faktur Pajak Hal 1 & 2 (A4)', 'Faktur Pajak (Continuous Paper)'].map(item => (
-                <div 
-                  key={item}
-                  onClick={() => setActiveReportItem(item)}
-                  className={`px-4 py-3 cursor-pointer transition-colors ${activeReportItem === item ? 'bg-yellow-100 text-slate-800 font-semibold border-l-4 border-yellow-500' : 'hover:bg-slate-700'}`}
-                >
-                  - {item}
-                </div>
-              ))}
-              
-              <div className="mt-4 px-4 py-2 font-bold text-white border-b border-t border-slate-700 bg-slate-900">SPT Masa</div>
-              {['SPT Masa PPN 1111 (Legal)', 'SPT Masa PPN 1111 AB (Legal/Folio)'].map(item => (
-                <div 
-                  key={item}
-                  onClick={() => setActiveReportItem(item)}
-                  className={`px-4 py-3 cursor-pointer transition-colors ${activeReportItem === item ? 'bg-yellow-100 text-slate-800 font-semibold border-l-4 border-yellow-500' : 'hover:bg-slate-700'}`}
-                >
-                  - {item}
-                </div>
-              ))}
-            </div>
-
-            {/* Filter Content */}
-            <div className="flex-1 bg-slate-50 p-8 overflow-y-auto">
-              <h2 className="text-xl font-bold text-slate-800 mb-6 border-b border-slate-200 pb-2">Filter Pencarian Data Laporan</h2>
-              <div className="max-w-2xl flex flex-col gap-2">
-                <div className="flex items-center">
-                  <label className="w-48 text-sm text-slate-700">Tahun:</label>
-                  <input type="text" className={`${inputClass} w-32`} defaultValue="2020" />
-                </div>
-                <div className="flex items-center">
-                  <label className="w-48 text-sm text-slate-700">Bulan:</label>
-                  <select className={`${inputClass} w-32`} defaultValue="Desember">
-                    <option>Desember</option>
-                  </select>
-                </div>
-                <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm text-slate-700">Pembetulan Ke:</label>
-                  <input type="text" className={`${inputClass} w-32`} disabled />
-                </div>
-                
-                <div className={`flex items-center ${activeReportItem.includes('Sales Order') ? '' : 'opacity-50'}`}>
-                  <label className={`w-48 text-sm ${activeReportItem.includes('Sales Order') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Sales Order</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Sales Order')} defaultValue={soNumber} />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Sales Order')} defaultValue={soNumber} />
-                  </div>
-                </div>
-                <div className={`flex items-center ${activeReportItem.includes('Surat Jalan') ? '' : 'opacity-50'}`}>
-                  <label className={`w-48 text-sm ${activeReportItem.includes('Surat Jalan') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Surat Jalan</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Surat Jalan')} defaultValue={sjNumber || "SJ/005/12/2020"} />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Surat Jalan')} defaultValue={sjNumber || "SJ/005/12/2020"} />
-                  </div>
-                </div>
-                <div className={`flex items-center ${activeReportItem.includes('Invoice') ? '' : 'opacity-50'}`}>
-                  <label className={`w-48 text-sm ${activeReportItem.includes('Invoice') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Invoice:</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Invoice')} />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Invoice')} />
-                  </div>
-                </div>
-                <div className={`flex items-center ${activeReportItem.includes('Kwitansi') ? '' : 'opacity-50'}`}>
-                  <label className={`w-48 text-sm ${activeReportItem.includes('Kwitansi') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No. Kwitansi:</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Kwitansi')} defaultValue="KT/002/12/2026" />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Kwitansi')} defaultValue="KT/002/12/2026" />
-                  </div>
-                </div>
-                <div className={`flex items-center ${activeReportItem.includes('Faktur Pajak') ? '' : 'opacity-50'}`}>
-                  <label className={`w-48 text-sm ${activeReportItem.includes('Faktur Pajak') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No Faktur Pajak</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Faktur Pajak')} />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Faktur Pajak')} />
-                  </div>
-                </div>
-                <div className={`flex items-center ${activeReportItem.includes('Nota Kredit') ? '' : 'opacity-50'}`}>
-                  <label className={`w-48 text-sm ${activeReportItem.includes('Nota Kredit') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari No NK:</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Nota Kredit')} />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled={!activeReportItem.includes('Nota Kredit')} />
-                  </div>
-                </div>
-                <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm text-slate-700">Dari No PO</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="text" className={inputClass} disabled />
-                    <span className="text-sm font-medium text-slate-500">s/d</span>
-                    <input type="text" className={inputClass} disabled />
-                  </div>
-                </div>
-                <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm text-slate-700">No. Retur Penjualan:</label>
-                  <input type="text" className={inputClass} disabled />
-                </div>
-                <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm text-slate-700">No. Retur Pembelian</label>
-                  <input type="text" className={inputClass} disabled />
-                </div>
-                
-                <div className={`flex items-center mt-2 ${!activeReportItem.includes('Kartu Piutang') ? 'opacity-50' : ''}`}>
-                  <label className={`w-48 text-sm ${activeReportItem.includes('Kartu Piutang') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Dari Tanggal</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <input type="date" className={inputClass} disabled={!activeReportItem.includes('Kartu Piutang')} defaultValue={activeReportItem.includes('Kartu Piutang') ? "2026-01-01" : undefined} />
-                    <span className="text-sm font-medium text-slate-500">s/d Tanggal</span>
-                    <input type="date" className={inputClass} disabled={!activeReportItem.includes('Kartu Piutang')} defaultValue={activeReportItem.includes('Kartu Piutang') ? "2026-12-31" : undefined} />
-                  </div>
-                </div>
-                <div className={`flex items-center ${!activeReportItem.includes('Kartu Piutang') ? 'opacity-50' : ''}`}>
-                  <label className={`w-48 text-sm ${activeReportItem.includes('Kartu Piutang') ? 'font-bold text-slate-800' : 'text-slate-700'}`}>Nama Pelanggan:</label>
-                  <select className={inputClass} disabled={!activeReportItem.includes('Kartu Piutang')}></select>
-                </div>
-                <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm text-slate-700">Nama Proyek</label>
-                  <select className={inputClass} disabled></select>
-                </div>
-                <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm text-slate-700">Metode Pembayaran:</label>
-                  <select className={`${inputClass} w-32`} disabled></select>
-                </div>
-                <div className="flex items-center">
-                  <label className="w-48 text-sm text-slate-700">Gudang:</label>
-                  <select className={`${inputClass} w-48`} defaultValue="Kapuk">
-                    <option>Kapuk</option>
-                  </select>
-                </div>
-                <div className="flex items-center mt-2">
-                  <label className="w-48 text-sm text-slate-700">Dari Kode Barang</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <div className="flex flex-1 gap-1">
-                      <input type="text" className={`${inputClass} bg-cyan-50`} />
-                      <button className="px-2 border border-slate-300 bg-slate-100 rounded-sm"><Search size={14}/></button>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <label className="w-48 text-sm text-slate-700">s/d Kode Barang</label>
-                  <div className="flex gap-2 flex-1 items-center">
-                    <div className="flex flex-1 gap-1">
-                      <input type="text" className={`${inputClass} bg-cyan-50`} />
-                      <button className="px-2 border border-slate-300 bg-slate-100 rounded-sm"><Search size={14}/></button>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center opacity-50">
-                  <label className="w-48 text-sm text-slate-700">Salesman</label>
-                  <select className={`${inputClass} w-48`} disabled></select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer Action */}
-          <div className="bg-slate-100 px-8 py-5 border-t border-slate-200 flex justify-end gap-4 shrink-0">
-            <button onClick={() => setIsPreviewOpen(true)} className="px-8 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-sm hover:bg-blue-500 shadow-sm transition-colors">Preview Laporan</button>
-            <button className="px-8 py-2.5 bg-slate-700 text-white text-sm font-bold rounded-sm hover:bg-slate-600 shadow-sm transition-colors">CETAK Data</button>
-          </div>
+    <div className="flex flex-col h-screen w-full bg-white">
+      
+      {/* Header Banner Gelap */}
+      <div className="p-6 bg-slate-900 w-full rounded-none flex items-center justify-between shrink-0">
+        <div>
+          <h1 className="text-xl font-bold text-white tracking-wide">Menu Laporan</h1>
+          <p className="text-sm text-slate-300 mt-1">Pusat pencetakan dokumen PDF multi-modul</p>
         </div>
       </div>
 
-      {/* Preview Modal */}
-      {isPreviewOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
-          <div className="bg-slate-200 rounded-sm shadow-2xl w-full max-w-5xl h-[95vh] flex flex-col overflow-hidden">
-            <div className="bg-slate-800 px-4 py-2 flex justify-between items-center text-white shrink-0">
-              <div className="flex items-center gap-2">
-                <FileText size={16} />
-                <span className="text-sm font-semibold">Preview Laporan: {activeReportItem}</span>
+      {/* Wrapper Kiri-Kanan (Split Pane) */}
+      <div className="flex flex-row w-full h-[calc(100vh-100px)] overflow-hidden">
+        
+        {/* Sisi Kiri (Daftar Laporan) */}
+        <div className="w-1/3 md:w-[30%] overflow-y-auto border-r border-gray-200 bg-white">
+          <ul className="flex flex-col pb-8">
+            {REPORT_TYPES.map((report) => {
+              if (report.type === 'header') {
+                return (
+                  <li key={report.id} className="font-bold text-gray-800 bg-gray-100 py-2 px-4 mt-2">
+                    {report.title}
+                  </li>
+                );
+              }
+
+              const isSelected = selectedReport === report.id;
+              return (
+                <li
+                  key={report.id}
+                  onClick={() => setSelectedReport(report.id)}
+                  className={`text-sm py-2 px-4 border-b border-gray-100 cursor-pointer transition-colors ${
+                    isSelected 
+                      ? 'bg-slate-800 text-white font-medium' 
+                      : 'hover:bg-gray-50 text-slate-700'
+                  }`}
+                >
+                  {report.title}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Sisi Kanan (Form Filter) */}
+        <div className="w-2/3 md:w-[70%] overflow-y-auto bg-white p-8">
+          <div className="max-w-4xl">
+            <h2 className="text-lg font-bold text-slate-800 mb-6 pb-2 border-b border-gray-200">
+              Filter Pencarian Data Laporan
+            </h2>
+
+            <div className={rowClass}>
+              <label className={labelClass}>Tahun</label>
+              <div className={inputWrapperClass}>
+                <input type="number" className={`${inputClass} max-w-[120px]`} value={filter.tahun} onChange={e => handleFilterChange('tahun', e.target.value)} />
               </div>
-              <button onClick={() => setIsPreviewOpen(false)} className="hover:bg-red-500 px-2 py-1 rounded transition-colors">
-                <X size={16} />
+            </div>
+
+            <div className={rowClass}>
+              <label className={labelClass}>Bulan</label>
+              <div className={inputWrapperClass}>
+                <select className={`${inputClass} max-w-[200px]`} value={filter.bulan} onChange={e => handleFilterChange('bulan', e.target.value)}>
+                  <option value="">Semua Bulan</option>
+                  {Array.from({length: 12}, (_, i) => i + 1).map(m => (
+                    <option key={m} value={m}>{new Date(0, m - 1).toLocaleString('id-ID', { month: 'long' })}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={labelClass}>Pembetulan Ke</label>
+              <div className={inputWrapperClass}>
+                <input type="number" className={`${inputClass} max-w-[120px]`} value={filter.pembetulan} onChange={e => handleFilterChange('pembetulan', e.target.value)} />
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} ${!isSoActive && 'text-gray-400'}`}>Dari No. Sales Order</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled={!isSoActive}></select>
+                <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
+                <select className={inputClass} disabled={!isSoActive}></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} ${!isSjActive && 'text-gray-400'}`}>Dari No. Surat Jalan</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled={!isSjActive}></select>
+                <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
+                <select className={inputClass} disabled={!isSjActive}></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} ${!isInvActive && 'text-gray-400'}`}>Dari No. Invoice</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled={!isInvActive}></select>
+                <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
+                <select className={inputClass} disabled={!isInvActive}></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Dari No. Kwitansi</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled></select>
+                <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
+                <select className={inputClass} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Dari No Faktur Pajak</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled></select>
+                <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
+                <select className={inputClass} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Dari No NK</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled></select>
+                <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
+                <select className={inputClass} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Dari No PO</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled></select>
+                <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
+                <select className={inputClass} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>No. Retur Penjualan</label>
+              <div className={inputWrapperClass}>
+                <select className={`${inputClass} max-w-[50%]`} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>No. Retur Pembelian</label>
+              <div className={inputWrapperClass}>
+                <select className={`${inputClass} max-w-[50%]`} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Dari Tanggal</label>
+              <div className={inputWrapperClass}>
+                <input type="date" className={inputClass} disabled />
+                <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d Tanggal</span>
+                <input type="date" className={inputClass} disabled />
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Nama Pelanggan</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Nama Proyek</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Metode Pembayaran</label>
+              <div className={inputWrapperClass}>
+                <select className={`${inputClass} max-w-[200px]`} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Gudang</label>
+              <div className={inputWrapperClass}>
+                <select className={`${inputClass} max-w-[50%]`} disabled></select>
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Dari Kode Barang</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled></select>
+                <input type="text" className={inputClass} readOnly />
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>s/d Kode Barang</label>
+              <div className={inputWrapperClass}>
+                <select className={inputClass} disabled></select>
+                <input type="text" className={inputClass} readOnly />
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} text-gray-400`}>Salesman</label>
+              <div className={inputWrapperClass}>
+                <select className={`${inputClass} max-w-[50%]`} disabled></select>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-8 pt-6 border-t border-gray-200 flex items-center justify-start gap-4">
+              <button 
+                type="button"
+                disabled={isLoading}
+                onClick={handleCetakPDF}
+                className="px-6 py-2 bg-white border border-gray-400 rounded-sm text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm disabled:opacity-50"
+              >
+                PREVIEW PDF
+              </button>
+              <button 
+                type="button"
+                disabled={isLoading}
+                onClick={handleCetakPDF}
+                className="px-6 py-2 bg-blue-600 border border-blue-700 rounded-sm text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Printer size={16} />
+                )}
+                CETAK LAPORAN
               </button>
             </div>
-            <div className="flex-1 flex flex-col items-center bg-slate-300 p-8 overflow-y-auto">
-              <div className="bg-white w-full max-w-4xl min-h-[900px] shadow-lg p-14 text-slate-800 flex flex-col shrink-0">
-                <div className="text-center mb-10">
-                  <h1 className="text-3xl font-bold uppercase underline decoration-2 underline-offset-4 mb-2">{activeReportItem.split('(')[0].trim()}</h1>
-                  <p className="text-sm">Periode: Juni 2026</p>
-                </div>
-                
-                <div className="flex justify-between mb-10 text-sm">
-                  <div>
-                    <p className="font-bold text-base mb-1">PT. EDI Accounting INDONESIA</p>
-                    <p>Jl. Jendral Sudirman Kav. 21</p>
-                    <p>Jakarta Selatan, 12920</p>
-                  </div>
-                  <div className="text-right">
-                    <p><span className="font-semibold">No Referensi:</span> SO/005/12/2026</p>
-                    <p><span className="font-semibold">Tanggal Cetak:</span> 06 Juni 2026</p>
-                  </div>
-                </div>
 
-                <table className="w-full text-sm border-collapse mb-10">
-                  <thead>
-                    <tr className="border-b-2 border-t-2 border-slate-800 bg-slate-50">
-                      <th className="py-3 px-2 text-left w-12 font-bold">No</th>
-                      <th className="py-3 px-2 text-left font-bold">Deskripsi Barang/Jasa</th>
-                      <th className="py-3 px-2 text-center w-24 font-bold">Qty</th>
-                      <th className="py-3 px-2 text-right w-32 font-bold">Harga Satuan</th>
-                      <th className="py-3 px-2 text-right w-40 font-bold">Total Harga</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-slate-200">
-                      <td className="py-3 px-2">1</td>
-                      <td className="py-3 px-2">Baju Blazer</td>
-                      <td className="py-3 px-2 text-center">1</td>
-                      <td className="py-3 px-2 text-right">400,000</td>
-                      <td className="py-3 px-2 text-right">400,000</td>
-                    </tr>
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colSpan={4} className="py-3 px-2 text-right font-semibold pt-6">Sub Total:</td>
-                      <td className="py-3 px-2 text-right font-semibold pt-6">400,000</td>
-                    </tr>
-                    <tr>
-                      <td colSpan={4} className="py-2 px-2 text-right font-semibold">PPN 10%:</td>
-                      <td className="py-2 px-2 text-right font-semibold">38,000</td>
-                    </tr>
-                    <tr className="border-t-2 border-slate-800">
-                      <td colSpan={4} className="py-3 px-2 text-right font-bold text-lg">Grand Total:</td>
-                      <td className="py-3 px-2 text-right font-bold text-lg">418,000</td>
-                    </tr>
-                  </tfoot>
-                </table>
-
-                <div className="mt-auto pt-20 flex justify-between text-sm">
-                  <div className="text-center w-48">
-                    <p className="mb-20">Dibuat Oleh,</p>
-                    <p className="border-t border-slate-800 pt-2 font-semibold">( Admin )</p>
-                  </div>
-                  <div className="text-center w-48">
-                    <p className="mb-20">Disetujui Oleh,</p>
-                    <p className="border-t border-slate-800 pt-2 font-semibold">( Manager )</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-slate-200 px-6 py-3 flex justify-end gap-3 shrink-0 border-t border-slate-300">
-              <button className="px-6 py-2 bg-blue-600 text-white text-sm font-bold rounded-sm hover:bg-blue-500 shadow-sm flex items-center gap-2">CETAK Document</button>
-              <button className="px-6 py-2 bg-slate-700 text-white text-sm font-bold rounded-sm hover:bg-slate-600 shadow-sm flex items-center gap-2">Download PDF</button>
-            </div>
           </div>
         </div>
-      )}
+
+      </div>
     </div>
   );
 };

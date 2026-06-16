@@ -137,12 +137,10 @@ const KartuStock: React.FC = () => {
   }, [saldoList]);
 
   return (
-    <div className="bg-slate-50 min-h-[calc(100vh-4rem)] p-8">
-      {/* 1. Outer Container */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden w-full">
+    <div className="w-full h-full bg-white rounded-none flex flex-col shadow-sm border border-slate-300">
         
         {/* 2. Header Banner Gelap */}
-        <div className="p-6 bg-slate-900 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="p-6 bg-slate-900 w-full rounded-none flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-white tracking-wide">Kartu Stock Barang</h2>
             <p className="text-sm text-slate-300 mt-1">Laporan detail mutasi masuk dan keluar per item inventory</p>
@@ -172,7 +170,7 @@ const KartuStock: React.FC = () => {
         </div>
 
         {/* 3. Body Form / Filter Block */}
-        <div className="p-6 bg-white border-b border-slate-200">
+        <div className="p-6 bg-white border-b border-slate-200 w-full rounded-none">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
             
             {/* Sisi Kiri (Filter) */}
@@ -317,7 +315,6 @@ const KartuStock: React.FC = () => {
         </div>
 
       </div>
-    </div>
   );
 };
 
