@@ -57,6 +57,15 @@ const SaldoAwalPiutang: React.FC = () => {
     fetchData();
   }, []);
 
+  const fetchPelanggansOnly = async () => {
+    try {
+      const resPelanggan = await setupApi.getPelanggan();
+      if (resPelanggan) setPelanggans(resPelanggan);
+    } catch (error) {
+      console.error('Failed to fetch pelanggan', error);
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -84,6 +93,14 @@ const SaldoAwalPiutang: React.FC = () => {
       toast.error('No Invoice, Tanggal, dan Pelanggan harus diisi!');
       return;
     }
+
+    if (editForm.tgl_jt && editForm.tanggal) {
+      if (new Date(editForm.tgl_jt) < new Date(editForm.tanggal)) {
+        toast.error('Tanggal Jatuh Tempo tidak boleh lebih awal dari Tanggal Invoice');
+        return;
+      }
+    }
+
     try {
       const res = await axiosClient.post('/api/saldo-awal-piutang/BUAT BARU', editForm);
       if (res.data.status === 'success') {
@@ -146,7 +163,7 @@ const SaldoAwalPiutang: React.FC = () => {
     item.no_invoice.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalSaldo = filteredData.filter(item => item.is_paid).reduce((sum, item) => sum + item.saldo_invoice, 0);
+  const totalSaldo = filteredData.filter(item => !item.is_paid).reduce((sum, item) => sum + Number(item.saldo_invoice || 0), 0);
 
   return (
     <div className="bg-white shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
@@ -250,7 +267,7 @@ const SaldoAwalPiutang: React.FC = () => {
             <span className="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 border-r border-slate-300 uppercase tracking-wide">Total</span>
             <span className="px-3 py-2 text-xs font-bold text-slate-600 bg-slate-50 border-r border-slate-300">IDR</span>
             <span className="px-5 py-2 text-sm font-bold text-slate-900 text-right min-w-[160px]">
-              {totalSaldo.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              {Number(totalSaldo).toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </span>
           </div>
         </div>
@@ -338,7 +355,7 @@ const SaldoAwalPiutang: React.FC = () => {
               <button 
                 onClick={() => {
                   setIsCustomerModalOpen(false);
-                  fetchData(); // Refresh pelanggan list after closing modal
+                  fetchPelanggansOnly(); // Refresh pelanggan list after closing modal
                 }} 
                 className="hover:text-slate-300 transition-colors"
               ><X size={20} /></button>
@@ -350,7 +367,7 @@ const SaldoAwalPiutang: React.FC = () => {
                 onSuccess={() => {
                   toast.success('Pelanggan baru berhasil ditambahkan!');
                   setIsCustomerModalOpen(false);
-                  fetchData();
+                  fetchPelanggansOnly();
                 }}
               />
             </div>

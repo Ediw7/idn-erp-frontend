@@ -116,7 +116,7 @@ const MainLayout: React.FC = () => {
           </div>
         </div>
         
-        <nav className="flex-1 overflow-y-auto py-4 custom-scrollbar">
+        <nav className="flex-1 overflow-y-auto pt-4 pb-32 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <ul className="space-y-1">
             {/* Dashboard */}
             <li>
@@ -179,7 +179,7 @@ const MainLayout: React.FC = () => {
                 <svg className={`w-4 h-4 transition-transform duration-200 ${isPpnOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isPpnOpen ? 'max-h-96' : 'max-h-0'}`}>
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isPpnOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                 <ul className="bg-slate-950 py-2">
                   {ppnItems.map((item, idx) => (
                     <li key={`ppn-${idx}`}>
@@ -205,7 +205,7 @@ const MainLayout: React.FC = () => {
                 <svg className={`w-4 h-4 transition-transform duration-200 ${isInventoryOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isInventoryOpen ? 'max-h-96' : 'max-h-0'}`}>
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isInventoryOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                 <ul className="bg-slate-950 py-2">
                   {inventoryItems.map((item, idx) => (
                     <li key={`inv-${idx}`}>
@@ -243,7 +243,7 @@ const MainLayout: React.FC = () => {
                 <svg className={`w-4 h-4 transition-transform duration-200 ${isPemeliharaanOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isPemeliharaanOpen ? 'max-h-96' : 'max-h-0'}`}>
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isPemeliharaanOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                 <ul className="bg-slate-950 py-2">
                   {pemeliharaanItems.map((item, idx) => (
                     <li key={`pm-${idx}`}>

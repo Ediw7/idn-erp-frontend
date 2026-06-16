@@ -12,6 +12,7 @@ export interface SalesOrderLine {
   disc_harga: number;
   harga_jual?: number;
   keterangan: string;
+  qty_kirim?: number;
 }
 
 export interface SalesOrderData {
@@ -48,6 +49,7 @@ export interface SalesOrderData {
   write_date?: string;
   write_uid_name?: string;
   lines: SalesOrderLine[];
+  surat_jalans?: any[];
 }
 
 export const salesOrderApi = {

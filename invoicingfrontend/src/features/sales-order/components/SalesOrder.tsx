@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FilePlus, Trash2, Printer, Ban, Save, Search, Send, X } from 'lucide-react';
+import { FilePlus, Trash2, Printer, Save, Search, Send, X } from 'lucide-react';
 import { useConfirm } from '../../../contexts/ConfirmContext';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { salesOrderApi, SalesOrderData, SalesOrderLine } from '../api';
 import { setupApi, PelangganData, MataUangData, PembayaranData, SalesmanData, ItemData, GudangData } from '../../setup/api';
-import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
 import { SetupPelangganModal } from '../../setup/components/SetupPelangganModal';
 import toast from 'react-hot-toast';
 
@@ -54,18 +53,6 @@ const SalesOrder: React.FC = () => {
   useEffect(() => {
     fetchInitialData();
   }, []);
-
-  const { signatureData } = useSignatureAutoFill('Sales Order');
-
-  useEffect(() => {
-    if (signatureData) {
-      setForm((prev: any) => ({
-        ...prev,
-        penandatangan: signatureData.nama || prev.penandatangan,
-        jabatan: signatureData.jabatan || prev.jabatan
-      }));
-    }
-  }, [signatureData]);
 
   const fetchInitialData = async () => {
     setLoadingData(true);
@@ -152,6 +139,14 @@ const SalesOrder: React.FC = () => {
   };
 
   const handleVoid = () => {
+    // Simulasi validasi SJ (Karena backend SJ belum fully connect)
+    // Asumsikan dataList form memiliki surat_jalans array nanti
+    const hasSJ = (form as any).surat_jalans && (form as any).surat_jalans.length > 0;
+    
+    if (!form.is_void && hasSJ) {
+      toast.error('Sales Order tidak bisa di-void karena sudah memiliki Surat Jalan terkait. Hapus Surat Jalan terlebih dahulu!');
+      return;
+    }
     setForm(prev => ({ ...prev, is_void: !prev.is_void }));
   };
 
@@ -262,8 +257,24 @@ const SalesOrder: React.FC = () => {
     setForm({ ...form, lines: newLines });
   };
 
-  const inputClass = "w-full px-3 py-1.5 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white";
+  // Auto closed logic based on Sisa Order
+  useEffect(() => {
+    if (form.lines && form.lines.length > 0) {
+      const allLinesDelivered = form.lines.every(line => {
+        const kirim = (line as any).qty_kirim || 0;
+        return line.kuantum > 0 && line.kuantum - kirim <= 0;
+      });
+      // If all delivered and not closed yet, close it (only if not void)
+      if (allLinesDelivered && !form.is_closed && !form.is_void) {
+        setForm(prev => ({ ...prev, is_closed: true }));
+      }
+    }
+  }, [form.lines]);
+
+  const inputClass = "w-full px-3 py-1.5 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white disabled:bg-slate-100 disabled:text-slate-500";
   const labelClass = "text-sm font-semibold text-slate-700 w-36 shrink-0 pt-1";
+  
+  const isReadOnly = form.is_void;
 
   return (
     <>
@@ -295,11 +306,11 @@ const SalesOrder: React.FC = () => {
             <button onClick={handleCetak} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors ml-2 rounded-sm shadow-sm">
                <Printer size={14} /> CETAK
             </button>
-            <button onClick={handleVoid} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors ml-2 rounded-sm shadow-sm">
-               <Ban size={14} />BATALKAN</button>
-            <button onClick={handleBuatSJClick} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-green-600 border border-transparent hover:bg-green-500 transition-colors ml-2 rounded-sm shadow-sm">
-               <Send size={14} /> BUAT SJ
-            </button>
+            {!isReadOnly && (
+              <button onClick={handleBuatSJClick} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-green-600 border border-transparent hover:bg-green-500 transition-colors ml-2 rounded-sm shadow-sm">
+                 <Send size={14} /> BUAT SJ
+              </button>
+            )}
           </div>
         </div>
 
@@ -321,21 +332,21 @@ const SalesOrder: React.FC = () => {
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Tgl Sales Order</label>
-                  <input type="date" className={`${inputClass} w-48`} value={form.tgl_so || ''} onChange={e => setForm({ ...form, tgl_so: e.target.value })} />
+                  <input type="date" disabled={isReadOnly} className={`${inputClass} w-48`} value={form.tgl_so || ''} onChange={e => setForm({ ...form, tgl_so: e.target.value })} />
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Nama Pelanggan</label>
                   <div className="flex gap-2 w-full">
-                    <select className={inputClass} value={form.pelanggan_id || ''} onChange={e => handlePelangganChange(Number(e.target.value))}>
+                    <select disabled={isReadOnly} className={inputClass} value={form.pelanggan_id || ''} onChange={e => handlePelangganChange(Number(e.target.value))}>
                       <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
                       {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
                     </select>
-                    <button className="px-3 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm font-bold text-slate-600 transition-colors" onClick={() => setShowPelangganModal(true)}>+</button>
+                    <button disabled={isReadOnly} className="px-3 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm font-bold text-slate-600 transition-colors disabled:opacity-50" onClick={() => setShowPelangganModal(true)}>+</button>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Dikirim ke Alamat</label>
-                  <textarea className={`${inputClass} h-24 resize-none`} value={form.alamat_kirim || ''} onChange={e => setForm({ ...form, alamat_kirim: e.target.value })} />
+                  <textarea disabled={isReadOnly} className={`${inputClass} h-24 resize-none`} value={form.alamat_kirim || ''} onChange={e => setForm({ ...form, alamat_kirim: e.target.value })} />
                 </div>
               </div>
 
@@ -343,40 +354,40 @@ const SalesOrder: React.FC = () => {
               <div className="flex-1 flex flex-col gap-3">
                 <div className="flex items-start">
                   <label className={labelClass}>No. PO Pelanggan</label>
-                  <input type="text" className={`${inputClass} w-full`} value={form.no_po || ''} onChange={e => setForm({ ...form, no_po: e.target.value })} />
+                  <input disabled={isReadOnly} type="text" className={`${inputClass} w-full`} value={form.no_po || ''} onChange={e => setForm({ ...form, no_po: e.target.value })} />
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Tgl PO</label>
-                  <input type="date" className={`${inputClass} w-48`} value={form.tgl_po || ''} onChange={e => setForm({ ...form, tgl_po: e.target.value })} />
+                  <input disabled={isReadOnly} type="date" className={`${inputClass} w-48`} value={form.tgl_po || ''} onChange={e => setForm({ ...form, tgl_po: e.target.value })} />
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Mata Uang</label>
-                  <select className={`${inputClass} w-48`} value={form.mata_uang_id || ''} onChange={e => setForm({ ...form, mata_uang_id: Number(e.target.value) || null })}>
+                  <select disabled={isReadOnly} className={`${inputClass} w-48`} value={form.mata_uang_id || ''} onChange={e => setForm({ ...form, mata_uang_id: Number(e.target.value) || null })}>
                     <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
                     {mataUangs.map(m => <option key={m.id} value={m.id}>{m.kode}</option>)}
                   </select>
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Cara Pembayaran</label>
-                  <select className={inputClass} value={form.pembayaran_id || ''} onChange={e => setForm({ ...form, pembayaran_id: Number(e.target.value) || null })}>
+                  <select disabled={isReadOnly} className={inputClass} value={form.pembayaran_id || ''} onChange={e => setForm({ ...form, pembayaran_id: Number(e.target.value) || null })}>
                     <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
                     {pembayarans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
                   </select>
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Salesman</label>
-                  <select className={inputClass} value={form.salesman_id || ''} onChange={e => setForm({ ...form, salesman_id: Number(e.target.value) || null })}>
+                  <select disabled={isReadOnly} className={inputClass} value={form.salesman_id || ''} onChange={e => setForm({ ...form, salesman_id: Number(e.target.value) || null })}>
                     <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
                     {salesmans.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
                   </select>
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Tgl Kirim</label>
-                  <input type="date" className={`${inputClass} w-48`} value={form.tgl_kirim || ''} onChange={e => setForm({ ...form, tgl_kirim: e.target.value })} />
+                  <input disabled={isReadOnly} type="date" className={`${inputClass} w-48`} value={form.tgl_kirim || ''} onChange={e => setForm({ ...form, tgl_kirim: e.target.value })} />
                 </div>
                 <div className="flex items-start">
                   <label className={labelClass}>Dipesan Oleh</label>
-                  <input type="text" className={`${inputClass} w-full`} value={form.dipesan_oleh || ''} onChange={e => setForm({ ...form, dipesan_oleh: e.target.value })} />
+                  <input disabled={isReadOnly} type="text" className={`${inputClass} w-full`} value={form.dipesan_oleh || ''} onChange={e => setForm({ ...form, dipesan_oleh: e.target.value })} />
                 </div>
               </div>
 
@@ -387,7 +398,7 @@ const SalesOrder: React.FC = () => {
                     <input type="checkbox" checked={form.is_closed} onChange={e => setForm({ ...form, is_closed: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" /> Closed
                   </label>
                   <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
-                    <input type="checkbox" checked={form.is_void} onChange={e => setForm({ ...form, is_void: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />BATALKAN</label>
+                    <input type="checkbox" checked={form.is_void} onChange={() => handleVoid()} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />BATALKAN</label>
                 </div>
 
                 <div className="border border-slate-300 p-3 relative mt-2 rounded-sm bg-white shadow-sm">
@@ -442,46 +453,48 @@ const SalesOrder: React.FC = () => {
                         <tr key={idx} className="hover:bg-blue-50 transition-colors border-b border-slate-200">
                           <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">{idx + 1}</td>
                           <td className="px-3 py-1.5 border-r border-slate-200">
-                            <select className="w-full px-2 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 bg-white" value={line.item_id || ''} onChange={e => updateLine(idx, 'item_id', Number(e.target.value) || null)}>
+                            <select disabled={isReadOnly} className="w-full px-2 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 bg-white disabled:bg-slate-100" value={line.item_id || ''} onChange={e => updateLine(idx, 'item_id', Number(e.target.value) || null)}>
                               <option value="">{loadingData ? 'Loading...' : '-- Pilih Item --'}</option>
                               {items.map(i => <option key={i.id} value={i.id}>{i.kode} - {i.nama}</option>)}
                             </select>
                           </td>
                           <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input type="text" className="w-full px-2 py-1 text-sm text-center border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500" value={line.satuan || ''} onChange={e => updateLine(idx, 'satuan', e.target.value)} />
+                            <input disabled={isReadOnly} type="text" className="w-full px-2 py-1 text-sm text-center border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.satuan || ''} onChange={e => updateLine(idx, 'satuan', e.target.value)} />
                           </td>
                           <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500" value={line.kuantum || ''} onChange={e => updateLine(idx, 'kuantum', Number(e.target.value))} />
+                            <input disabled={isReadOnly} type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.kuantum || ''} onChange={e => updateLine(idx, 'kuantum', Number(e.target.value))} />
                           </td>
                           <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500" value={line.harga_satuan || ''} onChange={e => updateLine(idx, 'harga_satuan', Number(e.target.value))} />
+                            <input disabled={isReadOnly} type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.harga_satuan || ''} onChange={e => updateLine(idx, 'harga_satuan', Number(e.target.value))} />
                           </td>
                           <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500" value={line.disc_persen || ''} onChange={e => updateLine(idx, 'disc_persen', Number(e.target.value))} />
+                            <input disabled={isReadOnly} type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.disc_persen || ''} onChange={e => updateLine(idx, 'disc_persen', Number(e.target.value))} />
                           </td>
                           <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500" value={line.disc_harga || ''} onChange={e => updateLine(idx, 'disc_harga', Number(e.target.value))} />
+                            <input disabled={isReadOnly} type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.disc_harga || ''} onChange={e => updateLine(idx, 'disc_harga', Number(e.target.value))} />
                           </td>
                           <td className="px-3 py-1.5 border-r border-slate-200 text-right font-semibold text-slate-800 bg-slate-50">
                             {hJual.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </td>
                           <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input type="text" className="w-full px-2 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500" value={line.keterangan || ''} onChange={e => updateLine(idx, 'keterangan', e.target.value)} />
+                            <input disabled={isReadOnly} type="text" className="w-full px-2 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.keterangan || ''} onChange={e => updateLine(idx, 'keterangan', e.target.value)} />
                           </td>
                           <td className="px-3 py-1.5 text-center">
-                            <button onClick={() => removeLine(idx)} className="text-red-500 hover:text-red-700 p-1 rounded transition-colors hover:bg-red-50" title="Hapus">
+                            <button disabled={isReadOnly} onClick={() => removeLine(idx)} className="text-red-500 hover:text-red-700 p-1 rounded transition-colors hover:bg-red-50 disabled:opacity-30 disabled:hover:bg-transparent" title="Hapus">
                               <Trash2 size={14} />
                             </button>
                           </td>
                         </tr>
                       )
                     })}
-                    <tr>
-                      <td className="px-3 py-2 border-r border-slate-200 text-center">
-                        <button onClick={addLine} className="w-6 h-6 mx-auto bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-sm flex items-center justify-center font-bold text-lg shadow-sm">+</button>
-                      </td>
-                      <td colSpan={9} className="px-4 py-2 text-sm text-slate-400 italic bg-slate-50">Klik tombol + untuk menambah baris barang/jasa</td>
-                    </tr>
+                    {!isReadOnly && (
+                      <tr>
+                        <td className="px-3 py-2 border-r border-slate-200 text-center">
+                          <button onClick={addLine} className="w-6 h-6 mx-auto bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-sm flex items-center justify-center font-bold text-lg shadow-sm">+</button>
+                        </td>
+                        <td colSpan={9} className="px-4 py-2 text-sm text-slate-400 italic bg-slate-50">Klik tombol + untuk menambah baris barang/jasa</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               )}
@@ -499,9 +512,20 @@ const SalesOrder: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 bg-slate-50">
-                    <tr>
-                      <td colSpan={6} className="px-4 py-12 text-center text-slate-500 italic">Belum ada riwayat pengiriman Surat Jalan untuk Sales Order ini.</td>
-                    </tr>
+                    {form.surat_jalans && form.surat_jalans.length > 0 ? form.surat_jalans.map((sj: any, idx: number) => (
+                      <tr key={idx} className="hover:bg-blue-50 transition-colors">
+                        <td className="px-4 py-2 border-r border-slate-200 text-center">{idx + 1}</td>
+                        <td className="px-4 py-2 border-r border-slate-200 font-mono">{sj.no_sj}</td>
+                        <td className="px-4 py-2 border-r border-slate-200">{sj.gudang_id ? gudangs.find(g => String(g.id) === String(sj.gudang_id))?.nama_gudang : '-'}</td>
+                        <td className="px-4 py-2 border-r border-slate-200">{sj.tanggal}</td>
+                        <td className="px-4 py-2 border-r border-slate-200">{sj.no_kendaraan || '-'}</td>
+                        <td className="px-4 py-2 border-r border-slate-200">{sj.keterangan || '-'}</td>
+                      </tr>
+                    )) : (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-12 text-center text-slate-500 italic">Belum ada riwayat pengiriman Surat Jalan untuk Sales Order ini.</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               )}
@@ -523,6 +547,8 @@ const SalesOrder: React.FC = () => {
                     {(form.lines || []).map((line, idx) => {
                       const itemInfo = items.find(i => i.id === line.item_id);
                       if (!line.item_id) return null;
+                      const qtyKirim = (line as any).qty_kirim || 0;
+                      const sisaOrder = line.kuantum - qtyKirim;
                       return (
                         <tr key={idx} className="hover:bg-blue-50 transition-colors">
                           <td className="px-4 py-2 border-r border-slate-200 text-center font-medium">{idx + 1}</td>
@@ -530,8 +556,8 @@ const SalesOrder: React.FC = () => {
                           <td className="px-4 py-2 border-r border-slate-200">{itemInfo?.nama || '-'}</td>
                           <td className="px-4 py-2 border-r border-slate-200 text-center">{line.satuan}</td>
                           <td className="px-4 py-2 border-r border-slate-200 text-right font-mono text-blue-700">{line.kuantum}</td>
-                          <td className="px-4 py-2 border-r border-slate-200 text-right font-mono text-green-700">0</td>
-                          <td className="px-4 py-2 border-r border-slate-200 text-right font-mono font-bold">{line.kuantum}</td>
+                          <td className="px-4 py-2 border-r border-slate-200 text-right font-mono text-green-700">{qtyKirim}</td>
+                          <td className={`px-4 py-2 border-r border-slate-200 text-right font-mono font-bold ${sisaOrder <= 0 ? 'text-slate-400 line-through' : 'text-slate-900'}`}>{sisaOrder}</td>
                         </tr>
                       );
                     })}
@@ -549,44 +575,14 @@ const SalesOrder: React.FC = () => {
             <div className="bg-slate-50 border-t border-slate-200 p-6 flex flex-col lg:flex-row gap-8 justify-between shrink-0">
               {/* Keterangan */}
               <div className="flex-1 max-w-xl">
-                <label className="block text-sm font-semibold text-slate-800 mb-2">Keterangan Tambahan:</label>
+                <label className="block text-sm font-semibold text-slate-800 mb-2">Keterangan:</label>
                 <textarea
-                  className="w-full h-24 p-3 border border-slate-300 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 text-sm resize-none bg-white rounded-sm shadow-sm"
+                  disabled={isReadOnly}
+                  className="w-full h-32 p-3 border border-slate-300 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 text-sm resize-none bg-white rounded-sm shadow-sm disabled:bg-slate-100 disabled:text-slate-500"
                   placeholder="Tuliskan keterangan untuk sales order ini..."
                   value={form.keterangan || ''}
                   onChange={e => setForm({ ...form, keterangan: e.target.value })}
                 />
-                <div className="mt-6 flex flex-col gap-4">
-                  {signatureData && signatureData.ttd_image && (
-                    <div className="mb-2">
-                      <img 
-                        src={`data:image/png;base64,${signatureData.ttd_image}`} 
-                        alt="Tanda Tangan" 
-                        className="h-16 w-auto object-contain border-b border-gray-300 mb-2" 
-                      />
-                    </div>
-                  )}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Tanda Tangan</label>
-                      <input 
-                        type="text" 
-                        className="w-full h-10 px-3 py-2 border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500 text-sm" 
-                        value={form.penandatangan || ''} 
-                        onChange={e => setForm({...form, penandatangan: e.target.value})} 
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Jabatan</label>
-                      <input 
-                        type="text" 
-                        className="w-full h-10 px-3 py-2 border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500 text-sm" 
-                        value={form.jabatan || ''} 
-                        onChange={e => setForm({...form, jabatan: e.target.value})} 
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Totals & SIMPAN Button */}
@@ -598,18 +594,18 @@ const SalesOrder: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-slate-700">Potongan Harga</span>
-                    <input type="number" className="w-48 px-3 py-1.5 text-right bg-white border border-slate-300 focus:outline-none focus:border-blue-500 font-mono text-sm rounded-sm" value={form.potongan_harga || ''} onChange={e => setForm({ ...form, potongan_harga: Number(e.target.value) })} />
+                    <input disabled={isReadOnly} type="number" className="w-48 px-3 py-1.5 text-right bg-white border border-slate-300 focus:outline-none focus:border-blue-500 font-mono text-sm rounded-sm disabled:bg-slate-100 disabled:text-slate-500" value={form.potongan_harga || ''} onChange={e => setForm({ ...form, potongan_harga: Number(e.target.value) })} />
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-slate-700">PPN (%)</span>
-                      <input type="number" className="w-16 px-2 py-1.5 text-center bg-white border border-slate-300 focus:outline-none focus:border-blue-500 text-sm rounded-sm" value={form.ppn_persen || ''} onChange={e => setForm({ ...form, ppn_persen: Number(e.target.value) })} />
+                      <input disabled={isReadOnly} type="number" className="w-16 px-2 py-1.5 text-center bg-white border border-slate-300 focus:outline-none focus:border-blue-500 text-sm rounded-sm disabled:bg-slate-100 disabled:text-slate-500" value={form.ppn_persen || ''} onChange={e => setForm({ ...form, ppn_persen: Number(e.target.value) })} />
                     </div>
                     <input type="text" readOnly className="w-48 px-3 py-1.5 text-right bg-slate-100 border border-slate-300 font-mono text-sm rounded-sm" value={ppnAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} />
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-slate-700">Ongkos Angkut</span>
-                    <input type="number" className="w-48 px-3 py-1.5 text-right bg-white border border-slate-300 focus:outline-none focus:border-blue-500 font-mono text-sm rounded-sm" value={form.ongkos_angkut || ''} onChange={e => setForm({ ...form, ongkos_angkut: Number(e.target.value) })} />
+                    <input disabled={isReadOnly} type="number" className="w-48 px-3 py-1.5 text-right bg-white border border-slate-300 focus:outline-none focus:border-blue-500 font-mono text-sm rounded-sm disabled:bg-slate-100 disabled:text-slate-500" value={form.ongkos_angkut || ''} onChange={e => setForm({ ...form, ongkos_angkut: Number(e.target.value) })} />
                   </div>
                   
                   {/* Total Akhir */}
@@ -625,10 +621,10 @@ const SalesOrder: React.FC = () => {
                 </div>
 
                 <div className="flex justify-end gap-3 mt-2">
-                  <button onClick={handleDelete} disabled={!form.id} className="px-6 py-3 text-sm font-bold text-red-600 bg-white border border-red-200 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 rounded-sm shadow-sm disabled:opacity-50">
+                  <button disabled={isReadOnly || !form.id} onClick={handleDelete} className="px-6 py-3 text-sm font-bold text-red-600 bg-white border border-red-200 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 rounded-sm shadow-sm disabled:opacity-50">
                     <Trash2 size={16} /> HAPUS SO
                   </button>
-                  <button onClick={handleSave} className="px-8 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 rounded-sm shadow-md w-full">
+                  <button disabled={isReadOnly} onClick={handleSave} className="px-8 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 rounded-sm shadow-md w-full disabled:bg-slate-400">
                     <Save size={16} /> SIMPAN SALES ORDER
                   </button>
                 </div>

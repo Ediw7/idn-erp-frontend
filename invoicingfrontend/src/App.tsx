@@ -49,6 +49,13 @@ import NotaReturPembelian from './features/nota-retur/components/NotaReturPembel
 import SptMasa1111 from './features/spt-masa/components/SptMasa1111';
 import SuratSetoranPajak from './features/ssp/components/SuratSetoranPajak';
 import SaldoAwalInventory from './features/inventory/components/SaldoAwalInventory';
+import PenerimaanBarang from './features/inventory/components/PenerimaanBarang';
+import AdjustmentInventory from './features/inventory/components/AdjustmentInventory';
+import TransferBarang from './features/inventory/components/TransferBarang';
+import ProsesHPP from './features/inventory/components/ProsesHPP';
+import KartuStock from './features/inventory/components/KartuStock';
+import RekapStock from './features/inventory/components/RekapStock';
+import TransferEFaktur from './features/faktur-pajak/components/TransferEFaktur';
 
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
   const { isAuthenticated, user } = useAuth();
@@ -71,14 +78,16 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false, // Prevent excessive refetching
       retry: 1, // Only retry failed requests once
       staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
-    } } });
+    }
+  }
+});
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ConfirmProvider>
         <AuthProvider>
-          <Toaster 
+          <Toaster
             position="bottom-right"
             toastOptions={{
               className: 'text-sm font-semibold rounded-sm shadow-md border border-slate-200',
@@ -90,7 +99,9 @@ function App() {
                 },
                 iconTheme: {
                   primary: '#16a34a',
-                  secondary: '#fff' } },
+                  secondary: '#fff'
+                }
+              },
               error: {
                 style: {
                   background: '#fef2f2',
@@ -99,89 +110,99 @@ function App() {
                 },
                 iconTheme: {
                   primary: '#dc2626',
-                  secondary: '#fff' } } }}
+                  secondary: '#fff'
+                }
+              }
+            }}
           />
           <BrowserRouter>
             <Routes>
-          {/* Public Route */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+              {/* Public Route */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-          {/* Protected Routes */}
-          <Route path="/" element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          }>
-            {/* Default redirect for dashboard */}
-            <Route index element={<MainDashboard />} />
-            
-            {/* Setup Routes */}
-            <Route path="setup">
-              <Route path="perusahaan" element={<SetupPerusahaan />} />
-              <Route path="preferensi" element={<SetupPreferensi />} />
-              <Route path="mata-uang" element={<SetupMataUang />} />
-              <Route path="kurs-pajak" element={<SetupKursPajak />} />
-              <Route path="tanda-tangan" element={<SetupTandaTangan />} />
-              <Route path="perkiraan" element={<SetupPerkiraan />} />
-              <Route path="gudang" element={<SetupGudang />} />
-              <Route path="group-barang" element={<SetupGroupBarang />} />
-              <Route path="item" element={<SetupItem />} />
-              <Route path="pembayaran" element={<SetupPembayaran />} />
-              <Route path="pelanggan" element={<SetupPelanggan />} />
-              <Route path="supplier" element={<SetupSupplier />} />
-              <Route path="proyek" element={<SetupProyek />} />
-              <Route path="salesman" element={<SetupSalesman />} />
-              <Route path="jenis-potongan" element={<SetupJenisPotongan />} />
-              <Route path="format-bukti" element={<SetupFormatBukti />} />
-              <Route path="faktur-pajak" element={<SetupFakturPajak />} />
-              <Route path="jenis-pajak" element={<SetupJenisPajak />} />
-              <Route path="jenis-setoran" element={<SetupJenisSetoran />} />
-              <Route path="bahasa" element={<SetupBahasa />} />
-              <Route index element={<Navigate to="perusahaan" replace />} />
-            </Route>
+              {/* Protected Routes */}
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <MainLayout />
+                </ProtectedRoute>
+              }>
+                {/* Default redirect for dashboard */}
+                <Route index element={<MainDashboard />} />
 
-            {/* General Routes */}
-            <Route path="saldo-awal-piutang" element={<SaldoAwalPiutang />} />
+                {/* Setup Routes */}
+                <Route path="setup">
+                  <Route path="perusahaan" element={<SetupPerusahaan />} />
+                  <Route path="preferensi" element={<SetupPreferensi />} />
+                  <Route path="mata-uang" element={<SetupMataUang />} />
+                  <Route path="kurs-pajak" element={<SetupKursPajak />} />
+                  <Route path="tanda-tangan" element={<SetupTandaTangan />} />
+                  <Route path="perkiraan" element={<SetupPerkiraan />} />
+                  <Route path="gudang" element={<SetupGudang />} />
+                  <Route path="group-barang" element={<SetupGroupBarang />} />
+                  <Route path="item" element={<SetupItem />} />
+                  <Route path="pembayaran" element={<SetupPembayaran />} />
+                  <Route path="pelanggan" element={<SetupPelanggan />} />
+                  <Route path="supplier" element={<SetupSupplier />} />
+                  <Route path="proyek" element={<SetupProyek />} />
+                  <Route path="salesman" element={<SetupSalesman />} />
+                  <Route path="jenis-potongan" element={<SetupJenisPotongan />} />
+                  <Route path="format-bukti" element={<SetupFormatBukti />} />
+                  <Route path="faktur-pajak" element={<SetupFakturPajak />} />
+                  <Route path="jenis-pajak" element={<SetupJenisPajak />} />
+                  <Route path="jenis-setoran" element={<SetupJenisSetoran />} />
+                  <Route path="bahasa" element={<SetupBahasa />} />
+                  <Route index element={<Navigate to="perusahaan" replace />} />
+                </Route>
 
-            {/* Main Application Routes */}
-            <Route path="invoice" element={<Invoice />} />
-            <Route path="surat-jalan" element={<SuratJalan />} />
-            <Route path="sales-order" element={<SalesOrder />} />
-            <Route path="faktur-pajak" element={<FakturPajak />} />
-            <Route path="kwitansi" element={<Kwitansi />} />
-            <Route path="history-harga" element={<HistoryHargaJual />} />
-            <Route path="pembayaran" element={<Pembayaran />} />
-            <Route path="nota-kredit" element={<NotaKredit />} />
-            <Route path="kartu-piutang" element={<KartuPiutang />} />
-            <Route path="outstanding-invoice" element={<OutstandingInvoice />} />
-            <Route path="rangkuman-penjualan" element={<RangkumanPenjualan />} />
-            <Route path="laporan" element={<Laporan />} />
-            <Route path="setup-data-baru" element={<SetupDataBaru />} />
-            <Route path="inventory/retur-penjualan" element={<NotaReturPenjualan />} />
-            <Route path="ppn/retur-penjualan" element={<NotaReturPenjualan />} />
-            <Route path="inventory/retur-pembelian" element={<NotaReturPembelian />} />
-            <Route path="inventory/gudang" element={<SetupGudang />} />
-            <Route path="inventory/barang" element={<SetupItem />} />
-            <Route path="inventory/saldo-awal" element={<SaldoAwalInventory />} />
-            <Route path="ppn/retur-pembelian" element={<NotaReturPembelian />} />
-            <Route path="ppn/spt" element={<SptMasa1111 />} />
-            <Route path="ppn/ssp" element={<SuratSetoranPajak />} />
-          </Route>
+                {/* General Routes */}
+                <Route path="saldo-awal-piutang" element={<SaldoAwalPiutang />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={
-            <ProtectedRoute requireAdmin={true}>
-              <AdminLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="users" element={<AdminUserManagement />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-    </ConfirmProvider>
+                {/* Main Application Routes */}
+                <Route path="invoice" element={<Invoice />} />
+                <Route path="surat-jalan" element={<SuratJalan />} />
+                <Route path="sales-order" element={<SalesOrder />} />
+                <Route path="faktur-pajak" element={<FakturPajak />} />
+                <Route path="kwitansi" element={<Kwitansi />} />
+                <Route path="history-harga" element={<HistoryHargaJual />} />
+                <Route path="pembayaran" element={<Pembayaran />} />
+                <Route path="nota-kredit" element={<NotaKredit />} />
+                <Route path="kartu-piutang" element={<KartuPiutang />} />
+                <Route path="outstanding-invoice" element={<OutstandingInvoice />} />
+                <Route path="rangkuman-penjualan" element={<RangkumanPenjualan />} />
+                <Route path="laporan" element={<Laporan />} />
+                <Route path="setup-data-baru" element={<SetupDataBaru />} />
+                <Route path="inventory/retur-penjualan" element={<NotaReturPenjualan />} />
+                <Route path="ppn/retur-penjualan" element={<NotaReturPenjualan />} />
+                <Route path="inventory/retur-pembelian" element={<NotaReturPembelian />} />
+                <Route path="inventory/gudang" element={<SetupGudang />} />
+                <Route path="inventory/barang" element={<SetupItem />} />
+                <Route path="inventory/saldo-awal" element={<SaldoAwalInventory />} />
+                <Route path="inventory/penerimaan" element={<PenerimaanBarang />} />
+                <Route path="inventory/adjustment" element={<AdjustmentInventory />} />
+                <Route path="inventory/transfer" element={<TransferBarang />} />
+                <Route path="inventory/proses-hpp" element={<ProsesHPP />} />
+                <Route path="inventory/kartu-stock" element={<KartuStock />} />
+                <Route path="inventory/rekap-stok" element={<RekapStock />} />
+                <Route path="ppn/retur-pembelian" element={<NotaReturPembelian />} />
+                <Route path="ppn/spt" element={<SptMasa1111 />} />
+                <Route path="ppn/ssp" element={<SuratSetoranPajak />} />
+                <Route path="ppn/transfer-efaktur" element={<TransferEFaktur />} />
+              </Route>
+
+              {/* Admin Routes */}
+              <Route path="/admin" element={
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUserManagement />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </ConfirmProvider>
     </QueryClientProvider>
   );
 }
