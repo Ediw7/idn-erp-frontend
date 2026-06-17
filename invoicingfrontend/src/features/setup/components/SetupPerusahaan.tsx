@@ -30,15 +30,17 @@ const SetupPerusahaan: React.FC = () => {
     tahun_buku_start: '1',
     tahun_buku_end: '12',
     kode_klu: '',
-    wajib_ppnbm: false });
-  
+    wajib_ppnbm: false
+  });
+
 
 
   const queryClient = useQueryClient();
 
   const { data: initialData, isLoading } = useQuery({
     queryKey: ['perusahaan'],
-    queryFn: setupApi.getPerusahaan });
+    queryFn: setupApi.getPerusahaan
+  });
 
   const mutation = useMutation({
     mutationFn: (data: CompanyData) => setupApi.updatePerusahaan(data),
@@ -78,7 +80,8 @@ const SetupPerusahaan: React.FC = () => {
         tahun_buku_start: initialData.tahun_buku_start || '1',
         tahun_buku_end: initialData.tahun_buku_end || '12',
         kode_klu: initialData.kode_klu || '',
-        wajib_ppnbm: initialData.wajib_ppnbm || false });
+        wajib_ppnbm: initialData.wajib_ppnbm || false
+      });
     }
   }, [initialData]);
 
@@ -87,9 +90,9 @@ const SetupPerusahaan: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const target = e.target as HTMLInputElement;
     const { name, value, type, checked } = target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -118,13 +121,13 @@ const SetupPerusahaan: React.FC = () => {
       <div className="p-6">
         {/* Tab Navigation */}
         <div className="flex border-b border-slate-200 mb-6">
-          <button 
+          <button
             onClick={() => setActiveTab('profil')}
             className={`px-6 py-3 text-sm font-semibold uppercase tracking-wide transition-colors ${activeTab === 'profil' ? 'text-slate-800 border-b-2 border-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
           >
             Profil
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('perpajakan')}
             className={`px-6 py-3 text-sm font-semibold uppercase tracking-wide transition-colors ${activeTab === 'perpajakan' ? 'text-slate-800 border-b-2 border-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
           >
@@ -181,7 +184,7 @@ const SetupPerusahaan: React.FC = () => {
                   <label className={labelClass}>Email</label>
                   <input type="email" name="email" value={formData.email} onChange={handleChange} className={inputClass} placeholder="admin@ediaccounting.com" />
                 </div>
-                
+
                 <div className="pt-4 mt-2 border-t border-slate-100 space-y-4">
                   <div className="w-1/2">
                     <label className={labelClass}>Maks. Jlh Pelanggan</label>
@@ -245,11 +248,11 @@ const SetupPerusahaan: React.FC = () => {
                   <label className={labelClass}>Tahun Buku</label>
                   <div className="flex items-center gap-3">
                     <select name="tahun_buku_start" value={formData.tahun_buku_start} onChange={handleChange} className={inputClass}>
-                      {[...Array(12)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+                      {[...Array(12)].map((_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
                     </select>
                     <span className="text-sm font-semibold text-slate-700">s/d</span>
                     <select name="tahun_buku_end" value={formData.tahun_buku_end} onChange={handleChange} className={inputClass}>
-                      {[...Array(12)].map((_, i) => <option key={i+1} value={i+1}>{i+1}</option>)}
+                      {[...Array(12)].map((_, i) => <option key={i + 1} value={i + 1}>{i + 1}</option>)}
                     </select>
                   </div>
                 </div>
@@ -266,14 +269,14 @@ const SetupPerusahaan: React.FC = () => {
           )}
 
           <div className="pt-4 mt-8 border-t border-slate-200 flex justify-end gap-3">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-300 hover:bg-slate-200 transition-colors"
             >
               BATAL
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={mutation.isPending}
               className="px-6 py-2 text-xs font-semibold text-white bg-slate-800 border border-slate-800 hover:bg-slate-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >

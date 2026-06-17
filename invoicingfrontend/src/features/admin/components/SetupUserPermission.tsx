@@ -18,7 +18,7 @@ const SetupUserPermission: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [objectType, setObjectType] = useState('Form');
-  
+
   const initialPermissions: PermissionData[] = [
     // Forms
     { id: '1', type: 'Form', task: 'Setup Preferensi', open: false, insert: false, update: false, delete: false },
@@ -36,7 +36,7 @@ const SetupUserPermission: React.FC = () => {
     { id: '13', type: 'Form', task: 'Setup Pelanggan', open: false, insert: false, update: false, delete: false },
     { id: '14', type: 'Form', task: 'Setup Supplier', open: false, insert: false, update: false, delete: false },
     { id: '15', type: 'Form', task: 'Setup Jenis Potongan', open: false, insert: false, update: false, delete: false },
-    
+
     // Reports
     { id: '16', type: 'Report', task: 'Laporan Penjualan', open: false, insert: false, update: false, delete: false },
     { id: '17', type: 'Report', task: 'Laporan Piutang', open: false, insert: false, update: false, delete: false },
@@ -115,7 +115,7 @@ const SetupUserPermission: React.FC = () => {
     console.log('Payload Permissions:', permissions);
     // TODO: Implementasi integrasi API yang sebenarnya:
     // await axiosClient.post('/api/permissions', { userId: selectedUser, permissions });
-    
+
     toast.success('Hak akses pengguna berhasil disimpan!');
   };
 
@@ -123,7 +123,7 @@ const SetupUserPermission: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full h-full bg-white font-sans text-slate-800">
-      
+
       {/* Header Banner & Action Toolbar (Full Width) */}
       <div className="bg-slate-900 w-full rounded-none p-6 flex justify-between items-center shrink-0">
         <div>
@@ -133,22 +133,22 @@ const SetupUserPermission: React.FC = () => {
           </h1>
           <p className="text-sm text-slate-300 mt-1">Atur hak akses tiap pengguna secara detail</p>
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <button 
+          <button
             disabled={isAdminSelected}
             className="flex items-center gap-2 px-4 py-2 border border-slate-400 text-slate-300 hover:text-white hover:border-white hover:bg-slate-800 text-sm font-semibold rounded-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Copy size={16} /> Copy Permission
           </button>
-          <button 
+          <button
             onClick={handleGrantFullAccess}
             disabled={isAdminSelected}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-sm transition-colors shadow-sm disabled:opacity-50 disabled:bg-slate-500 disabled:cursor-not-allowed"
           >
             <CheckSquare size={16} /> Grant Full Access
           </button>
-          <button 
+          <button
             onClick={handleSimpan}
             disabled={isAdminSelected}
             className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-sm transition-colors shadow-sm disabled:opacity-50 disabled:bg-slate-500 disabled:cursor-not-allowed"
@@ -160,7 +160,7 @@ const SetupUserPermission: React.FC = () => {
 
       {/* Layout Split-Pane Modern */}
       <div className="flex flex-row w-full flex-1 overflow-hidden">
-        
+
         {/* Kolom Kiri: Daftar User */}
         <div className="w-1/4 border-r border-gray-200 bg-gray-50 flex flex-col">
           <div className="bg-white px-5 py-3 border-b border-gray-200 text-sm font-bold text-gray-800 uppercase tracking-wide">
@@ -173,14 +173,13 @@ const SetupUserPermission: React.FC = () => {
               <div className="p-4 text-sm text-gray-500 italic">Belum ada user.</div>
             ) : (
               users.map(u => (
-                <div 
+                <div
                   key={u.id}
                   onClick={() => handleUserSelection(u.id)}
-                  className={`px-5 py-3 text-sm cursor-pointer border-b border-gray-100 transition-colors flex justify-between items-center ${
-                    selectedUser === u.id 
-                      ? 'bg-blue-100 text-blue-700 border-l-4 border-l-blue-600 font-semibold' 
+                  className={`px-5 py-3 text-sm cursor-pointer border-b border-gray-100 transition-colors flex justify-between items-center ${selectedUser === u.id
+                      ? 'bg-blue-100 text-blue-700 border-l-4 border-l-blue-600 font-semibold'
                       : 'text-gray-700 border-l-4 border-l-transparent hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   <span>{u.login || u.name}</span>
                   {u.is_admin && <Shield size={14} className={selectedUser === u.id ? 'text-blue-600' : 'text-gray-400'} />}
@@ -204,7 +203,7 @@ const SetupUserPermission: React.FC = () => {
 
           <div className="flex items-center gap-3 mb-6">
             <label className="text-sm font-bold text-gray-700">Object Type:</label>
-            <select 
+            <select
               value={objectType}
               onChange={(e) => setObjectType(e.target.value)}
               disabled={isAdminSelected}
@@ -245,36 +244,36 @@ const SetupUserPermission: React.FC = () => {
                         {p.task}
                       </td>
                       <td className="px-5 py-2.5 border-r border-gray-100 text-center">
-                        <input 
-                          type="checkbox" 
-                          checked={isAdminSelected ? true : p.open} 
+                        <input
+                          type="checkbox"
+                          checked={isAdminSelected ? true : p.open}
                           onChange={(e) => handleCheckboxChange(p.id, 'open', e.target.checked)}
                           disabled={isAdminSelected}
                           className="w-4 h-4 cursor-pointer text-blue-600 rounded-sm border-gray-300 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-200"
                         />
                       </td>
                       <td className="px-5 py-2.5 border-r border-gray-100 text-center">
-                        <input 
-                          type="checkbox" 
-                          checked={isAdminSelected ? true : p.insert} 
+                        <input
+                          type="checkbox"
+                          checked={isAdminSelected ? true : p.insert}
                           onChange={(e) => handleCheckboxChange(p.id, 'insert', e.target.checked)}
                           disabled={isAdminSelected}
                           className="w-4 h-4 cursor-pointer text-blue-600 rounded-sm border-gray-300 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-200"
                         />
                       </td>
                       <td className="px-5 py-2.5 border-r border-gray-100 text-center">
-                        <input 
-                          type="checkbox" 
-                          checked={isAdminSelected ? true : p.update} 
+                        <input
+                          type="checkbox"
+                          checked={isAdminSelected ? true : p.update}
                           onChange={(e) => handleCheckboxChange(p.id, 'update', e.target.checked)}
                           disabled={isAdminSelected}
                           className="w-4 h-4 cursor-pointer text-blue-600 rounded-sm border-gray-300 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-200"
                         />
                       </td>
                       <td className="px-5 py-2.5 text-center">
-                        <input 
-                          type="checkbox" 
-                          checked={isAdminSelected ? true : p.delete} 
+                        <input
+                          type="checkbox"
+                          checked={isAdminSelected ? true : p.delete}
                           onChange={(e) => handleCheckboxChange(p.id, 'delete', e.target.checked)}
                           disabled={isAdminSelected}
                           className="w-4 h-4 cursor-pointer text-blue-600 rounded-sm border-gray-300 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-200"
