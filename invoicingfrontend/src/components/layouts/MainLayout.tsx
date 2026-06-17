@@ -88,15 +88,9 @@ const MainLayout: React.FC = () => {
     { label: 'Transfer ke Program e-Faktur', path: '/ppn/transfer-efaktur' },
   ];
 
-  // Submenus for Pemeliharaan Sistem
   const pemeliharaanItems = [
     { label: 'Migrasi Data', path: '/pemeliharaan/migrasi' },
     { label: 'Ganti Password', path: '/pemeliharaan/ganti-password' },
-    { label: 'Setup User', path: '/pemeliharaan/setup-user' },
-    { label: 'Setup User Permission', path: '/pemeliharaan/setup-permission' },
-    { label: 'Database Connection', path: '/pemeliharaan/database' },
-    { label: 'Backup Data', path: '/pemeliharaan/backup' },
-    { label: 'Restore Data', path: '/pemeliharaan/restore' },
     { label: 'Hapus Data', path: '/pemeliharaan/hapus' },
     { label: 'Perbaikan Saldo Piutang', path: '/pemeliharaan/perbaikan-saldo' },
     { label: 'About Krishand Invoicing', path: '/pemeliharaan/about' },

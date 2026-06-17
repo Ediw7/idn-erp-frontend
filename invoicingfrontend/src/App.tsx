@@ -56,6 +56,13 @@ import ProsesHPP from './features/inventory/components/ProsesHPP';
 import KartuStock from './features/inventory/components/KartuStock';
 import RekapStock from './features/inventory/components/RekapStock';
 import TransferEFaktur from './features/faktur-pajak/components/TransferEFaktur';
+import GantiPassword from './features/pemeliharaan/components/GantiPassword';
+import MigrasiData from './features/pemeliharaan/components/MigrasiData';
+import SetupUser from './features/admin/components/SetupUser';
+import SetupUserPermission from './features/admin/components/SetupUserPermission';
+import DatabaseConnection from './features/admin/components/DatabaseConnection';
+import BackupData from './features/admin/components/BackupData';
+import RestoreData from './features/admin/components/RestoreData';
 
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
   const { isAuthenticated, user } = useAuth();
@@ -188,6 +195,8 @@ function App() {
                 <Route path="ppn/spt" element={<SptMasa1111 />} />
                 <Route path="ppn/ssp" element={<SuratSetoranPajak />} />
                 <Route path="ppn/transfer-efaktur" element={<TransferEFaktur />} />
+                <Route path="pemeliharaan/ganti-password" element={<GantiPassword />} />
+                <Route path="pemeliharaan/migrasi" element={<MigrasiData />} />
               </Route>
 
               {/* Admin Routes */}
@@ -198,6 +207,11 @@ function App() {
               }>
                 <Route index element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUserManagement />} />
+                <Route path="setup-user" element={<SetupUser />} />
+                <Route path="setup-permission" element={<SetupUserPermission />} />
+                <Route path="database" element={<DatabaseConnection />} />
+                <Route path="backup" element={<BackupData />} />
+                <Route path="restore" element={<RestoreData />} />
               </Route>
             </Routes>
           </BrowserRouter>

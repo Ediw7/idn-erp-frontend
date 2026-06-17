@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/contexts/AuthContext';
-import { LogOut, Users, LayoutDashboard, Settings } from 'lucide-react';
+import { LogOut, Users, LayoutDashboard, Settings, UserPlus, Shield } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -15,7 +15,12 @@ const AdminLayout: React.FC = () => {
 
   const adminMenu = [
     { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={18} /> },
-    { label: 'Manajemen Pengguna', path: '/admin/users', icon: <Users size={18} /> },
+
+    { label: 'Setup User', path: '/admin/setup-user', icon: <UserPlus size={18} /> },
+    { label: 'Setup User Permission', path: '/admin/setup-permission', icon: <Shield size={18} /> },
+    { label: 'Database Connection', path: '/admin/database', icon: <Settings size={18} /> },
+    { label: 'Backup Data', path: '/admin/backup', icon: <Settings size={18} /> },
+    { label: 'Restore Data', path: '/admin/restore', icon: <Settings size={18} /> },
   ];
 
   return (

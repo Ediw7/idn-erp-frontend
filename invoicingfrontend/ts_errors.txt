@@ -1,0 +1,12 @@
+src/features/inventory/components/KartuStock.tsx(35,10): error TS6133: 'isLoading' is declared but its value is never read.
+src/features/inventory/components/KartuStock.tsx(35,21): error TS6133: 'setIsLoading' is declared but its value is never read.
+src/features/kartu-piutang/components/KartuPiutang.tsx(17,10): error TS6133: 'isLoading' is declared but its value is never read.
+src/features/kartu-piutang/components/KartuPiutang.tsx(17,21): error TS6133: 'setIsLoading' is declared but its value is never read.
+src/features/outstanding-invoice/components/OutstandingInvoice.tsx(25,10): error TS6133: 'isLoading' is declared but its value is never read.
+src/features/outstanding-invoice/components/OutstandingInvoice.tsx(25,21): error TS6133: 'setIsLoading' is declared but its value is never read.
+src/features/pembayaran/components/Pembayaran.tsx(2,10): error TS6133: 'Search' is declared but its value is never read.
+src/features/report/components/PreviewLaporan.tsx(28,35): error TS2339: Property 'namaPencetak' does not exist on type 'PreferensiData'.
+src/features/spt-masa/components/SptMasa1111.tsx(11,10): error TS6133: 'dataList' is declared but its value is never read.
+src/features/spt-masa/components/SptMasa1111.tsx(12,10): error TS6133: 'currentIndex' is declared but its value is never read.
+src/features/ssp/components/SuratSetoranPajak.tsx(12,10): error TS6133: 'dataList' is declared but its value is never read.
+src/features/ssp/components/SuratSetoranPajak.tsx(150,11): error TS6133: 'response' is declared but its value is never read.
