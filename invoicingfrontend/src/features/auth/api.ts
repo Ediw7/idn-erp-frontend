@@ -11,6 +11,7 @@ export interface UserProfile {
   name: string;
   email: string;
   is_admin?: boolean;
+  company_name?: string;
 }
 
 export interface LoginResponse {
@@ -30,6 +31,7 @@ export interface LogoutResponse {
 export interface RegisterCredentials {
   db?: string;
   name: string;
+  company_name: string;
   login: string;
   password: string;
 }

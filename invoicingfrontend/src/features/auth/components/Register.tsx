@@ -6,8 +6,10 @@ import { UserPlus } from 'lucide-react';
 
 const Register: React.FC = () => {
   const [name, setName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -15,10 +17,16 @@ const Register: React.FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (password !== confirmPassword) {
+      setError('Password dan Konfirmasi Password tidak sama.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await authApi.register({ name, login, password });
+      await authApi.register({ name, company_name: companyName, login, password });
       navigate('/login', { state: { message: 'Registrasi berhasil! Silakan login.' } });
     } catch (err: any) {
       setError(err.response?.data?.error || err.message || 'Terjadi kesalahan saat registrasi.');
@@ -55,6 +63,18 @@ const Register: React.FC = () => {
           </div>
 
           <div className="mb-4">
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Nama Perusahaan</label>
+            <input
+              type="text"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white text-sm"
+              required
+              placeholder="PT Maju Mundur"
+            />
+          </div>
+
+          <div className="mb-4">
             <label className="block text-sm font-semibold text-slate-700 mb-1">Username / Email</label>
             <input
               type="text"
@@ -65,12 +85,23 @@ const Register: React.FC = () => {
             />
           </div>
           
-          <div className="mb-8">
+          <div className="mb-4">
             <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white text-sm"
+              required
+            />
+          </div>
+
+          <div className="mb-8">
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Konfirmasi Password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 bg-white text-sm"
               required
             />
@@ -82,7 +113,10 @@ const Register: React.FC = () => {
             className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2.5 rounded transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                Memproses...
+              </>
             ) : (
               <>
                 <UserPlus size={18} />

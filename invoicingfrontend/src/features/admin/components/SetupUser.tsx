@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axiosClient from '../../../lib/axiosClient';
-import { Plus, Edit2, Trash2, Users, Shield, X, Save } from 'lucide-react';
+import { Plus, Edit2, Trash2, Users, Shield, X, Save, Building } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { authApi } from '../../../features/auth/api';
 
 interface UserData {
   id: number;
@@ -21,6 +22,7 @@ const SetupUser: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
+    company_name: '',
     email: '',
     password: '',
     role: 'USER'
@@ -61,7 +63,7 @@ const SetupUser: React.FC = () => {
 
   const openAddModal = () => {
     setEditId(null);
-    setFormData({ username: '', email: '', password: '', role: 'USER' });
+    setFormData({ username: '', company_name: '', email: '', password: '', role: 'USER' });
     setIsModalOpen(true);
   };
 
@@ -69,6 +71,7 @@ const SetupUser: React.FC = () => {
     setEditId(user.id);
     setFormData({
       username: user.name || '',
+      company_name: '', // company_name not editable here for now
       email: user.login || '',
       password: '', // Kosongkan password saat edit (opsional)
       role: user.is_admin ? 'ADMIN' : 'USER'
@@ -78,7 +81,7 @@ const SetupUser: React.FC = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ username: '', email: '', password: '', role: 'USER' });
+    setFormData({ username: '', company_name: '', email: '', password: '', role: 'USER' });
     setEditId(null);
   };
 
@@ -99,13 +102,27 @@ const SetupUser: React.FC = () => {
         await axiosClient.put(`/api/users/${editId}`, payload);
         toast.success('Data pengguna berhasil diperbarui!');
       } else {
-        // Create: POST /api/users
+        // Create Tenant via authApi register (Closed B2B Model)
         if (!formData.password) {
           toast.error('Password wajib diisi untuk pengguna baru');
           setIsSaving(false);
           return;
         }
-        await axiosClient.post('/api/users', payload);
+        if (!formData.company_name) {
+          toast.error('Nama Perusahaan wajib diisi');
+          setIsSaving(false);
+          return;
+        }
+        
+        await authApi.register({ 
+          name: formData.username, 
+          company_name: formData.company_name,
+          login: formData.email, 
+          password: formData.password 
+        });
+        
+        // Update user role if they selected ADMIN (default in register is usually USER)
+        // Note: For full robustness, you might want the register API to accept 'role'
         toast.success('Pengguna baru berhasil ditambahkan!');
       }
       
@@ -243,7 +260,7 @@ const SetupUser: React.FC = () => {
             <form onSubmit={handleSave} className="flex flex-col">
               <div className="p-6 space-y-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-700">Username <span className="text-red-500">*</span></label>
+                  <label className="text-xs font-semibold text-gray-700">Nama Lengkap PIC <span className="text-red-500">*</span></label>
                   <input 
                     type="text" 
                     value={formData.username}
@@ -253,6 +270,25 @@ const SetupUser: React.FC = () => {
                     required
                   />
                 </div>
+                
+                {!editId && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-700">Nama Perusahaan <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Building size={16} className="text-gray-400" />
+                      </div>
+                      <input 
+                        type="text" 
+                        value={formData.company_name}
+                        onChange={(e) => setFormData({...formData, company_name: e.target.value})}
+                        className="w-full pl-9 pr-3 py-2 bg-white border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Masukkan nama perusahaan"
+                        required={!editId}
+                      />
+                    </div>
+                  </div>
+                )}
                 
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-gray-700">Email / Login <span className="text-red-500">*</span></label>

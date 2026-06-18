@@ -37,7 +37,15 @@ const Login: React.FC = () => {
         setError('Login failed: Invalid response from server');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Terjadi kesalahan saat login.');
+      const status = err.response?.status;
+      if (status === 401) {
+        setError('Email atau Password tidak cocok.');
+      } else if (status === 429) {
+        setError('Terlalu banyak percobaan. Silakan coba lagi setelah 15 menit.');
+      } else {
+        // Fallback for general errors, but masking invalid credentials per requirement
+        setError('Email atau Password tidak cocok.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -95,7 +103,10 @@ const Login: React.FC = () => {
             className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2.5 rounded transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                Memproses...
+              </>
             ) : (
               <>
                 <LogIn size={18} />
@@ -104,10 +115,7 @@ const Login: React.FC = () => {
             )}
           </button>
           <div className="mt-4 text-center">
-            <span className="text-sm text-slate-600">Belum punya akun? </span>
-            <Link to="/register" className="text-sm text-blue-600 font-semibold hover:underline">
-              Register di sini
-            </Link>
+            <span className="text-sm text-slate-500">Hubungi Admin jika Anda belum memiliki akun.</span>
           </div>
         </form>
       </div>

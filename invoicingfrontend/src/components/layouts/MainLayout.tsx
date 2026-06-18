@@ -287,8 +287,8 @@ const MainLayout: React.FC = () => {
           </h2>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-semibold text-slate-700">{user?.name || 'Administrator'}</p>
-              <p className="text-[11px] text-slate-500">{user?.email || 'PT. EDI Accounting System'}</p>
+              <p className="text-sm font-bold text-slate-800 tracking-wide uppercase">{user?.company_name || 'PT. EDI Accounting System'}</p>
+              <p className="text-[11px] font-medium text-slate-500">{user?.name || 'Administrator'} • {user?.email || 'admin@system.local'}</p>
             </div>
             <div className="h-6 w-px bg-slate-300 mx-1"></div>
             <button 
