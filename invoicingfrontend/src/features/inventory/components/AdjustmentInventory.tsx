@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { setupApi, GudangData, ItemData } from '../../setup/api';
 import toast from 'react-hot-toast';
 import { Trash2 } from 'lucide-react';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 interface AdjustmentDetail {
   id: string;
@@ -14,6 +15,7 @@ interface AdjustmentDetail {
 }
 
 const AdjustmentInventory: React.FC = () => {
+  const confirm = useConfirm();
   const [isLoading, setIsLoading] = useState(false);
   
   // Master Data States
@@ -115,8 +117,9 @@ const AdjustmentInventory: React.FC = () => {
     }, 1000);
   };
 
-  const handleHapus = () => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus dokumen ini?')) {
+  const handleHapus = async () => {
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus dokumen ini?');
+    if (isConfirmed) {
       toast.success('Dokumen berhasil dihapus');
       handleBaru();
     }

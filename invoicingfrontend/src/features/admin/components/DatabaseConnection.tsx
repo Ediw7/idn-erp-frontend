@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Database, Save, Activity, Edit3, ShieldAlert, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axiosClient from '../../../lib/axiosClient';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const DatabaseConnection: React.FC = () => {
+  const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error' | 'idle'>('idle');
   
@@ -66,7 +68,7 @@ const DatabaseConnection: React.FC = () => {
 
   // 3. Save Configuration
   const handleSave = async () => {
-    const isConfirmed = window.confirm("Peringatan Keamanan: Menyimpan konfigurasi baru akan merestart koneksi server backend Anda secara otomatis. Lanjutkan?");
+    const isConfirmed = await confirm("Peringatan Keamanan: Menyimpan konfigurasi baru akan merestart koneksi server backend Anda secara otomatis. Lanjutkan?");
     
     if (!isConfirmed) return;
 

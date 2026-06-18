@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { setupApi, PelangganData } from '../../setup/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 // Fungsi merubah angka menjadi teks terbilang (Bahasa Indonesia)
 const angkaMenjadiTerbilang = (angka: number): string => {
@@ -54,6 +55,7 @@ const Kwitansi: React.FC = () => {
   const [loadingData, setLoadingData] = useState(true);
 
   const { signatureData } = useSignatureAutoFill('Kwitansi');
+  const confirm = useConfirm();
 
   useEffect(() => {
     if (signatureData) {
@@ -162,8 +164,9 @@ const Kwitansi: React.FC = () => {
              <Printer size={16} /> CETAK
           </button>
           <button 
-            onClick={() => {
-              if (window.confirm('Hapus Kwitansi ini?')) {
+            onClick={async () => {
+              const isConfirmed = await confirm('Hapus Kwitansi ini?');
+              if (isConfirmed) {
                 setForm(emptyForm);
                 toast.success('Kwitansi dihapus');
               }

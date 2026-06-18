@@ -1,8 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { UploadCloud, AlertTriangle, FileUp, X, CheckCircle2, RotateCcw } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const RestoreData: React.FC = () => {
+  const confirm = useConfirm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
@@ -38,7 +40,7 @@ const RestoreData: React.FC = () => {
     if (!selectedFile) return;
 
     // KONFIRMASI GANDA: Aksi ini sangat berbahaya
-    const isConfirmed = window.confirm(
+    const isConfirmed = await confirm(
       "PERINGATAN FINAL!\n\n" +
       "Apakah Anda benar-benar yakin ingin menimpa database saat ini dengan file backup yang diunggah?\n" +
       "Seluruh transaksi yang terjadi setelah waktu backup ini akan HILANG SELAMANYA.\n" +
@@ -91,8 +93,8 @@ const RestoreData: React.FC = () => {
       setSelectedFile(null);
       
       setTimeout(() => {
-        window.alert("Sistem akan di-restart dan memutus koneksi semua pengguna (logout paksa) untuk menerapkan perubahan. Harap login kembali.");
-        window.location.reload();
+        toast.success("Sistem akan di-restart dan memutus koneksi semua pengguna (logout paksa) untuk menerapkan perubahan. Harap login kembali.", { duration: 5000 });
+        setTimeout(() => window.location.reload(), 2000);
       }, 1000);
 
     } catch (err) {

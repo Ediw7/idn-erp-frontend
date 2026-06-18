@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, Trash2, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { setupApi, FakturPajakData } from '../api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 interface Props {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export const PenjatahanNSFPModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
   const [dataList, setDataList] = useState<FakturPajakData[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const confirm = useConfirm();
   
   const [newRow, setNewRow] = useState<Partial<FakturPajakData>>(emptyRow);
   const [isEditingNew, setIsEditingNew] = useState(false);
@@ -47,7 +49,8 @@ export const PenjatahanNSFPModal: React.FC<Props> = ({ isOpen, onClose, onSaved 
 
   const handleDelete = async () => {
     if (!selectedId) return;
-    if (!window.confirm('Yakin ingin menghapus data ini?')) return;
+    const isConfirmed = await confirm('Yakin ingin menghapus data ini?');
+    if (!isConfirmed) return;
     
     try {
       await setupApi.deleteFakturPajak(selectedId);

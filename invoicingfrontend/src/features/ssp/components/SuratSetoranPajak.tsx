@@ -149,9 +149,9 @@ const SuratSetoranPajak: React.FC = () => {
     try {
       let response;
       if (form.id) {
-        response = await axiosClient.put(`/api/ssp/${form.id}`, form).catch(() => sspApi.save(form as SuratSetoranPajakData));
+        response = await sspApi.save(form as SuratSetoranPajakData);
       } else {
-        response = await axiosClient.post('/api/ssp', form).catch(() => sspApi.save(form as SuratSetoranPajakData));
+        response = await sspApi.save(form as SuratSetoranPajakData);
       }
       toast.success('Surat Setoran Pajak berhasil disimpan');
       setIsNew(false);
@@ -170,7 +170,7 @@ const SuratSetoranPajak: React.FC = () => {
     if (!isConfirmed) return;
     setIsLoading(true);
     try {
-      await axiosClient.delete(`/api/ssp/${form.id}`).catch(() => sspApi.delete(form.id));
+      await sspApi.delete(form.id);
       toast.success('Dokumen SSP berhasil dihapus');
       handleNew();
     } catch (error) {

@@ -3,6 +3,7 @@ import axiosClient from '../../../lib/axiosClient';
 import { Plus, Edit2, Trash2, Users, Shield, X, Save, Building } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authApi } from '../../../features/auth/api';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 interface UserData {
   id: number;
@@ -13,6 +14,7 @@ interface UserData {
 }
 
 const SetupUser: React.FC = () => {
+  const confirm = useConfirm();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -98,11 +100,11 @@ const SetupUser: React.FC = () => {
       };
 
       if (editId) {
-        // Update: PUT /api/users/:id
-        await axiosClient.put(`/api/users/${editId}`, payload);
+        // Update: POST /api/auth/users/update
+        await axiosClient.post('/api/auth/users/update', { id: editId, ...payload });
         toast.success('Data pengguna berhasil diperbarui!');
       } else {
-        // Create Tenant via authApi register (Closed B2B Model)
+        // Create User (and optionally Company if new)
         if (!formData.password) {
           toast.error('Password wajib diisi untuk pengguna baru');
           setIsSaving(false);
@@ -114,15 +116,11 @@ const SetupUser: React.FC = () => {
           return;
         }
         
-        await authApi.register({ 
-          name: formData.username, 
-          company_name: formData.company_name,
-          login: formData.email, 
-          password: formData.password 
+        await axiosClient.post('/api/auth/users/create', {
+          ...payload,
+          company_name: formData.company_name
         });
         
-        // Update user role if they selected ADMIN (default in register is usually USER)
-        // Note: For full robustness, you might want the register API to accept 'role'
         toast.success('Pengguna baru berhasil ditambahkan!');
       }
       
@@ -137,12 +135,12 @@ const SetupUser: React.FC = () => {
 
   // 4. DELETE
   const handleDelete = async (id: number) => {
-    const isConfirmed = window.confirm("Yakin ingin menghapus user ini?");
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus pengguna ini?');
     if (!isConfirmed) return;
 
     try {
-      // Delete: DELETE /api/users/:id
-      await axiosClient.delete(`/api/users/${id}`);
+      // Delete: POST /api/auth/users/delete
+      await axiosClient.post('/api/auth/users/delete', { id });
       toast.success('Pengguna berhasil dihapus!');
       fetchUsers();
     } catch (err: any) {

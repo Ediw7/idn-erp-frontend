@@ -124,11 +124,11 @@ const SptMasa1111: React.FC = () => {
     try {
       let response;
       if (form.id) {
-        // Update existing record
-        response = await axiosClient.put(`/api/spt-masa/${form.id}`, form);
+        // Update existing - reuse create endpoint with id
+        response = await sptMasaApi.save(form as any);
       } else {
         // Create new record
-        response = await axiosClient.post('/api/spt-masa', form);
+        response = await sptMasaApi.save(form as any);
       }
       
       toast.success('SPT Masa 1111 berhasil disimpan');
@@ -162,7 +162,7 @@ const SptMasa1111: React.FC = () => {
     
     setIsLoading(true);
     try {
-      await axiosClient.delete(`/api/spt-masa/${form.id}`);
+      await sptMasaApi.delete(form.id);
       toast.success('Dokumen SPT berhasil dihapus');
       handleNew();
       fetchInitialData();
@@ -188,7 +188,7 @@ const SptMasa1111: React.FC = () => {
 
     setIsLoading(true);
     try {
-      await axiosClient.patch(`/api/spt-masa/${form.id}/lock`, { is_locked: newLockStatus });
+      await sptMasaApi.save({ ...form, is_locked: newLockStatus } as any);
       setForm((prev: any) => ({ ...prev, is_locked: newLockStatus }));
       toast.success(`SPT berhasil di-${actionText.toLowerCase()}`);
     } catch (error) {
