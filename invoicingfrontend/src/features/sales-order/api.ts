@@ -42,6 +42,8 @@ export interface SalesOrderData {
   potongan_harga: number;
   ppn_persen: number;
   ppn_amount?: number;
+  ppnbm_persen?: number;
+  ppnbm_amount?: number;
   ongkos_angkut: number;
   total?: number;
   create_date?: string;

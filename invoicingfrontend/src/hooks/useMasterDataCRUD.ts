@@ -65,7 +65,7 @@ export function useMasterDataCRUD<T extends { id?: number }>({
       setIsModalOpen(false);
       fetchData();
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.');
+      toast.error(error?.message || error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.');
     }
   };
 
@@ -78,7 +78,7 @@ export function useMasterDataCRUD<T extends { id?: number }>({
       toast.success('Data berhasil dihapus!');
       fetchData();
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Terjadi kesalahan saat menghapus data.');
+      toast.error(error?.message || error?.response?.data?.message || 'Terjadi kesalahan saat menghapus data.');
     }
   };
 

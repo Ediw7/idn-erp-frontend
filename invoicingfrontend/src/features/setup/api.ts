@@ -16,7 +16,7 @@ export interface CompanyData {
   no_serial?: string;
   npwp: string;
   nitku: string;
-  nama_pkp?: string;
+  nama_pkf?: string;
   kpp?: string;
   nppkp?: string;
   tgl_pengukuhan?: string;

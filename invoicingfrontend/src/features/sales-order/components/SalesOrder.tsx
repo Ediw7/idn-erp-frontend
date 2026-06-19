@@ -22,6 +22,7 @@ const SalesOrder: React.FC = () => {
   const [salesmans, setSalesmans] = useState<SalesmanData[]>([]);
   const [items, setItems] = useState<ItemData[]>([]);
   const [gudangs, setGudangs] = useState<GudangData[]>([]);
+  const [wajibPpnbm, setWajibPpnbm] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
 
   const [periode, setPeriode] = useState('2026-06');
@@ -44,7 +45,7 @@ const SalesOrder: React.FC = () => {
     no_so: '', tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
     no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
     tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
-    potongan_harga: 0, ppn_persen: 10, ongkos_angkut: 0, 
+    potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0, 
     lines: [{ item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: '' }]
   });
 
@@ -57,20 +58,22 @@ const SalesOrder: React.FC = () => {
   const fetchInitialData = async () => {
     setLoadingData(true);
     try {
-      const [resSo, p, m, py, s, i, g] = await Promise.all([
+      const [resSo, p, m, py, s, i, g, company] = await Promise.all([
         salesOrderApi.getAll().catch(() => []), 
         setupApi.getPelanggan().catch(() => []), 
         setupApi.getMataUang().catch(() => []),
         setupApi.getPembayaran().catch(() => []), 
         setupApi.getSalesman().catch(() => []), 
         setupApi.getItem().catch(() => []),
-        setupApi.getGudang().catch(() => [])
+        setupApi.getGudang().catch(() => []),
+        setupApi.getPerusahaan().catch(() => null)
       ]);
 
       const soData = resSo || [];
       setDataList(soData);
       setPelanggans(p || []); setMataUangs(m || []); setPembayarans(py || []);
       setSalesmans(s || []); setItems(i || []); setGudangs(g || []);
+      if (company) setWajibPpnbm(!!company.wajib_ppnbm);
 
       if (soData.length > 0) {
         setForm(soData[0]);
@@ -91,7 +94,7 @@ const SalesOrder: React.FC = () => {
         no_so: res.no_so, tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
         no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
         tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
-        potongan_harga: 0, ppn_persen: 10, ongkos_angkut: 0, 
+        potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0, 
         lines: [] // Empty lines for TAMBAH BARU header
       });
       setShowNewSoModal(true);
@@ -203,7 +206,7 @@ const SalesOrder: React.FC = () => {
           no_so: '', tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
           no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
           tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
-          potongan_harga: 0, ppn_persen: 10, ongkos_angkut: 0, 
+          potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0, 
           lines: [{ item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: '' }]
         });
       }
@@ -223,7 +226,8 @@ const SalesOrder: React.FC = () => {
   const subtotal = calculateSubtotal();
   const dpp = subtotal - (form.potongan_harga || 0);
   const ppnAmount = dpp * (form.ppn_persen || 0) / 100;
-  const total = dpp + ppnAmount + (form.ongkos_angkut || 0);
+  const ppnbmAmount = wajibPpnbm ? dpp * (form.ppnbm_persen || 0) / 100 : 0;
+  const total = dpp + ppnAmount + ppnbmAmount + (form.ongkos_angkut || 0);
 
   const handlePelangganChange = (id: number) => {
     const p = pelanggans.find(x => x.id === id);
@@ -603,7 +607,16 @@ const SalesOrder: React.FC = () => {
                     </div>
                     <input type="text" readOnly className="w-48 px-3 py-1.5 text-right bg-slate-100 border border-slate-300 font-mono text-sm rounded-sm" value={ppnAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} />
                   </div>
-                  <div className="flex items-center justify-between">
+                  {wajibPpnbm && (
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-700">PPnBM (%)</span>
+                        <input disabled={isReadOnly} type="number" className="w-16 px-2 py-1.5 text-center bg-white border border-slate-300 focus:outline-none focus:border-blue-500 text-sm rounded-sm disabled:bg-slate-100 disabled:text-slate-500" value={form.ppnbm_persen || ''} onChange={e => setForm({ ...form, ppnbm_persen: Number(e.target.value) })} />
+                      </div>
+                      <input type="text" readOnly className="w-48 px-3 py-1.5 text-right bg-slate-100 border border-slate-300 font-mono text-sm rounded-sm text-purple-700" value={ppnbmAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} />
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between mt-2">
                     <span className="text-sm font-semibold text-slate-700">Ongkos Angkut</span>
                     <input disabled={isReadOnly} type="number" className="w-48 px-3 py-1.5 text-right bg-white border border-slate-300 focus:outline-none focus:border-blue-500 font-mono text-sm rounded-sm disabled:bg-slate-100 disabled:text-slate-500" value={form.ongkos_angkut || ''} onChange={e => setForm({ ...form, ongkos_angkut: Number(e.target.value) })} />
                   </div>

@@ -20,7 +20,7 @@ const SetupPerusahaan: React.FC = () => {
     no_serial: '',
     npwp: '',
     nitku: '',
-    nama_pkp: '',
+    nama_pkf: '',
     kpp: '',
     nppkp: '',
     tgl_pengukuhan: '',
@@ -70,7 +70,7 @@ const SetupPerusahaan: React.FC = () => {
         no_serial: initialData.no_serial || '',
         npwp: initialData.npwp || '',
         nitku: initialData.nitku || '',
-        nama_pkp: initialData.nama_pkp || '',
+        nama_pkf: initialData.nama_pkf || '',
         kpp: initialData.kpp || '',
         nppkp: initialData.nppkp || '',
         tgl_pengukuhan: initialData.tgl_pengukuhan || '',
@@ -207,8 +207,8 @@ const SetupPerusahaan: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
               <div className="space-y-4">
                 <div>
-                  <label className={labelClass}>Nama PKP</label>
-                  <input type="text" name="nama_pkp" value={formData.nama_pkp} onChange={handleChange} className={inputClass} />
+                  <label className={labelClass}>Nama PKF</label>
+                  <input type="text" name="nama_pkf" value={formData.nama_pkf} onChange={handleChange} className={inputClass} />
                 </div>
                 <div>
                   <label className={labelClass}>KPP</label>

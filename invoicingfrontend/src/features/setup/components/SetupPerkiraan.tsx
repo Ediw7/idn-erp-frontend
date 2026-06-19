@@ -67,7 +67,7 @@ const SetupPerkiraan: React.FC = () => {
                 setCurrentPage(1);
               }}
               className="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-slate-500 focus:border-slate-500 transition-colors"
-              placeholder="Ketik nomor untuk live search..."
+              placeholder="Pencarian No. Perkiraan..."
             />
           </div>
         </div>
@@ -85,7 +85,7 @@ const SetupPerkiraan: React.FC = () => {
                 setCurrentPage(1);
               }}
               className="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-sm text-sm focus:outline-none focus:ring-1 focus:ring-slate-500 focus:border-slate-500 transition-colors"
-              placeholder="Ketik nama untuk live search..."
+              placeholder="Pencarian Nama Perkiraan..."
             />
           </div>
         </div>
