@@ -46,6 +46,11 @@ const TransferBarang: React.FC = () => {
         ]);
         setGudangs(gudRes);
         setItems(itemRes);
+        
+        const defGudang = (gudRes || []).find((x: any) => x.is_default);
+        if (defGudang && !form.gudang_asal_id) {
+          setForm(prev => ({ ...prev, gudang_asal_id: defGudang.id! }));
+        }
       } catch (error: any) {
         toast.error('Gagal memuat data master: ' + error.message);
       }
@@ -101,10 +106,11 @@ const TransferBarang: React.FC = () => {
   };
 
   const handleBaru = () => {
+    const defGudang = gudangs.find(g => g.is_default);
     setForm({
       no_bukti: '',
       tanggal: new Date().toISOString().split('T')[0],
-      gudang_asal_id: '',
+      gudang_asal_id: defGudang ? defGudang.id! : '',
       gudang_tujuan_id: '',
       keterangan: ''
     });

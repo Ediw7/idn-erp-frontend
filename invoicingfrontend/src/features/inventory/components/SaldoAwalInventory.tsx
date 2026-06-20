@@ -101,8 +101,9 @@ const SaldoAwalInventory: React.FC = () => {
   });
 
   const handleAddNew = () => {
+    const defGudang = gudangs.find(g => (g as any).is_default);
     setFormData({
-      gudang_id: gudangs.length > 0 ? gudangs[0].id : null,
+      gudang_id: defGudang ? defGudang.id : (gudangs.length > 0 ? gudangs[0].id : null),
       tanggal: new Date().toISOString().split('T')[0],
       keterangan: '',
       lines: [createEmptyLine()]

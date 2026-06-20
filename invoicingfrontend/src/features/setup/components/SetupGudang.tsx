@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, Search, X, Save } from 'lucide-react';
 import { setupApi, GudangData } from '../api';
 import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 
 const SetupGudang: React.FC = () => {
+  const confirm = useConfirm();
   const {
     list, isLoading, isModalOpen, setIsModalOpen,
     editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
@@ -22,6 +24,17 @@ const SetupGudang: React.FC = () => {
     item.kode_gudang.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleDefaultChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    if (isChecked) {
+      const existingDefault = list.find(g => g.is_default && g.id !== editForm.id);
+      if (existingDefault) {
+        const isConfirmed = await confirm(`Gudang "${existingDefault.nama_gudang}" saat ini adalah gudang default. Apakah Anda yakin ingin menggantinya?`);
+        if (!isConfirmed) return;
+      }
+    }
+    setEditForm({...editForm, is_default: isChecked});
+  };
 
   const inputClass = "w-full px-3 py-1.5 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white";
 
@@ -157,7 +170,7 @@ const SetupGudang: React.FC = () => {
                   type="checkbox" 
                   id="is_default_gudang"
                   checked={editForm.is_default} 
-                  onChange={e => setEditForm({...editForm, is_default: e.target.checked})} 
+                  onChange={handleDefaultChange} 
                   className="w-4 h-4 text-blue-600 rounded border-slate-300 cursor-pointer" 
                 />
                 <label htmlFor="is_default_gudang" className="text-xs font-semibold text-slate-700 cursor-pointer select-none">

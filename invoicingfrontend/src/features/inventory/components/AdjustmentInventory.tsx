@@ -45,6 +45,11 @@ const AdjustmentInventory: React.FC = () => {
         ]);
         setGudangs(gudRes);
         setItems(itemRes);
+        
+        const defGudang = (gudRes || []).find((x: any) => x.is_default);
+        if (defGudang && !form.gudang_id) {
+          setForm(prev => ({ ...prev, gudang_id: defGudang.id! }));
+        }
       } catch (error: any) {
         toast.error('Gagal memuat data master: ' + error.message);
       }
@@ -100,10 +105,11 @@ const AdjustmentInventory: React.FC = () => {
   };
 
   const handleBaru = () => {
+    const defGudang = gudangs.find(g => g.is_default);
     setForm({
       no_bukti: '',
       tanggal: new Date().toISOString().split('T')[0],
-      gudang_id: '',
+      gudang_id: defGudang ? defGudang.id! : '',
       keterangan: ''
     });
     setDetails([{ id: Date.now().toString(), item_id: '', kode_barang: '', nama_barang: '', satuan: '', qty: '', total_hpp: '' }]);
