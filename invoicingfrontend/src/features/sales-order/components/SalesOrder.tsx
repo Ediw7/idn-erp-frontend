@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FilePlus, Trash2, Printer, Save, Search, Send, X } from 'lucide-react';
+import { FilePlus, Trash2, Printer, Save, Search, Send, X, Edit2, Plus } from 'lucide-react';
 import { useConfirm } from '../../../contexts/ConfirmContext';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { salesOrderApi, SalesOrderData, SalesOrderLine } from '../api';
@@ -26,7 +26,7 @@ const SalesOrder: React.FC = () => {
   const [loadingData, setLoadingData] = useState(true);
 
   const [periode, setPeriode] = useState('2026-06');
-  const [activeTab, setActiveTab] = useState<'detail' | 'surat_jalan' | 'outstanding'>('detail');
+  const [activeTab, setActiveTab] = useState<'umum' | 'detail' | 'surat_jalan' | 'outstanding'>('umum');
 
   const [showSjModal, setShowSjModal] = useState(false);
   const [sjForm, setSjForm] = useState({
@@ -46,7 +46,14 @@ const SalesOrder: React.FC = () => {
     no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
     tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
     potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0, 
-    lines: [{ item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: '' }]
+    potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0, 
+    lines: []
+  });
+
+  const [isLineModalOpen, setIsLineModalOpen] = useState(false);
+  const [editLineIndex, setEditLineIndex] = useState<number | null>(null);
+  const [lineForm, setLineForm] = useState<SalesOrderLine>({
+    item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: ''
   });
 
   const [isNew, setIsNew] = useState(false);
@@ -125,7 +132,7 @@ const SalesOrder: React.FC = () => {
         setCurrentIndex(soData.findIndex(so => so.id === newlyCreated.id));
       }
       setIsNew(false);
-      setActiveTab('detail');
+      setActiveTab('umum');
       setShowNewSoModal(false);
       toast.success('Header Sales Order berhasil dibuat. Silakan lengkapi Detail Barang!');
     } catch (error) {
@@ -231,40 +238,43 @@ const SalesOrder: React.FC = () => {
 
   const handlePelangganChange = (id: number) => {
     const p = pelanggans.find(x => x.id === id);
-    // Apply customer discount to all existing lines
     const discPersen = p?.diskon || 0;
     const newLines = (form.lines || []).map(line => ({ ...line, disc_persen: discPersen }));
     setForm({ ...form, pelanggan_id: id, alamat_kirim: p?.alamat_kirim || '', lines: newLines });
   };
 
-  const addLine = () => {
+  const handleOpenAddLine = () => {
     const p = pelanggans.find(x => x.id === form.pelanggan_id);
     const discPersen = p?.diskon || 0;
-    setForm({
-      ...form,
-      lines: [...(form.lines || []), { item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: discPersen, disc_harga: 0, keterangan: '' }]
-    });
+    setEditLineIndex(null);
+    setLineForm({ item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: discPersen, disc_harga: 0, keterangan: '' });
+    setIsLineModalOpen(true);
+  };
+
+  const handleOpenEditLine = (idx: number) => {
+    setEditLineIndex(idx);
+    setLineForm({ ...form.lines![idx] });
+    setIsLineModalOpen(true);
+  };
+
+  const handleSaveLine = () => {
+    if (!lineForm.item_id) {
+      toast.error('Item harus dipilih!');
+      return;
+    }
+    const newLines = [...(form.lines || [])];
+    if (editLineIndex !== null) {
+      newLines[editLineIndex] = lineForm;
+    } else {
+      newLines.push(lineForm);
+    }
+    setForm({ ...form, lines: newLines });
+    setIsLineModalOpen(false);
   };
 
   const removeLine = (idx: number) => {
     const newLines = [...(form.lines || [])];
     newLines.splice(idx, 1);
-    setForm({ ...form, lines: newLines });
-  };
-
-  const updateLine = (idx: number, field: keyof SalesOrderLine, value: any) => {
-    const newLines = [...(form.lines || [])];
-    const line = { ...newLines[idx], [field]: value };
-    if (field === 'item_id' && value) {
-      const item = items.find(x => x.id === value);
-      if (item) {
-        line.satuan = item.satuan;
-        line.harga_satuan = item.harga_jual_1;
-        const p = pelanggans.find(x => x.id === form.pelanggan_id);
-        line.disc_persen = p?.diskon || 0;
-      }
-    }
-    newLines[idx] = line;
     setForm({ ...form, lines: newLines });
   };
 
@@ -326,188 +336,205 @@ const SalesOrder: React.FC = () => {
         </div>
 
         {/* Main Content Area (Flowing) */}
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
 
-          {/* Informasi Umum */}
-          <div className="bg-white border border-slate-300 rounded-sm shadow-sm p-6 shrink-0">
-            <h3 className="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-200">Informasi Umum</h3>
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Kolom Kiri */}
-              <div className="flex-1 flex flex-col gap-3">
-                <div className="flex items-start">
-                  <label className={labelClass}>No. Sales Order</label>
-                  <div className="flex gap-1 flex-1">
-                    <input type="text" className={`${inputClass} font-mono w-48 bg-slate-50`} readOnly value={form.no_so || ''} />
-                    <button className="px-3 py-1.5 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm"><Search size={14} /></button>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <label className={labelClass}>Tgl Sales Order</label>
-                  <input type="date" disabled={isReadOnly} className={`${inputClass} w-48`} value={form.tgl_so || ''} onChange={e => setForm({ ...form, tgl_so: e.target.value })} />
-                </div>
-                <div className="flex items-start">
-                  <label className={labelClass}>Nama Pelanggan</label>
-                  <div className="flex gap-2 w-full">
-                    <select disabled={isReadOnly} className={inputClass} value={form.pelanggan_id || ''} onChange={e => handlePelangganChange(Number(e.target.value))}>
-                      <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
-                      {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
-                    </select>
-                    <button disabled={isReadOnly} className="px-3 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm font-bold text-slate-600 transition-colors disabled:opacity-50" onClick={() => setShowPelangganModal(true)}>+</button>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <label className={labelClass}>Dikirim ke Alamat</label>
-                  <textarea disabled={isReadOnly} className={`${inputClass} h-24 resize-none`} value={form.alamat_kirim || ''} onChange={e => setForm({ ...form, alamat_kirim: e.target.value })} />
-                </div>
+          {/* Mini Header (Always Visible) */}
+          <div className="bg-white border-l-4 border-l-blue-600 border-y border-r border-slate-300 rounded-sm shadow-sm p-4 shrink-0 flex justify-between items-center">
+            <div className="flex gap-12">
+              <div>
+                <span className="block text-[10px] font-bold text-slate-500 uppercase">No. Sales Order</span>
+                <span className="font-mono text-base font-bold text-slate-800">{form.no_so || 'DRAFT'}</span>
               </div>
-
-              {/* Kolom Tengah */}
-              <div className="flex-1 flex flex-col gap-3">
-                <div className="flex items-start">
-                  <label className={labelClass}>No. PO Pelanggan</label>
-                  <input disabled={isReadOnly} type="text" className={`${inputClass} w-full`} value={form.no_po || ''} onChange={e => setForm({ ...form, no_po: e.target.value })} />
-                </div>
-                <div className="flex items-start">
-                  <label className={labelClass}>Tgl PO</label>
-                  <input disabled={isReadOnly} type="date" className={`${inputClass} w-48`} value={form.tgl_po || ''} onChange={e => setForm({ ...form, tgl_po: e.target.value })} />
-                </div>
-                <div className="flex items-start">
-                  <label className={labelClass}>Mata Uang</label>
-                  <select disabled={isReadOnly} className={`${inputClass} w-48`} value={form.mata_uang_id || ''} onChange={e => setForm({ ...form, mata_uang_id: Number(e.target.value) || null })}>
-                    <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
-                    {mataUangs.map(m => <option key={m.id} value={m.id}>{m.kode}</option>)}
-                  </select>
-                </div>
-                <div className="flex items-start">
-                  <label className={labelClass}>Cara Pembayaran</label>
-                  <select disabled={isReadOnly} className={inputClass} value={form.pembayaran_id || ''} onChange={e => setForm({ ...form, pembayaran_id: Number(e.target.value) || null })}>
-                    <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
-                    {pembayarans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
-                  </select>
-                </div>
-                <div className="flex items-start">
-                  <label className={labelClass}>Salesman</label>
-                  <select disabled={isReadOnly} className={inputClass} value={form.salesman_id || ''} onChange={e => setForm({ ...form, salesman_id: Number(e.target.value) || null })}>
-                    <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
-                    {salesmans.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
-                  </select>
-                </div>
-                <div className="flex items-start">
-                  <label className={labelClass}>Tgl Kirim</label>
-                  <input disabled={isReadOnly} type="date" className={`${inputClass} w-48`} value={form.tgl_kirim || ''} onChange={e => setForm({ ...form, tgl_kirim: e.target.value })} />
-                </div>
-                <div className="flex items-start">
-                  <label className={labelClass}>Dipesan Oleh</label>
-                  <input disabled={isReadOnly} type="text" className={`${inputClass} w-full`} value={form.dipesan_oleh || ''} onChange={e => setForm({ ...form, dipesan_oleh: e.target.value })} />
-                </div>
+              <div>
+                <span className="block text-[10px] font-bold text-slate-500 uppercase">Pelanggan</span>
+                <span className="text-base font-bold text-slate-800">{pelanggans.find(p => p.id === form.pelanggan_id)?.nama || '-'}</span>
               </div>
-
-              {/* Kolom Kanan - Audit */}
-              <div className="w-[280px] flex flex-col gap-4">
-                <div className="flex gap-4 items-center bg-slate-50 p-3 border border-slate-200 rounded-sm">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
-                    <input type="checkbox" checked={form.is_closed} onChange={e => setForm({ ...form, is_closed: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" /> Closed
-                  </label>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
-                    <input type="checkbox" checked={form.is_void} onChange={() => handleVoid()} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />BATALKAN</label>
-                </div>
-
-                <div className="border border-slate-300 p-3 relative mt-2 rounded-sm bg-white shadow-sm">
-                  <span className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Record Created</span>
-                  <div className="flex gap-2 mt-2">
-                    <input type="text" className="w-full px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 font-mono rounded-sm" readOnly value={form.create_date ? new Date(form.create_date).toLocaleString('id-ID') : '-'} />
-                    <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.create_uid_name || user?.name || 'Unknown'} />
-                  </div>
-                </div>
-                <div className="border border-slate-300 p-3 relative mt-3 rounded-sm bg-white shadow-sm">
-                  <span className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Record Modified</span>
-                  <div className="flex gap-2 mt-2">
-                    <input type="text" className="w-full px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 font-mono rounded-sm" readOnly value={form.write_date ? new Date(form.write_date).toLocaleString('id-ID') : '-'} />
-                    <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.write_uid_name || user?.name || 'Unknown'} />
-                  </div>
-                </div>
+              <div>
+                <span className="block text-[10px] font-bold text-slate-500 uppercase">Tanggal</span>
+                <span className="text-base font-bold text-slate-800">{form.tgl_so || '-'}</span>
               </div>
+            </div>
+            <div className="flex gap-3">
+               {form.is_void && <span className="px-3 py-1 bg-red-100 text-red-700 font-bold text-xs rounded-sm border border-red-200">DIBATALKAN (VOID)</span>}
+               {form.is_closed && <span className="px-3 py-1 bg-slate-200 text-slate-700 font-bold text-xs rounded-sm border border-slate-300">CLOSED</span>}
             </div>
           </div>
 
           {/* Tabel Data (Sistem Tab) */}
-          <div className="bg-white border border-slate-300 rounded-sm shadow-sm flex flex-col shrink-0">
+          <div className="bg-white border border-slate-300 rounded-sm shadow-sm flex flex-col shrink-0 flex-1">
             <div className="px-3 pt-2 bg-slate-100 border-b border-slate-300 flex gap-1">
+              <button className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === 'umum' ? 'bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm' : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors'}`} onClick={() => setActiveTab('umum')}>Informasi Umum</button>
               <button className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === 'detail' ? 'bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm' : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors'}`} onClick={() => setActiveTab('detail')}>Detail Barang/Jasa</button>
               <button className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === 'surat_jalan' ? 'bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm' : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors'}`} onClick={() => setActiveTab('surat_jalan')}>Surat Jalan</button>
               <button className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === 'outstanding' ? 'bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm' : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors'}`} onClick={() => setActiveTab('outstanding')}>Outstanding</button>
             </div>
             
-            <div className="overflow-x-auto min-h-[250px]">
+            <div className="overflow-x-auto min-h-[350px]">
+              {activeTab === 'umum' && (
+                <div className="p-6">
+                  <div className="flex flex-col lg:flex-row gap-8">
+                    {/* Kolom Kiri */}
+                    <div className="flex-1 flex flex-col gap-3">
+                      <div className="flex items-start">
+                        <label className={labelClass}>No. Sales Order</label>
+                        <div className="flex gap-1 flex-1">
+                          <input type="text" className={`${inputClass} font-mono w-48 bg-slate-50`} readOnly value={form.no_so || ''} />
+                          <button className="px-3 py-1.5 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm"><Search size={14} /></button>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Tgl Sales Order</label>
+                        <input type="date" disabled={isReadOnly} className={`${inputClass} w-48`} value={form.tgl_so || ''} onChange={e => setForm({ ...form, tgl_so: e.target.value })} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Nama Pelanggan</label>
+                        <div className="flex gap-2 w-full">
+                          <select disabled={isReadOnly} className={inputClass} value={form.pelanggan_id || ''} onChange={e => handlePelangganChange(Number(e.target.value))}>
+                            <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
+                            {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
+                          </select>
+                          <button disabled={isReadOnly} className="px-3 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm font-bold text-slate-600 transition-colors disabled:opacity-50" onClick={() => setShowPelangganModal(true)}>+</button>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Dikirim ke Alamat</label>
+                        <textarea disabled={isReadOnly} className={`${inputClass} h-24 resize-none`} value={form.alamat_kirim || ''} onChange={e => setForm({ ...form, alamat_kirim: e.target.value })} />
+                      </div>
+                    </div>
+
+                    {/* Kolom Tengah */}
+                    <div className="flex-1 flex flex-col gap-3">
+                      <div className="flex items-start">
+                        <label className={labelClass}>No. PO Pelanggan</label>
+                        <input disabled={isReadOnly} type="text" className={`${inputClass} w-full`} value={form.no_po || ''} onChange={e => setForm({ ...form, no_po: e.target.value })} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Tgl PO</label>
+                        <input disabled={isReadOnly} type="date" className={`${inputClass} w-48`} value={form.tgl_po || ''} onChange={e => setForm({ ...form, tgl_po: e.target.value })} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Mata Uang</label>
+                        <select disabled={isReadOnly} className={`${inputClass} w-48`} value={form.mata_uang_id || ''} onChange={e => setForm({ ...form, mata_uang_id: Number(e.target.value) || null })}>
+                          <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
+                          {mataUangs.map(m => <option key={m.id} value={m.id}>{m.kode}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Cara Pembayaran</label>
+                        <select disabled={isReadOnly} className={inputClass} value={form.pembayaran_id || ''} onChange={e => setForm({ ...form, pembayaran_id: Number(e.target.value) || null })}>
+                          <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
+                          {pembayarans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Salesman</label>
+                        <select disabled={isReadOnly} className={inputClass} value={form.salesman_id || ''} onChange={e => setForm({ ...form, salesman_id: Number(e.target.value) || null })}>
+                          <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
+                          {salesmans.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Tgl Kirim</label>
+                        <input disabled={isReadOnly} type="date" className={`${inputClass} w-48`} value={form.tgl_kirim || ''} onChange={e => setForm({ ...form, tgl_kirim: e.target.value })} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Dipesan Oleh</label>
+                        <input disabled={isReadOnly} type="text" className={`${inputClass} w-full`} value={form.dipesan_oleh || ''} onChange={e => setForm({ ...form, dipesan_oleh: e.target.value })} />
+                      </div>
+                    </div>
+
+                    {/* Kolom Kanan - Audit */}
+                    <div className="w-[280px] flex flex-col gap-4">
+                      <div className="flex gap-4 items-center bg-slate-50 p-3 border border-slate-200 rounded-sm">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
+                          <input type="checkbox" checked={form.is_closed} onChange={e => setForm({ ...form, is_closed: e.target.checked })} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" /> Closed
+                        </label>
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
+                          <input type="checkbox" checked={form.is_void} onChange={() => handleVoid()} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />BATALKAN</label>
+                      </div>
+
+                      <div className="border border-slate-300 p-3 relative mt-2 rounded-sm bg-white shadow-sm">
+                        <span className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Record Created</span>
+                        <div className="flex gap-2 mt-2">
+                          <input type="text" className="w-full px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 font-mono rounded-sm" readOnly value={form.create_date ? new Date(form.create_date).toLocaleString('id-ID') : '-'} />
+                          <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.create_uid_name || user?.name || 'Unknown'} />
+                        </div>
+                      </div>
+                      <div className="border border-slate-300 p-3 relative mt-3 rounded-sm bg-white shadow-sm">
+                        <span className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Record Modified</span>
+                        <div className="flex gap-2 mt-2">
+                          <input type="text" className="w-full px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 font-mono rounded-sm" readOnly value={form.write_date ? new Date(form.write_date).toLocaleString('id-ID') : '-'} />
+                          <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.write_uid_name || user?.name || 'Unknown'} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               {activeTab === 'detail' && (
-                <table className="w-full text-sm text-left">
-                  <thead className="text-xs text-slate-700 bg-slate-100 border-b border-slate-300">
-                    <tr>
-                      <th className="px-3 py-2 border-r border-slate-300 font-semibold w-12 text-center">No.</th>
-                      <th className="px-3 py-2 border-r border-slate-300 font-semibold w-64">Kode / Nama Barang</th>
-                      <th className="px-3 py-2 border-r border-slate-300 font-semibold w-24 text-center">Satuan</th>
-                      <th className="px-3 py-2 border-r border-slate-300 font-semibold w-24 text-right">Kuantum</th>
-                      <th className="px-3 py-2 border-r border-slate-300 font-semibold w-32 text-right">Harga Satuan</th>
-                      <th className="px-3 py-2 border-r border-slate-300 font-semibold w-20 text-center">% Disc</th>
-                      <th className="px-3 py-2 border-r border-slate-300 font-semibold w-32 text-right">Disc Harga</th>
-                      <th className="px-3 py-2 border-r border-slate-300 font-semibold w-32 text-right">Harga Jual</th>
-                      <th className="px-3 py-2 border-r border-slate-300 font-semibold">Keterangan</th>
-                      <th className="px-3 py-2 w-12 text-center font-semibold">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {(form.lines || []).map((line, idx) => {
-                      const base = (line.kuantum || 0) * (line.harga_satuan || 0);
-                      const disc = (base * (line.disc_persen || 0) / 100) + (line.disc_harga || 0);
-                      const hJual = base - disc;
-                      return (
-                        <tr key={idx} className="hover:bg-blue-50 transition-colors border-b border-slate-200">
-                          <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">{idx + 1}</td>
-                          <td className="px-3 py-1.5 border-r border-slate-200">
-                            <select disabled={isReadOnly} className="w-full px-2 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 bg-white disabled:bg-slate-100" value={line.item_id || ''} onChange={e => updateLine(idx, 'item_id', Number(e.target.value) || null)}>
-                              <option value="">{loadingData ? 'Loading...' : '-- Pilih Item --'}</option>
-                              {items.map(i => <option key={i.id} value={i.id}>{i.kode} - {i.nama}</option>)}
-                            </select>
-                          </td>
-                          <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input disabled={isReadOnly} type="text" className="w-full px-2 py-1 text-sm text-center border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.satuan || ''} onChange={e => updateLine(idx, 'satuan', e.target.value)} />
-                          </td>
-                          <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input disabled={isReadOnly} type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.kuantum || ''} onChange={e => updateLine(idx, 'kuantum', Number(e.target.value))} />
-                          </td>
-                          <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input disabled={isReadOnly} type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.harga_satuan || ''} onChange={e => updateLine(idx, 'harga_satuan', Number(e.target.value))} />
-                          </td>
-                          <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input disabled={isReadOnly} type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.disc_persen || ''} onChange={e => updateLine(idx, 'disc_persen', Number(e.target.value))} />
-                          </td>
-                          <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input disabled={isReadOnly} type="number" className="w-full px-2 py-1 text-sm text-right border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.disc_harga || ''} onChange={e => updateLine(idx, 'disc_harga', Number(e.target.value))} />
-                          </td>
-                          <td className="px-3 py-1.5 border-r border-slate-200 text-right font-semibold text-slate-800 bg-slate-50">
-                            {hJual.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="px-3 py-1.5 border-r border-slate-200">
-                            <input disabled={isReadOnly} type="text" className="w-full px-2 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-slate-500 disabled:bg-slate-100" value={line.keterangan || ''} onChange={e => updateLine(idx, 'keterangan', e.target.value)} />
-                          </td>
-                          <td className="px-3 py-1.5 text-center">
-                            <button disabled={isReadOnly} onClick={() => removeLine(idx)} className="text-red-500 hover:text-red-700 p-1 rounded transition-colors hover:bg-red-50 disabled:opacity-30 disabled:hover:bg-transparent" title="Hapus">
-                              <Trash2 size={14} />
-                            </button>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                    {!isReadOnly && (
+                <div className="flex flex-col h-full">
+                  {!isReadOnly && (
+                    <div className="p-3 bg-white border-b border-slate-200 shrink-0">
+                      <button onClick={handleOpenAddLine} className="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 transition-colors rounded-sm shadow-sm">
+                        <Plus size={14} /> TAMBAH BARANG
+                      </button>
+                    </div>
+                  )}
+                  <table className="w-full text-sm text-left">
+                    <thead className="text-xs text-slate-700 bg-slate-100 border-b border-slate-300">
                       <tr>
-                        <td className="px-3 py-2 border-r border-slate-200 text-center">
-                          <button onClick={addLine} className="w-6 h-6 mx-auto bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-sm flex items-center justify-center font-bold text-lg shadow-sm">+</button>
-                        </td>
-                        <td colSpan={9} className="px-4 py-2 text-sm text-slate-400 italic bg-slate-50">Klik tombol + untuk menambah baris barang/jasa</td>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-12 text-center">No.</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-64">Kode / Nama Barang</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-24 text-center">Satuan</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-24 text-right">Kuantum</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-32 text-right">Harga Satuan</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-20 text-center">% Disc</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-32 text-right">Disc Harga</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-32 text-right">Harga Jual</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold">Keterangan</th>
+                        <th className="px-3 py-2 w-16 text-center font-semibold">Aksi</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {(form.lines || []).map((line, idx) => {
+                        const base = (line.kuantum || 0) * (line.harga_satuan || 0);
+                        const disc = (base * (line.disc_persen || 0) / 100) + (line.disc_harga || 0);
+                        const hJual = base - disc;
+                        const itemInfo = items.find(i => i.id === line.item_id);
+                        return (
+                          <tr key={idx} className="hover:bg-blue-50 transition-colors border-b border-slate-200">
+                            <td className="px-3 py-1.5 border-r border-slate-200 text-center font-medium">{idx + 1}</td>
+                            <td className="px-3 py-1.5 border-r border-slate-200">
+                              {itemInfo ? `${itemInfo.kode} - ${itemInfo.nama}` : '-'}
+                            </td>
+                            <td className="px-3 py-1.5 border-r border-slate-200 text-center">{line.satuan || '-'}</td>
+                            <td className="px-3 py-1.5 border-r border-slate-200 text-right">{line.kuantum}</td>
+                            <td className="px-3 py-1.5 border-r border-slate-200 text-right">{(line.harga_satuan || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td className="px-3 py-1.5 border-r border-slate-200 text-center">{line.disc_persen || 0}%</td>
+                            <td className="px-3 py-1.5 border-r border-slate-200 text-right">{(line.disc_harga || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                            <td className="px-3 py-1.5 border-r border-slate-200 text-right font-semibold text-slate-800 bg-slate-50">
+                              {hJual.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="px-3 py-1.5 border-r border-slate-200">{line.keterangan || '-'}</td>
+                            <td className="px-3 py-1.5 text-center flex justify-center gap-1">
+                              <button disabled={isReadOnly} onClick={() => handleOpenEditLine(idx)} className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors hover:bg-blue-50 disabled:opacity-30 disabled:hover:bg-transparent" title="Edit">
+                                <Edit2 size={14} />
+                              </button>
+                              <button disabled={isReadOnly} onClick={() => removeLine(idx)} className="text-red-500 hover:text-red-700 p-1 rounded transition-colors hover:bg-red-50 disabled:opacity-30 disabled:hover:bg-transparent" title="Hapus">
+                                <Trash2 size={14} />
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                      {(!form.lines || form.lines.length === 0) && (
+                        <tr>
+                          <td colSpan={10} className="px-4 py-8 text-center text-slate-500 italic bg-slate-50">Belum ada barang. Klik tombol Tambah Barang di atas.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               )}
 
               {activeTab === 'surat_jalan' && (
