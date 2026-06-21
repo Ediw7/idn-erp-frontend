@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axiosClient from '../../../lib/axiosClient';
-import { Plus, Trash2, X, UserPlus, Search, Save } from 'lucide-react';
+import { Plus, Trash2, X, UserPlus, Search, Save, Edit2 } from 'lucide-react';
 import { setupApi, PelangganData, ProyekData, MataUangData } from '../../setup/api';
 import SetupPelangganForm from '../../setup/components/SetupPelangganForm';
 import { useConfirm } from '../../../contexts/ConfirmContext';
@@ -36,6 +36,7 @@ const SaldoAwalPiutang: React.FC = () => {
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
   const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'ALL' | 'UNPAID' | 'PAID'>('ALL');
   
   const [editForm, setEditForm] = useState<Omit<Partial<SaldoAwal>, 'saldo_invoice'> & { saldo_invoice?: number | '' }>({
     no_invoice: '',
@@ -102,10 +103,12 @@ const SaldoAwalPiutang: React.FC = () => {
     }
 
     try {
-      const res = await axiosClient.post('/api/saldo-awal-piutang/BUAT BARU', editForm);
+      const endpoint = editForm.id ? '/api/saldo-awal-piutang/update' : '/api/saldo-awal-piutang/create';
+      const res = await axiosClient.post(endpoint, editForm);
       if (res.data.status === 'success') {
         setIsFormOpen(false);
         fetchData();
+        toast.success(editForm.id ? 'Data berhasil diperbarui!' : 'Data berhasil disimpan!');
       } else {
         toast.error(res.data.message);
       }
@@ -114,12 +117,28 @@ const SaldoAwalPiutang: React.FC = () => {
     }
   };
 
+  const handleEdit = (row: SaldoAwal) => {
+    setEditForm({
+      id: row.id,
+      no_invoice: row.no_invoice,
+      tanggal: row.tanggal,
+      pelanggan_id: row.pelanggan_id,
+      proyek_id: row.proyek_id,
+      tgl_jt: row.tgl_jt,
+      mata_uang_id: row.mata_uang_id,
+      saldo_invoice: row.saldo_invoice,
+      is_paid: row.is_paid
+    });
+    setIsFormOpen(true);
+  };
+
   const handleDelete = async (id: number) => {
     const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus data ini?');
     if (!isConfirmed) return;
     try {
-      await axiosClient.post('/api/saldo-awal-piutang/HAPUS', { id });
+      await axiosClient.post('/api/saldo-awal-piutang/delete', { id });
       fetchData();
+      toast.success('Data berhasil dihapus!');
     } catch (error) {
       console.error('Failed to HAPUS', error);
       toast.error('Gagal menghapus data');
@@ -132,12 +151,13 @@ const SaldoAwalPiutang: React.FC = () => {
     if (!isConfirmed) return;
     
     try {
-      const res = await axiosClient.post('/api/saldo-awal-piutang/PERBARUI', {
+      const res = await axiosClient.post('/api/saldo-awal-piutang/update', {
         id: row.id,
         is_paid: !row.is_paid
       });
       if (res.data.status === 'success') {
         fetchData();
+        toast.success(`Status berhasil diperbarui!`);
       } else {
         toast.error(res.data.message);
       }
@@ -158,10 +178,11 @@ const SaldoAwalPiutang: React.FC = () => {
     }, 1500);
   };
 
-  const filteredData = data.filter(item => 
-    item.pelanggan_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.no_invoice.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredData = data.filter(item => {
+    const matchSearch = item.pelanggan_name.toLowerCase().includes(searchQuery.toLowerCase()) || item.no_invoice.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = filterStatus === 'ALL' ? true : (filterStatus === 'PAID' ? item.is_paid : !item.is_paid);
+    return matchSearch && matchStatus;
+  });
 
   const totalSaldo = filteredData.filter(item => !item.is_paid).reduce((sum, item) => sum + Number(item.saldo_invoice || 0), 0);
 
@@ -193,17 +214,32 @@ const SaldoAwalPiutang: React.FC = () => {
       </div>
 
       <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <label className="text-sm font-semibold text-slate-700">Filter Pelanggan</label>
-          <div className="relative">
-            <input 
-              type="text" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-3 pr-8 py-1.5 border border-slate-300 rounded-sm text-sm w-72 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white" 
-              placeholder="Cari nama pelanggan atau invoice..."
-            />
-            <Search size={14} className="absolute right-2.5 top-2.5 text-slate-400" />
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-semibold text-slate-700">Filter Pencarian</label>
+            <div className="relative">
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-3 pr-8 py-1.5 border border-slate-300 rounded-sm text-sm w-72 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white" 
+                placeholder="Cari pelanggan atau invoice..."
+              />
+              <Search size={14} className="absolute right-2.5 top-2.5 text-slate-400" />
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-semibold text-slate-700">Status Lunas</label>
+            <select 
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value as any)}
+              className="pl-3 pr-8 py-1.5 border border-slate-300 rounded-sm text-sm w-48 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white"
+            >
+              <option value="ALL">Semua Status</option>
+              <option value="UNPAID">Belum Lunas (Unpaid)</option>
+              <option value="PAID">Sudah Lunas (Paid)</option>
+            </select>
           </div>
         </div>
       </div>
@@ -238,7 +274,18 @@ const SaldoAwalPiutang: React.FC = () => {
                     <td className="px-3 py-1.5 border-r border-slate-200">{row.pelanggan_name}</td>
                     <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-xs" title={row.alamat}>{row.alamat}</td>
                     <td className="px-3 py-1.5 border-r border-slate-200">{row.proyek_name}</td>
-                    <td className="px-3 py-1.5 border-r border-slate-200">{row.tgl_jt}</td>
+                    <td className="px-3 py-1.5 border-r border-slate-200">
+                      {row.tgl_jt && (
+                        <div className="flex flex-col gap-0.5">
+                          <span className={(!row.is_paid && new Date(row.tgl_jt) < new Date(new Date().setHours(0,0,0,0))) ? "text-red-600 font-semibold" : ""}>
+                            {row.tgl_jt}
+                          </span>
+                          {(!row.is_paid && new Date(row.tgl_jt) < new Date(new Date().setHours(0,0,0,0))) && (
+                            <span className="w-min px-1.5 py-[1px] rounded text-[9px] font-bold bg-red-100 text-red-700 uppercase tracking-wider">Overdue</span>
+                          )}
+                        </div>
+                      )}
+                    </td>
                     <td className="px-3 py-1.5 border-r border-slate-200">{row.mata_uang_name}</td>
                     <td className="px-3 py-1.5 border-r border-slate-200 text-right">{row.saldo_invoice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                     <td className="px-3 py-1.5 border-r border-slate-200 text-center">
@@ -249,7 +296,10 @@ const SaldoAwalPiutang: React.FC = () => {
                         className="w-4 h-4 text-blue-600 rounded border-gray-300 cursor-pointer" 
                       />
                     </td>
-                    <td className="px-3 py-1.5 text-center">
+                    <td className="px-3 py-1.5 text-center flex justify-center gap-1">
+                      <button onClick={() => handleEdit(row)} className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors hover:bg-blue-50" title="Edit">
+                        <Edit2 size={14} />
+                      </button>
                       <button onClick={() => handleDelete(row.id)} className="text-red-500 hover:text-red-700 p-1 rounded transition-colors hover:bg-red-50" title="Hapus">
                         <Trash2 size={14} />
                       </button>
@@ -278,7 +328,7 @@ const SaldoAwalPiutang: React.FC = () => {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/20 p-4">
           <div className="bg-white rounded-md shadow-2xl border border-slate-300 w-full max-w-2xl overflow-hidden flex flex-col">
             <div className="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
-              <h3 className="font-semibold text-base tracking-wide">Tambah Saldo Awal Piutang</h3>
+              <h3 className="font-semibold text-base tracking-wide">{editForm.id ? 'Ubah Saldo Awal Piutang' : 'Tambah Saldo Awal Piutang'}</h3>
               <button onClick={() => setIsFormOpen(false)} className="text-slate-300 hover:text-white"><X size={20} /></button>
             </div>
             
@@ -300,6 +350,12 @@ const SaldoAwalPiutang: React.FC = () => {
                   <option value="">-- Pilih Pelanggan --</option>
                   {pelanggans.map(p => <option key={p.id} value={p.id}>{p.kode} - {p.nama}</option>)}
                 </select>
+                {editForm.pelanggan_id && (
+                  <div className="mt-2 px-3 py-2 bg-slate-100/80 border border-slate-200 rounded-sm text-xs text-slate-600 leading-relaxed">
+                    <span className="font-semibold block text-slate-700 mb-0.5">Alamat Pelanggan:</span>
+                    {pelanggans.find(p => p.id === editForm.pelanggan_id)?.alamat || <em className="text-slate-400">Tidak ada data alamat</em>}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
