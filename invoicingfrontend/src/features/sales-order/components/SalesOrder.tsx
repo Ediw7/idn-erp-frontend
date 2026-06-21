@@ -231,13 +231,18 @@ const SalesOrder: React.FC = () => {
 
   const handlePelangganChange = (id: number) => {
     const p = pelanggans.find(x => x.id === id);
-    setForm({ ...form, pelanggan_id: id, alamat_kirim: p?.alamat_kirim || '' });
+    // Apply customer discount to all existing lines
+    const discPersen = p?.diskon || 0;
+    const newLines = (form.lines || []).map(line => ({ ...line, disc_persen: discPersen }));
+    setForm({ ...form, pelanggan_id: id, alamat_kirim: p?.alamat_kirim || '', lines: newLines });
   };
 
   const addLine = () => {
+    const p = pelanggans.find(x => x.id === form.pelanggan_id);
+    const discPersen = p?.diskon || 0;
     setForm({
       ...form,
-      lines: [...(form.lines || []), { item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: '' }]
+      lines: [...(form.lines || []), { item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: discPersen, disc_harga: 0, keterangan: '' }]
     });
   };
 
@@ -255,6 +260,8 @@ const SalesOrder: React.FC = () => {
       if (item) {
         line.satuan = item.satuan;
         line.harga_satuan = item.harga_jual_1;
+        const p = pelanggans.find(x => x.id === form.pelanggan_id);
+        line.disc_persen = p?.diskon || 0;
       }
     }
     newLines[idx] = line;

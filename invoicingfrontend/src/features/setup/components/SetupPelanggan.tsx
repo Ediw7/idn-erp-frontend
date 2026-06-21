@@ -55,11 +55,29 @@ const SetupPelanggan: React.FC = () => {
   const handleExportExcel = () => {
     const exportData = list.map(item => ({
       "Kode Pelanggan": item.kode || "",
+      "Ekspor": item.is_ekspor ? "Ya" : "Tidak",
       "Nama Pelanggan": item.nama || "",
+      "Alamat Pelanggan": item.alamat || "",
+      "No. Telepon": item.telepon || "",
+      "No. Fax": item.fax || "",
+      "Alamat Pengiriman": item.alamat_kirim || "",
+      "No. Tlp Kirim": item.telepon_kirim || "",
+      "Fax Kirim": item.fax_kirim || "",
+      "Nama Wajib Pajak": item.nama_wp || "",
       "NPWP": item.npwp || "",
-      "Telepon": item.telepon || "",
+      "No KTP": item.nik || "",
+      "Alamat Wajib Pajak": item.alamat_wp || "",
+      "Jenis Transaksi": JENIS_TRANSAKSI.find(j => j.value === item.jenis_transaksi)?.label || item.jenis_transaksi || "",
+      "Ket Tambahan": item.ket_tambahan || "",
       "Contact Person": item.contact_person || "",
-      "Cara Pembayaran": pembayarans.find(p => p.id === item.pembayaran_id)?.nama || ""
+      "No HP": item.no_hp || "",
+      "Email": item.email || "",
+      "Jabatan": item.jabatan || "",
+      "Cara Pembayaran": pembayarans.find(p => p.id === item.pembayaran_id)?.nama || "",
+      "Tingkatan Harga Jual": `Harga Jual ${item.tingkat_harga || '1'}`,
+      "Discount Harga Jual (%)": item.diskon || 0,
+      "No Perkiraan Piutang": perkiraans.find(p => p.id === item.perk_piutang_id)?.no_perkiraan || "",
+      "Keterangan": item.keterangan || ""
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -246,8 +264,21 @@ const SetupPelanggan: React.FC = () => {
                       <label className="w-40 text-xs font-semibold text-slate-700 shrink-0">Kode Pelanggan</label>
                       <input type="text" value={editForm.kode} onChange={e => setEditForm({...editForm, kode: e.target.value.toUpperCase()})} className={`${inputClass} w-32`} autoFocus/>
                     </div>
-                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
-                      <input type="checkbox" checked={editForm.is_ekspor || false} onChange={e => setEditForm({...editForm, is_ekspor: e.target.checked})} className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" />
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700" title="Centang jika pelanggan ini adalah pelanggan luar negeri (Ekspor)">
+                      <input 
+                        type="checkbox" 
+                        checked={editForm.is_ekspor || false} 
+                        onChange={e => {
+                          const checked = e.target.checked;
+                          setEditForm({
+                            ...editForm, 
+                            is_ekspor: checked,
+                            npwp: checked ? '00.000.000.0-000.000' : (editForm.npwp === '00.000.000.0-000.000' ? '' : editForm.npwp),
+                            jenis_transaksi: checked ? '06' : '01'
+                          });
+                        }} 
+                        className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" 
+                      />
                       Ekspor
                     </label>
                   </div>

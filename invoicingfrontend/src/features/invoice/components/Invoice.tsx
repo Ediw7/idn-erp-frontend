@@ -113,6 +113,7 @@ const Invoice: React.FC = () => {
 
   const handlePembeliChange = (id: number | '', isModal: boolean = false) => {
     const p = pelanggans.find(x => x.id === id);
+    const discPersen = p?.diskon || 0;
     if (isModal) {
       setModalForm({
         ...modalForm,
@@ -121,11 +122,13 @@ const Invoice: React.FC = () => {
         npwp: p?.npwp || ''
       });
     } else {
+      const newLines = (form.lines || []).map((line: any) => ({ ...line, disc_persen: discPersen }));
       setForm({
         ...form,
         pembeli_id: id,
         alamat: p?.alamat_wp || p?.alamat || '',
-        npwp: p?.npwp || ''
+        npwp: p?.npwp || '',
+        lines: newLines
       });
     }
   };
@@ -134,6 +137,8 @@ const Invoice: React.FC = () => {
     const item = items.find(x => x.id === id);
     const newLines = [...form.lines];
     if (item) {
+      const p = pelanggans.find(x => x.id === form.pembeli_id);
+      const discPersen = p?.diskon || 0;
       newLines[idx] = {
         ...newLines[idx],
         item_id: item.id,
@@ -143,7 +148,7 @@ const Invoice: React.FC = () => {
         harga: item.harga_jual_1 || 0,
         harga_jual: item.harga_jual_1 || 0,
         kuantum: newLines[idx].kuantum || 1,
-        disc_persen: newLines[idx].disc_persen || 0,
+        disc_persen: discPersen,
         disc_harga: newLines[idx].disc_harga || 0
       };
     } else {
@@ -546,7 +551,9 @@ const Invoice: React.FC = () => {
                   <tr>
                     <td className="px-3 py-3 border-r border-gray-200 text-center">
                       <button className="w-7 h-7 mx-auto bg-slate-100 hover:bg-slate-200 text-slate-700 border border-gray-300 rounded-md flex items-center justify-center font-bold shadow-sm transition-colors" onClick={() => {
-                        setForm({...form, lines: [...form.lines, { item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, harga: 0, disc_persen: 0, disc_harga: 0, harga_jual: 0 }]});
+                        const p = pelanggans.find(x => x.id === form.pembeli_id);
+                        const discPersen = p?.diskon || 0;
+                        setForm({...form, lines: [...form.lines, { item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, harga: 0, disc_persen: discPersen, disc_harga: 0, harga_jual: 0 }]});
                       }}>+</button>
                     </td>
                     <td colSpan={9} className="px-4 py-3 text-sm text-slate-500 italic bg-slate-50">Klik tombol + untuk menambah baris barang/jasa</td>

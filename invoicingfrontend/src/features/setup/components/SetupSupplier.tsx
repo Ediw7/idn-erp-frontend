@@ -48,16 +48,27 @@ const SetupSupplier: React.FC = () => {
     validate: (form) => (!form.kode || !form.nama) ? 'Kode dan Nama Supplier harus diisi!' : null
   });
 
-  const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 text-xs transition-colors rounded-sm";
+  const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 text-xs transition-colors rounded-sm disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed";
 
   const handleExportExcel = () => {
     const exportData = list.map(item => ({
-      "Kode": item.kode || "",
+      "Kode Supplier": item.kode || "",
       "Nama Supplier": item.nama || "",
-      "NPWP": item.npwp || "",
-      "Telepon": item.telepon || "",
+      "Alamat Supplier": item.alamat || "",
+      "Nomor Telepon": item.telepon || "",
+      "Nomor Fax": item.fax || "",
+      "E-mail": item.email || "",
       "Contact Person": item.contact_person || "",
-      "Cara Pembayaran": pembayarans.find(p => p.id === item.pembayaran_id)?.nama || ""
+      "No. HP": item.no_hp || "",
+      "Nama Wajib Pajak": item.nama_wp || "",
+      "Alamat Wajib Pajak": item.alamat_wp || "",
+      "NPWP": item.npwp || "",
+      "Tgl Pengukuhan": item.tgl_pengukuhan || "",
+      "No. Seri FP Masukan": item.no_seri_fp_masukan || "",
+      "Apakah PKP ?": item.is_pkp ? "Ya" : "Tidak",
+      "Jenis Transaksi": JENIS_TRANSAKSI.find(j => j.value === item.jenis_transaksi)?.label || item.jenis_transaksi || "",
+      "Cara Pembayaran": pembayarans.find(p => p.id === item.pembayaran_id)?.nama || "",
+      "Keterangan": item.keterangan || ""
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
@@ -79,13 +90,33 @@ const SetupSupplier: React.FC = () => {
         const ws = wb.Sheets[wsname];
         const data = XLSX.utils.sheet_to_json(ws) as any[];
 
-        const itemsToImport = data.map(row => ({
-          kode: row['Kode'] || row['KODE'],
-          nama: row['Nama Supplier'] || row['NAMA'],
-          npwp: row['NPWP'],
-          telepon: row['Telepon'] || row['TELEPON'] || row['No. Telepon'],
-          contact_person: row['Contact Person'] || row['CONTACT_PERSON']
-        })).filter(i => i.kode && i.nama);
+        const itemsToImport = data.map(row => {
+          const jenisTransaksiLabel = row['Jenis Transaksi'] || '';
+          const matchedJenis = JENIS_TRANSAKSI.find(j => j.label === jenisTransaksiLabel || j.value === jenisTransaksiLabel);
+          
+          const caraPembayaranNama = row['Cara Pembayaran'] || '';
+          const matchedPembayaran = pembayarans.find(p => p.nama === caraPembayaranNama);
+
+          return {
+            kode: row['Kode Supplier'] || row['Kode'] || row['KODE'],
+            nama: row['Nama Supplier'] || row['NAMA'],
+            alamat: row['Alamat Supplier'] || row['Alamat'] || '',
+            telepon: row['Nomor Telepon'] || row['Telepon'] || row['TELEPON'] || '',
+            fax: row['Nomor Fax'] || row['Fax'] || '',
+            email: row['E-mail'] || row['Email'] || '',
+            contact_person: row['Contact Person'] || row['CONTACT_PERSON'] || '',
+            no_hp: row['No. HP'] || row['No HP'] || '',
+            nama_wp: row['Nama Wajib Pajak'] || '',
+            alamat_wp: row['Alamat Wajib Pajak'] || '',
+            npwp: row['NPWP'] || '',
+            tgl_pengukuhan: row['Tgl Pengukuhan'] || '',
+            no_seri_fp_masukan: row['No. Seri FP Masukan'] || '',
+            is_pkp: (row['Apakah PKP ?'] || '').toString().toLowerCase() === 'ya',
+            jenis_transaksi: matchedJenis?.value || '01',
+            pembayaran_id: matchedPembayaran?.id || null,
+            keterangan: row['Keterangan'] || ''
+          };
+        }).filter(i => i.kode && i.nama);
 
         if (itemsToImport.length === 0) {
           toast.error('Format file Excel tidak valid atau data kosong.');
@@ -291,19 +322,37 @@ const SetupSupplier: React.FC = () => {
                       <label className="w-40 text-xs font-semibold text-slate-700 shrink-0">NPWP</label>
                       <input type="text" value={editForm.npwp || ''} onChange={e => setEditForm({...editForm, npwp: e.target.value})} className={inputClass} placeholder="00.000.000.0-000.000" />
                     </div>
-                    <div className="flex-1 flex items-center">
-                      <label className="w-28 text-xs font-semibold text-slate-700 shrink-0 text-right pr-3">Tgl Pengukuhan</label>
-                      <input type="date" value={editForm.tgl_pengukuhan || ''} onChange={e => setEditForm({...editForm, tgl_pengukuhan: e.target.value})} className={inputClass} />
+                    <div className="flex items-center pl-2 gap-2 shrink-0">
+                      <input 
+                        type="checkbox" 
+                        id="supplier_is_pkp"
+                        checked={editForm.is_pkp || false} 
+                        onChange={e => {
+                          const checked = e.target.checked;
+                          setEditForm({
+                            ...editForm, 
+                            is_pkp: checked,
+                            tgl_pengukuhan: checked ? editForm.tgl_pengukuhan : '',
+                            no_seri_fp_masukan: checked ? editForm.no_seri_fp_masukan : ''
+                          });
+                        }} 
+                        className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer" 
+                      />
+                      <label htmlFor="supplier_is_pkp" className="text-xs font-semibold text-slate-700 cursor-pointer">Apakah PKP ?</label>
                     </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <div className="flex-1 flex items-center">
+                      <label className="w-40 text-xs font-semibold text-slate-700 shrink-0">Tgl Pengukuhan</label>
+                      <input disabled={!editForm.is_pkp} type="date" value={editForm.tgl_pengukuhan || ''} onChange={e => setEditForm({...editForm, tgl_pengukuhan: e.target.value})} className={inputClass} />
+                    </div>
+                    <div className="flex-1"></div>
                   </div>
                   
                   <div className="flex items-center">
                     <label className="w-40 text-xs font-semibold text-slate-700 shrink-0">No. Seri FP Masukan</label>
-                    <input type="text" value={editForm.no_seri_fp_masukan || ''} onChange={e => setEditForm({...editForm, no_seri_fp_masukan: e.target.value})} className={inputClass} />
-                  </div>
-                  <div className="flex items-center">
-                    <label className="w-40 text-xs font-semibold text-slate-700 shrink-0">Apakah PKP ?</label>
-                    <input type="checkbox" checked={editForm.is_pkp} onChange={e => setEditForm({...editForm, is_pkp: e.target.checked})} className="w-4 h-4 text-slate-800" />
+                    <input disabled={!editForm.is_pkp} type="text" value={editForm.no_seri_fp_masukan || ''} onChange={e => setEditForm({...editForm, no_seri_fp_masukan: e.target.value})} className={inputClass} placeholder={editForm.is_pkp ? '' : 'Centang PKP terlebih dahulu'} />
                   </div>
                   
                   <div className="h-4 border-b border-slate-200"></div>
