@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Printer } from 'lucide-react';
 import axiosClient from '../../../lib/axiosClient';
 import toast from 'react-hot-toast';
@@ -51,6 +52,7 @@ const REPORT_TYPES = [
 const Laporan: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState(REPORT_TYPES[0].id);
   const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
 
   // Filter States
   const [filter, setFilter] = useState({
@@ -78,6 +80,30 @@ const Laporan: React.FC = () => {
   const handleFilterChange = (field: string, value: string) => {
     setFilter(prev => ({ ...prev, [field]: value }));
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const reportNameParam = params.get('reportName');
+    const sjNumberParam = params.get('sj_number');
+    const soNumberParam = params.get('so_number');
+
+    if (reportNameParam) {
+      const foundReport = REPORT_TYPES.find(r => r.title === reportNameParam);
+      if (foundReport) {
+        setSelectedReport(foundReport.id);
+      }
+    }
+
+    if (sjNumberParam || soNumberParam) {
+      setFilter(prev => ({
+        ...prev,
+        dari_no_sj: sjNumberParam || prev.dari_no_sj,
+        sampai_no_sj: sjNumberParam || prev.sampai_no_sj,
+        dari_no_so: soNumberParam || prev.dari_no_so,
+        sampai_no_so: soNumberParam || prev.sampai_no_so
+      }));
+    }
+  }, [location.search]);
 
   const handleCetakPDF = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -195,18 +221,18 @@ const Laporan: React.FC = () => {
             <div className={rowClass}>
               <label className={`${labelClass} ${!isSoActive && 'text-gray-400'}`}>Dari No. Sales Order</label>
               <div className={inputWrapperClass}>
-                <select className={inputClass} disabled={!isSoActive}></select>
+                <input type="text" className={inputClass} disabled={!isSoActive} value={filter.dari_no_so} onChange={e => handleFilterChange('dari_no_so', e.target.value)} />
                 <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
-                <select className={inputClass} disabled={!isSoActive}></select>
+                <input type="text" className={inputClass} disabled={!isSoActive} value={filter.sampai_no_so} onChange={e => handleFilterChange('sampai_no_so', e.target.value)} />
               </div>
             </div>
 
             <div className={rowClass}>
               <label className={`${labelClass} ${!isSjActive && 'text-gray-400'}`}>Dari No. Surat Jalan</label>
               <div className={inputWrapperClass}>
-                <select className={inputClass} disabled={!isSjActive}></select>
+                <input type="text" className={inputClass} disabled={!isSjActive} value={filter.dari_no_sj} onChange={e => handleFilterChange('dari_no_sj', e.target.value)} />
                 <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
-                <select className={inputClass} disabled={!isSjActive}></select>
+                <input type="text" className={inputClass} disabled={!isSjActive} value={filter.sampai_no_sj} onChange={e => handleFilterChange('sampai_no_sj', e.target.value)} />
               </div>
             </div>
 
@@ -334,7 +360,13 @@ const Laporan: React.FC = () => {
               <button 
                 type="button"
                 disabled={isLoading}
-                onClick={handleCetakPDF}
+                onClick={() => {
+                  const queryParams = new URLSearchParams({
+                    reportType: selectedReport,
+                    no_sj: filter.dari_no_sj
+                  });
+                  window.open(`/preview-laporan?${queryParams.toString()}`, '_blank');
+                }}
                 className="px-6 py-2 bg-white border border-gray-400 rounded-sm text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm disabled:opacity-50"
               >
                 PREVIEW PDF

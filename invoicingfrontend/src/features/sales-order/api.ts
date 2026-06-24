@@ -67,25 +67,25 @@ export const salesOrderApi = {
   },
 
   save: async (data: SalesOrderData): Promise<{ message: string; id: number }> => {
-    const response = await axiosClient.post('/api/sales-order/SIMPAN', {
+    const response = await axiosClient.post('/api/sales-order/save', {
       jsonrpc: '2.0',
       params: data
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to SIMPAN sales order');
+    throw new Error(response.data.result?.message || 'Failed to save sales order');
   },
 
   delete: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/sales-order/HAPUS', {
+    const response = await axiosClient.post('/api/sales-order/delete', {
       jsonrpc: '2.0',
       params: { id }
     });
     if (response.data.result && response.data.result.status === 'success') {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to HAPUS sales order');
+    throw new Error(response.data.result?.message || 'Failed to delete sales order');
   },
 
   autoNo: async (): Promise<{ no_so: string }> => {

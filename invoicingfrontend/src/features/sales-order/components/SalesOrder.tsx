@@ -56,6 +56,7 @@ const SalesOrder: React.FC = () => {
     item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: ''
   });
 
+  const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
   const [isNew, setIsNew] = useState(false);
 
   useEffect(() => {
@@ -195,6 +196,20 @@ const SalesOrder: React.FC = () => {
     }
   };
 
+  const handleDeleteSO = async (id: number) => {
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus Sales Order ini?');
+    if (!isConfirmed) return;
+    try {
+      await salesOrderApi.delete(id);
+      const resSo = await salesOrderApi.getAll();
+      const soData = resSo || [];
+      setDataList(soData);
+      toast.success('Data berhasil dihapus');
+    } catch (error) {
+      toast.error('Gagal menghapus data');
+    }
+  };
+
   const handleDelete = async () => {
     if (isNew || !form.id) return;
     const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus Sales Order ini?');
@@ -217,6 +232,8 @@ const SalesOrder: React.FC = () => {
           lines: [{ item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: '' }]
         });
       }
+      setViewMode('list');
+      toast.success('Data berhasil dihapus');
     } catch (error) {
       toast.error('Gagal menghapus data');
     }
@@ -240,7 +257,7 @@ const SalesOrder: React.FC = () => {
     const p = pelanggans.find(x => x.id === id);
     const discPersen = p?.diskon || 0;
     const newLines = (form.lines || []).map(line => ({ ...line, disc_persen: discPersen }));
-    setForm({ ...form, pelanggan_id: id, alamat_kirim: p?.alamat_kirim || '', lines: newLines });
+    setForm({ ...form, pelanggan_id: id, alamat_kirim: p?.alamat_kirim || p?.alamat || '', lines: newLines });
   };
 
   const handleOpenAddLine = () => {
@@ -299,7 +316,133 @@ const SalesOrder: React.FC = () => {
 
   return (
     <>
-      <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
+      {viewMode === 'list' && (
+        <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
+        <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
+          <div className="flex flex-col">
+            <h2 className="text-lg font-semibold text-white">Sales Order</h2>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-xs text-slate-300 font-medium">Pilih Periode:</span>
+              <select 
+                value={periode} 
+                onChange={e => setPeriode(e.target.value)}
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
+              >
+                <option value="2026-06">Juni 2026</option>
+                <option value="2026-05">Mei 2026</option>
+                <option value="2026-04">April 2026</option>
+                <option value="2026-03">Maret 2026</option>
+                <option value="2026-02">Februari 2026</option>
+                <option value="2026-01">Januari 2026</option>
+              </select>
+            </div>
+          </div>
+          <button onClick={() => {
+            setForm({
+              no_so: '', tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
+              no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
+              tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
+              potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0, 
+              lines: [{ item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: '' }]
+            });
+            setIsNew(true);
+            setViewMode('form');
+          }} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm">
+             <FilePlus size={14} /> + BUKA FORM
+          </button>
+        </div>
+
+        <div className="flex-1 p-6 overflow-hidden flex flex-col">
+          <div className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-x-auto flex-1">
+            <table className="w-full text-xs text-left whitespace-nowrap">
+              <thead className="bg-slate-100 border-b border-slate-200">
+                <tr>
+                  <th className="px-3 py-2 font-semibold text-slate-700">No. SO</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700">Tgl</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700">Nama Pelanggan</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700">No. PO</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700">Tgl Kirim</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700">Salesman</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700">Ccy</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 text-right">Nilai SO</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 text-center">Void</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 text-center">Closed</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {dataList.length === 0 ? (
+                  <tr>
+                    <td colSpan={11} className="px-4 py-8 text-center text-slate-500 italic">Belum ada data Sales Order.</td>
+                  </tr>
+                ) : (
+                  dataList.map((item, idx) => {
+                    const pelangganNama = pelanggans.find(p => String(p.id) === String(item.pelanggan_id))?.nama || item.pelanggan_id;
+                    const ccy = mataUangs.find(m => String(m.id) === String(item.mata_uang_id))?.kode || 'IDR';
+                    const salesman = salesmans.find(s => String(s.id) === String(item.salesman_id))?.nama || '';
+                    
+                    const itemSubtotal = (item.lines || []).reduce((acc, line) => {
+                      const base = (line.kuantum || 0) * (line.harga_satuan || 0);
+                      const disc = (base * (line.disc_persen || 0) / 100) + (line.disc_harga || 0);
+                      return acc + (base - disc);
+                    }, 0);
+                    const itemDpp = itemSubtotal - (item.potongan_harga || 0);
+                    const itemPpnAmount = itemDpp * (item.ppn_persen || 0) / 100;
+                    const itemPpnbmAmount = wajibPpnbm ? itemDpp * (item.ppnbm_persen || 0) / 100 : 0;
+                    const nilaiSO = itemDpp + itemPpnAmount + itemPpnbmAmount + (item.ongkos_angkut || 0);
+
+                    return (
+                      <tr key={idx} className="hover:bg-slate-50">
+                        <td className="px-3 py-2 font-mono text-slate-800 font-medium">{item.no_so}</td>
+                        <td className="px-3 py-2 text-slate-600">{item.tgl_so}</td>
+                        <td className="px-3 py-2 text-slate-800 truncate max-w-[150px]" title={pelangganNama}>{pelangganNama}</td>
+                        <td className="px-3 py-2 text-slate-600">{item.no_po || '-'}</td>
+                        <td className="px-3 py-2 text-slate-600">{item.tgl_kirim || '-'}</td>
+                        <td className="px-3 py-2 text-slate-600">{salesman || '-'}</td>
+                        <td className="px-3 py-2 text-slate-600 font-medium">{ccy}</td>
+                        <td className="px-3 py-2 font-mono text-slate-800 text-right">{nilaiSO.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                        <td className="px-3 py-2 text-center">
+                          <input type="checkbox" readOnly checked={!!item.is_void} className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-default" />
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          <input type="checkbox" readOnly checked={!!item.is_closed} className="w-4 h-4 rounded border-slate-300 text-blue-600 cursor-default" />
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => {
+                                setForm(item);
+                                setCurrentIndex(idx);
+                                setIsNew(false);
+                                setViewMode('form');
+                              }}
+                              className="p-1 text-blue-600 hover:bg-blue-50 rounded-sm transition-colors"
+                              title="Edit"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button
+                              onClick={() => item.id && handleDeleteSO(item.id)}
+                              className="p-1 text-red-600 hover:bg-red-50 rounded-sm transition-colors"
+                              title="Hapus"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        </div>
+      )}
+
+      {viewMode === 'form' && (
+        <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
         {/* Header */}
         <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
           <div className="flex flex-col">
@@ -321,6 +464,9 @@ const SalesOrder: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={() => setViewMode('list')} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-slate-300 hover:bg-slate-100 transition-colors rounded-sm shadow-sm mr-2">
+               KEMBALI KE LIST
+            </button>
             <button onClick={handleNewClick} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm">
                <FilePlus size={14} /> + TAMBAH SO
             </button>
@@ -679,29 +825,31 @@ const SalesOrder: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
       {/* Modal Auto BUAT BARU Surat Jalan */}
       {showSjModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20">
-          <div className="bg-white w-[500px] rounded-md shadow-xl flex flex-col overflow-hidden border border-slate-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-lg rounded-md shadow-2xl border border-slate-300 flex flex-col overflow-hidden">
             {/* Modal Header */}
-            <div className="bg-slate-800 px-5 py-3 flex justify-between items-center">
-              <h3 className="text-white font-semibold text-sm">Auto BUAT BARU Surat Jalan</h3>
+            <div className="bg-slate-800 px-6 py-4 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-semibold text-base">Buat Surat Jalan Baru</h3>
               <button onClick={() => setShowSjModal(false)} className="text-slate-300 hover:text-white transition-colors">
-                <X size={18} />
+                <X size={20} />
               </button>
             </div>
+            
             {/* Modal Body */}
-            <div className="p-6 flex flex-col gap-4">
+            <div className="p-6 bg-slate-50 flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-slate-700">Nama Pelanggan</label>
+                <label className="text-xs font-semibold text-slate-700">Nama Pelanggan</label>
                 <select 
-                  className={inputClass} 
+                  className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm"
                   value={sjForm.pelanggan_id} 
                   onChange={e => {
                     const p = pelanggans.find(x => String(x.id) === e.target.value);
-                    setSjForm({ ...sjForm, pelanggan_id: e.target.value, alamat_kirim: p?.alamat_kirim || '' });
+                    setSjForm({ ...sjForm, pelanggan_id: e.target.value, alamat_kirim: p?.alamat_kirim || p?.alamat || '' });
                   }}
                 >
                   <option value="">-- Pilih Pelanggan --</option>
@@ -709,28 +857,39 @@ const SalesOrder: React.FC = () => {
                 </select>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-slate-700">Alamat Kirim</label>
+                <label className="text-xs font-semibold text-slate-700">Dikirim ke Alamat</label>
                 <textarea 
-                  className={`${inputClass} h-20 resize-none bg-slate-50`} 
+                  className="w-full h-20 p-2 bg-slate-100 border border-slate-300 rounded-sm text-sm resize-none text-slate-600 cursor-not-allowed"
                   readOnly 
                   value={sjForm.alamat_kirim}
                 />
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-slate-700">No. Sales Order</label>
-                <select 
-                  className={inputClass} 
-                  value={sjForm.no_so} 
-                  onChange={e => setSjForm({ ...sjForm, no_so: e.target.value })}
-                >
-                  <option value="">-- Pilih SO --</option>
-                  {dataList.map(so => <option key={so.id} value={so.no_so}>{so.no_so}</option>)}
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-slate-700">Dari No. SO</label>
+                  <select 
+                    className="w-full px-3 py-2 bg-slate-100 border border-slate-300 focus:outline-none rounded-sm text-sm font-mono cursor-not-allowed text-slate-600"
+                    value={sjForm.no_so} 
+                    disabled
+                  >
+                    <option value="">-- Pilih SO --</option>
+                    {dataList.map(so => <option key={so.id} value={so.no_so}>{so.no_so}</option>)}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-slate-700">Tgl Surat Jalan</label>
+                  <input 
+                    type="date" 
+                    className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm"
+                    value={sjForm.tanggal} 
+                    onChange={e => setSjForm({ ...sjForm, tanggal: e.target.value })}
+                  />
+                </div>
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-slate-700">Gudang</label>
+                <label className="text-xs font-semibold text-slate-700">Pilih Gudang Pengiriman</label>
                 <select 
-                  className={inputClass} 
+                  className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm"
                   value={sjForm.gudang_id} 
                   onChange={e => setSjForm({ ...sjForm, gudang_id: e.target.value })}
                 >
@@ -738,31 +897,23 @@ const SalesOrder: React.FC = () => {
                   {gudangs.map(g => <option key={g.id} value={String(g.id)}>{g.nama_gudang}</option>)}
                 </select>
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-slate-700">Tanggal Pengiriman</label>
-                <input 
-                  type="date" 
-                  className={inputClass} 
-                  value={sjForm.tanggal} 
-                  onChange={e => setSjForm({ ...sjForm, tanggal: e.target.value })}
-                />
-              </div>
             </div>
+
             {/* Modal Footer */}
-            <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+            <div className="bg-white px-6 py-4 border-t border-slate-200 flex justify-end gap-3 shrink-0">
               <button 
                 onClick={() => setShowSjModal(false)}
-                className="px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-sm shadow-sm hover:bg-slate-50 transition-colors"
+                className="px-6 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-sm transition-colors"
               >
-                TUTUP / TUTUP
+                Batal
               </button>
               <button 
                 onClick={() => {
                   navigate(`/surat-jalan?so=${sjForm.no_so}&pelanggan=${sjForm.pelanggan_id}&gudang=${sjForm.gudang_id}&tgl=${sjForm.tanggal}`);
                 }}
-                className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 border border-transparent rounded-sm shadow-sm hover:bg-blue-700 transition-colors"
+                className="px-6 py-2 text-xs font-semibold text-white bg-blue-600 border border-transparent rounded-sm hover:bg-blue-700 transition-colors flex items-center gap-2"
               >
-                BUAT SURAT JALAN / BUAT BARU
+                <Send size={14} /> Lanjut Buat Surat Jalan
               </button>
             </div>
           </div>
@@ -815,7 +966,7 @@ const SalesOrder: React.FC = () => {
                       onChange={e => {
                         const pid = Number(e.target.value);
                         const p = pelanggans.find(x => x.id === pid);
-                        setNewSoForm({...newSoForm, pelanggan_id: pid, alamat_kirim: p?.alamat_kirim || ''});
+                        setNewSoForm({...newSoForm, pelanggan_id: pid, alamat_kirim: p?.alamat_kirim || p?.alamat || ''});
                       }}
                     >
                       <option value="">-- Pilih --</option>
@@ -900,6 +1051,86 @@ const SalesOrder: React.FC = () => {
         onClose={() => setShowPelangganModal(false)} 
         onSaved={fetchInitialData} 
       />
+
+      {/* Line Item Modal */}
+      {isLineModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-md shadow-2xl border border-slate-300 w-full max-w-3xl overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center px-6 py-4 bg-slate-800 text-white shrink-0">
+              <h3 className="font-semibold text-base">{editLineIndex !== null ? 'Ubah' : 'Tambah'} Barang</h3>
+              <button onClick={() => setIsLineModalOpen(false)} className="hover:text-slate-300 transition-colors"><X size={20} /></button>
+            </div>
+            
+            <div className="p-6 bg-slate-50 flex flex-col gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Item / Barang *</label>
+                <select 
+                  className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm" 
+                  value={lineForm.item_id || ''} 
+                  onChange={e => {
+                    const id = Number(e.target.value);
+                    const item = items.find(i => i.id === id);
+                    setLineForm({ 
+                      ...lineForm, 
+                      item_id: id,
+                      satuan: item?.satuan || lineForm.satuan,
+                      harga_satuan: item?.harga_jual_1 || lineForm.harga_satuan
+                    });
+                  }}
+                >
+                  <option value="">-- Pilih Item --</option>
+                  {items.map(i => <option key={i.id} value={i.id}>{i.kode} - {i.nama}</option>)}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Satuan</label>
+                  <input type="text" className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm" value={lineForm.satuan || ''} onChange={e => setLineForm({ ...lineForm, satuan: e.target.value })} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Kuantum</label>
+                  <input type="number" className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm text-right font-mono" value={lineForm.kuantum === 0 ? '' : lineForm.kuantum} onChange={e => setLineForm({ ...lineForm, kuantum: Number(e.target.value) })} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Harga Satuan</label>
+                  <input type="number" className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm text-right font-mono" value={lineForm.harga_satuan === 0 ? '' : lineForm.harga_satuan} onChange={e => setLineForm({ ...lineForm, harga_satuan: Number(e.target.value) })} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Diskon (%)</label>
+                  <input type="number" className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm text-right font-mono" value={lineForm.disc_persen === 0 ? '' : lineForm.disc_persen} onChange={e => setLineForm({ ...lineForm, disc_persen: Number(e.target.value) })} />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Diskon Harga (Nominal)</label>
+                  <input type="number" className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm text-right font-mono" value={lineForm.disc_harga === 0 ? '' : lineForm.disc_harga} onChange={e => setLineForm({ ...lineForm, disc_harga: Number(e.target.value) })} />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Keterangan Baris</label>
+                <input type="text" className="w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm" placeholder="Catatan tambahan untuk item ini..." value={lineForm.keterangan || ''} onChange={e => setLineForm({ ...lineForm, keterangan: e.target.value })} />
+              </div>
+              
+              <div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-sm flex justify-between items-center">
+                <span className="text-sm font-semibold text-blue-800">Total Harga Jual:</span>
+                <span className="text-lg font-bold font-mono text-blue-900">
+                  {(((lineForm.kuantum || 0) * (lineForm.harga_satuan || 0)) - (((lineForm.kuantum || 0) * (lineForm.harga_satuan || 0)) * (lineForm.disc_persen || 0) / 100) - (lineForm.disc_harga || 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-3 shrink-0">
+              <button onClick={() => setIsLineModalOpen(false)} className="px-6 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-sm transition-colors">Batal</button>
+              <button onClick={handleSaveLine} className="px-6 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors flex items-center gap-2">
+                <Save size={14} /> Simpan Barang
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

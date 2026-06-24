@@ -63,6 +63,7 @@ import SetupUserPermission from './features/admin/components/SetupUserPermission
 import DatabaseConnection from './features/admin/components/DatabaseConnection';
 import BackupData from './features/admin/components/BackupData';
 import RestoreData from './features/admin/components/RestoreData';
+import PreviewLaporan from './features/report/components/PreviewLaporan';
 
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
   const { isAuthenticated, user } = useAuth();
@@ -177,6 +178,7 @@ function App() {
                 <Route path="outstanding-invoice" element={<OutstandingInvoice />} />
                 <Route path="rangkuman-penjualan" element={<RangkumanPenjualan />} />
                 <Route path="laporan" element={<Laporan />} />
+                <Route path="preview-laporan" element={<PreviewLaporan />} />
                 <Route path="setup-data-baru" element={<SetupDataBaru />} />
                 <Route path="inventory/retur-penjualan" element={<NotaReturPenjualan />} />
                 <Route path="ppn/retur-penjualan" element={<NotaReturPenjualan />} />
