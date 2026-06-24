@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FilePlus, Trash2, X, Printer, Search, Save, RefreshCcw, DollarSign } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { FilePlus, Trash2, X, Printer, Search, Save, RefreshCcw, Plus, Edit2 } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { setupApi } from '../../setup/api';
@@ -10,10 +10,16 @@ import { SetupPelangganModal } from '../../setup/components/SetupPelangganModal'
 
 const Invoice: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const confirm = useConfirm();
 
   const [activeTab, setActiveTab] = useState('detail');
+  const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
+  const [dataList, setDataList] = useState<any[]>(() => {
+    const saved = localStorage.getItem('edi_invoices');
+    return saved ? JSON.parse(saved) : [];
+  });
   
   const [showNewInvoiceModal, setShowNewInvoiceModal] = useState(false);
   const [showFpModal, setShowFpModal] = useState(false);
@@ -99,6 +105,26 @@ const Invoice: React.FC = () => {
     }).catch(() => {});
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sj = params.get('sj');
+    const so = params.get('so');
+    const pelanggan = params.get('pelanggan');
+
+    if (sj || so) {
+      setViewMode('form');
+    }
+
+    if (sj || so) {
+      setForm((prev: any) => ({
+        ...prev,
+        no_invoice: prev.no_invoice || `INV/${new Date().getFullYear()}/${Math.floor(Math.random() * 1000)}`,
+        no_so: so || prev.no_so,
+        pembeli_id: pelanggan || prev.pembeli_id
+      }));
+    }
+  }, [location.search]);
+
   const { signatureData } = useSignatureAutoFill('Invoice');
 
   useEffect(() => {
@@ -164,6 +190,12 @@ const Invoice: React.FC = () => {
     }
     setForm({ ...form, lines: newLines });
   };
+  const handleAddLine = () => {
+    setForm({
+      ...form,
+      lines: [...(form.lines || []), { item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: '' }]
+    });
+  };
 
 
   const handleCreateInvoiceHeader = () => {
@@ -193,12 +225,34 @@ const Invoice: React.FC = () => {
       return;
     }
     
-    setForm({
+    const updatedForm = {
       ...form,
       write_date: new Date().toISOString(),
       write_uid_name: user?.name || 'Unknown'
-    });
+    };
+    setForm(updatedForm);
+    
+    let newDataList;
+    if (updatedForm.id) {
+      newDataList = dataList.map(item => item.id === updatedForm.id ? updatedForm : item);
+    } else {
+      updatedForm.id = Date.now();
+      newDataList = [updatedForm, ...dataList];
+    }
+    setDataList(newDataList);
+    localStorage.setItem('edi_invoices', JSON.stringify(newDataList));
+    
     toast.success('Invoice berhasil disimpan');
+  };
+
+  const handleDeleteInvoice = async (id: number) => {
+    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus Invoice ini?');
+    if (!isConfirmed) return;
+    
+    const newDataList = dataList.filter(item => item.id !== id);
+    setDataList(newDataList);
+    localStorage.setItem('edi_invoices', JSON.stringify(newDataList));
+    toast.success('Data berhasil dihapus');
   };
 
   const handleCreateKwitansi = async () => {
@@ -251,440 +305,544 @@ const Invoice: React.FC = () => {
     });
   };
 
-  const inputClass = "w-full h-10 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white transition-colors";
-  const labelClass = "block text-xs md:text-sm font-semibold text-gray-700 mb-1";
+  const inputClass = "w-full px-3 py-1.5 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white disabled:bg-slate-100 disabled:text-slate-500";
+  const labelClass = "text-sm font-semibold text-slate-700 w-28 shrink-0 pt-1";
   const btnClass = "px-4 py-2 text-sm font-medium rounded-md transition-colors shadow-sm flex items-center justify-center gap-2";
 
   return (
-    <div className="bg-slate-50 flex flex-col min-h-screen">
-      {/* Header */}
-      <div className="bg-slate-800 px-6 py-5 border-b border-slate-700 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 shrink-0">
-        <div className="flex flex-col">
-          <h2 className="text-xl font-bold text-white mb-2">Invoice</h2>
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-300 font-medium">Pilih Periode:</span>
-              <select className="h-9 px-3 text-sm bg-slate-700 text-white border border-slate-600 rounded-md outline-none focus:border-slate-400 transition-colors">
+    <>
+      {viewMode === 'list' && (
+        <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
+          <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
+            <div className="flex flex-col">
+              <h2 className="text-lg font-semibold text-white">Invoice</h2>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="text-xs text-slate-300 font-medium">Pilih Periode:</span>
+                <select className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400">
+                  <option>Juni 2026</option>
+                  <option>Mei 2026</option>
+                </select>
+              </div>
+            </div>
+            <button onClick={() => {
+              setForm(emptyForm);
+              setModalForm(emptyForm);
+              setViewMode('form');
+            }} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm">
+               <FilePlus size={14} /> + BUKA FORM
+            </button>
+          </div>
+
+          <div className="flex-1 p-6 overflow-hidden flex flex-col">
+            <div className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-x-auto flex-1">
+              <table className="w-full text-xs text-left whitespace-nowrap">
+                <thead className="bg-slate-100 border-b border-slate-200">
+                  <tr>
+                    <th className="px-3 py-2 font-semibold text-slate-700">No. Invoice</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">Jenis</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">Tgl</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">Nama Pembeli</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">No PO</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">No SO</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">Ccy</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700 text-right">PPN</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700 text-right">PPh 22</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700 text-right">Nilai Invoice</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">No. Faktur Pajak</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">Cara Bayar</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">Tanggal JT</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">Salesman</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700">Proyek</th>
+                    <th className="px-3 py-2 font-semibold text-slate-700 text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {dataList.length === 0 ? (
+                    <tr>
+                      <td colSpan={16} className="px-4 py-8 text-center text-slate-500 italic">Belum ada data Invoice.</td>
+                    </tr>
+                  ) : (
+                    dataList.map((item, idx) => {
+                      const pembeliNama = pelanggans.find(p => String(p.id) === String(item.pembeli_id))?.nama || item.pembeli_id;
+                      const salesman = salesmans.find(s => String(s.id) === String(item.salesman_id))?.nama || '';
+                      const ccy = mataUangs.find(m => String(m.id) === String(item.mata_uang))?.kode || item.mata_uang || 'IDR';
+                      const proyekNama = proyeks.find(p => String(p.id) === String(item.proyek))?.nama || item.proyek || '';
+
+                      const subtotal = (item.lines || []).reduce((acc: number, line: any) => {
+                        const base = (line.kuantum || 0) * (line.harga || 0);
+                        const disc = (base * (line.disc_persen || 0) / 100) + (line.disc_harga || 0);
+                        return acc + (base - disc);
+                      }, 0);
+                      const ppnAmount = subtotal * 0.11;
+                      const pphAmount = 0;
+                      const total = subtotal + ppnAmount;
+
+                      return (
+                        <tr key={idx} className="hover:bg-slate-50">
+                          <td className="px-3 py-2 font-mono text-slate-800 font-medium">{item.no_invoice}</td>
+                          <td className="px-3 py-2 text-slate-600">VAT</td>
+                          <td className="px-3 py-2 text-slate-600">{item.tgl_invoice}</td>
+                          <td className="px-3 py-2 text-slate-800 truncate max-w-[150px]" title={pembeliNama}>{pembeliNama}</td>
+                          <td className="px-3 py-2 text-slate-600">{item.no_po || '-'}</td>
+                          <td className="px-3 py-2 text-slate-600">{item.no_so || '-'}</td>
+                          <td className="px-3 py-2 text-slate-600 font-medium">{ccy}</td>
+                          <td className="px-3 py-2 font-mono text-slate-800 text-right">{ppnAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                          <td className="px-3 py-2 font-mono text-slate-800 text-right">{pphAmount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                          <td className="px-3 py-2 font-mono text-slate-800 text-right font-semibold">{total.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                          <td className="px-3 py-2 text-slate-600">{item.no_faktur_pajak || '-'}</td>
+                          <td className="px-3 py-2 text-slate-600">{item.cara_pembayaran || '-'}</td>
+                          <td className="px-3 py-2 text-slate-600">{item.tgl_jt || '-'}</td>
+                          <td className="px-3 py-2 text-slate-600">{salesman || '-'}</td>
+                          <td className="px-3 py-2 text-slate-600">{proyekNama || '-'}</td>
+                          <td className="px-3 py-2 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button
+                                onClick={() => {
+                                  setForm(item);
+                                  setViewMode('form');
+                                }}
+                                className="p-1 text-blue-600 hover:bg-blue-50 rounded-sm transition-colors"
+                                title="Edit"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                onClick={() => item.id && handleDeleteInvoice(item.id)}
+                                className="p-1 text-red-600 hover:bg-red-50 rounded-sm transition-colors"
+                                title="Hapus"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewMode === 'form' && (
+        <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
+        {/* Header */}
+        <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex flex-wrap gap-3 justify-between items-center shrink-0">
+          <div className="flex flex-col">
+            <h2 className="text-lg font-semibold text-white">Invoice</h2>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-xs text-slate-300 font-medium">Pilih Periode:</span>
+              <select className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400">
                 <option>Juni 2026</option>
                 <option>Mei 2026</option>
               </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-300 font-medium">Jenis Invoice:</span>
-              <select className="h-9 px-3 text-sm bg-slate-700 text-white border border-slate-600 rounded-md outline-none focus:border-slate-400 transition-colors">
+              <span className="text-xs text-slate-300 font-medium ml-2">Jenis Invoice:</span>
+              <select className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400">
                 <option>Dengan PPN</option>
                 <option>Tanpa PPN</option>
               </select>
             </div>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button onClick={() => setViewMode('list')} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-slate-300 hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
+               KEMBALI KE LIST
+            </button>
+            <button onClick={() => { setModalForm({...emptyForm, no_invoice: `INV/00${Math.floor(Math.random()*100)}/06/2026`}); setShowNewInvoiceModal(true); }} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
+               <FilePlus size={12} /> + TAMBAH INVOICE
+            </button>
+            <button onClick={() => navigate(form.no_invoice ? `/laporan?invoice_number=${encodeURIComponent(form.no_invoice)}&reportName=${encodeURIComponent('Invoice (A4 / Kwarto)')}` : '/laporan?reportName=Invoice (A4 / Kwarto)')} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
+               <Printer size={12} /> CETAK
+            </button>
+            <button onClick={handleUpdateFpClick} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-white bg-blue-600 border border-transparent hover:bg-blue-500 transition-colors rounded-sm shadow-sm whitespace-nowrap">
+               PERBARUI FP
+            </button>
+            <button onClick={handleCreateKwitansi} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-white bg-indigo-600 border border-transparent hover:bg-indigo-500 transition-colors rounded-sm shadow-sm whitespace-nowrap">
+               PERBARUI KWITANSI
+            </button>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <button 
-            onClick={() => {
-              setModalForm({...emptyForm, no_invoice: `INV/00${Math.floor(Math.random()*100)}/06/2026`});
-              setShowNewInvoiceModal(true);
-            }} 
-            className={`${btnClass} bg-white text-slate-800 hover:bg-slate-100`}
-          >
-             <FilePlus size={16} /> + TAMBAH INVOICE
-          </button>
-          <button 
-            onClick={() => navigate(form.no_invoice ? `/laporan?invoice_number=${encodeURIComponent(form.no_invoice)}&reportName=${encodeURIComponent('Invoice (A4 / Kwarto)')}` : '/laporan?reportName=Invoice (A4 / Kwarto)')} 
-            className={`${btnClass} bg-white text-slate-800 hover:bg-slate-100`}
-          >
-             <Printer size={16} /> CETAK
-          </button>
-          <button 
-            onClick={handleUpdateFpClick}
-            className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700`}
-          >
-             PERBARUI FP
-          </button>
-          <button 
-            onClick={handleCreateKwitansi}
-            className={`${btnClass} bg-indigo-600 text-white hover:bg-indigo-700`}
-          >
-             PERBARUI KWITANSI
-          </button>
-          <button 
-            className={`${btnClass} bg-green-600 text-white hover:bg-green-700`}
-          >
-             <DollarSign size={16} /> BAYAR
-          </button>
-        </div>
-      </div>
 
-      <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-        {/* Form Informasi Umum */}
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 shrink-0">
-          <h3 className="text-lg font-bold text-slate-800 mb-6 pb-3 border-b border-gray-200">Informasi Umum</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="flex-1 overflow-y-auto p-4 bg-slate-100 flex flex-col">
+          <div className="bg-white border border-slate-300 rounded-sm shadow-sm flex flex-col shrink-0 flex-1">
+            <div className="px-3 pt-2 bg-slate-100 border-b border-slate-300 flex gap-1">
+              <button className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === 'umum' ? 'bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm' : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors'}`} onClick={() => setActiveTab('umum')}>Informasi Umum</button>
+              <button className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === 'detail' ? 'bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm' : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors'}`} onClick={() => setActiveTab('detail')}>Detail Barang/Jasa</button>
+              <button className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === 'surat_jalan' ? 'bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm' : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors'}`} onClick={() => setActiveTab('surat_jalan')}>Surat Jalan</button>
+              <button className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === 'history' ? 'bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm' : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors'}`} onClick={() => setActiveTab('history')}>History Pembayaran</button>
+            </div>
             
-            {/* Kolom 1 */}
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className={labelClass}>No. Invoice</label>
-                <div className="flex gap-2 w-full">
-                  <input type="text" className={`${inputClass} font-mono bg-slate-50`} readOnly value={form.no_invoice || ''} />
-                  <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><Search size={16} className="text-gray-600" /></button>
-                </div>
-              </div>
-              <div>
-                <label className={labelClass}>Tgl Invoice</label>
-                <input type="date" className={inputClass} value={form.tgl_invoice || ''} onChange={e => setForm({...form, tgl_invoice: e.target.value})} />
-              </div>
-              <div>
-                <label className={labelClass}>Nama Pembeli</label>
-                <div className="flex gap-2 w-full">
-                  <select className={inputClass} value={form.pembeli_id || ''} onChange={e => handlePembeliChange(e.target.value ? Number(e.target.value) : '')}>
-                    <option value="">{loadingData ? 'Loading data...' : '-- Pilih Pembeli --'}</option>
-                    {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama} - {p.alamat}</option>)}
-                  </select>
-                  <button onClick={() => setShowPelangganModal(true)} className="px-3 font-bold border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md text-gray-600 transition-colors">+</button>
-                </div>
-              </div>
-              <div>
-                <label className={labelClass}>Alamat</label>
-                <textarea className={`${inputClass} h-20 resize-none`} value={form.alamat || ''} onChange={e => setForm({...form, alamat: e.target.value})} />
-              </div>
-              <div>
-                <label className={labelClass}>NPWP</label>
-                <input type="text" className={`${inputClass} bg-blue-50/50`} value={form.npwp || ''} onChange={e => setForm({...form, npwp: e.target.value})} />
-              </div>
-              <div>
-                <label className={labelClass}>Proyek</label>
-                <select className={inputClass} value={form.proyek || ''} onChange={e => setForm({...form, proyek: e.target.value})}>
-                  <option value="">{loadingData ? 'Loading data...' : '-- Pilih Proyek --'}</option>
-                  {proyeks.map(p => <option key={p.id} value={p.kode}>{p.nama}</option>)}
-                </select>
-              </div>
-            </div>
-
-            {/* Kolom 2 */}
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className={labelClass}>Mata Uang</label>
-                <select className={inputClass} value={form.mata_uang || 'IDR'} onChange={e => setForm({...form, mata_uang: e.target.value})}>
-                  <option value="IDR">IDR</option>
-                  {mataUangs.map(m => m.kode !== 'IDR' && <option key={m.id} value={m.kode}>{m.kode}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>No. SO</label>
-                <div className="flex gap-2 w-full">
-                  <select className={inputClass} value={form.no_so || ''} onChange={e => setForm({...form, no_so: e.target.value})}>
-                    <option value="">{loadingData ? 'Loading...' : '-- Pilih SO --'}</option>
-                    {salesOrders.map((so, idx) => <option key={idx} value={so.no_so}>{so.no_so}</option>)}
-                  </select>
-                  <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><Search size={16} className="text-gray-600" /></button>
-                </div>
-              </div>
-              <div>
-                <label className={labelClass}>No. PO</label>
-                <input type="text" className={inputClass} value={form.no_po || ''} onChange={e => setForm({...form, no_po: e.target.value})} />
-              </div>
-              <div>
-                <label className={labelClass}>Cara Pembayaran</label>
-                <select className={inputClass} value={form.cara_pembayaran || ''} onChange={e => setForm({...form, cara_pembayaran: e.target.value})}>
-                  <option value="">{loadingData ? 'Loading data...' : '-- Pilih --'}</option>
-                  {pembayarans.map(p => <option key={p.id} value={p.nama}>{p.nama}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>Salesman</label>
-                <select className={inputClass} value={form.salesman_id || ''} onChange={e => setForm({...form, salesman_id: e.target.value ? Number(e.target.value) : ''})}>
-                  <option value="">{loadingData ? 'Loading data...' : '-- Pilih Salesman --'}</option>
-                  {salesmans.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>No. Faktur Pajak</label>
-                <div className="flex gap-2 w-full">
-                  <input type="text" className={`${inputClass} bg-blue-50/50`} value={form.no_faktur_pajak || ''} onChange={e => setForm({...form, no_faktur_pajak: e.target.value})} />
-                  <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><RefreshCcw size={16} className="text-gray-600" /></button>
-                </div>
-              </div>
-              <div>
-                <label className={labelClass}>No. Kwitansi</label>
-                <div className="flex gap-2 w-full">
-                  <input type="text" className={`${inputClass} bg-blue-50/50`} value={form.no_kwitansi || ''} onChange={e => setForm({...form, no_kwitansi: e.target.value})} />
-                  <button className="px-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"><RefreshCcw size={16} className="text-gray-600" /></button>
-                </div>
-              </div>
-            </div>
-
-            {/* Kolom 3 */}
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className={labelClass}>Kurs Jual</label>
-                <input type="number" className={`${inputClass} text-right`} value={form.kurs_jual || ''} onChange={e => setForm({...form, kurs_jual: e.target.value})} />
-              </div>
-              <div>
-                <label className={labelClass}>Tgl JT</label>
-                <input type="date" className={inputClass} value={form.tgl_jt || ''} onChange={e => setForm({...form, tgl_jt: e.target.value})} />
-              </div>
-              <div>
-                <label className={labelClass}>Tgl PO</label>
-                <input type="date" className={inputClass} value={form.tgl_po || ''} onChange={e => setForm({...form, tgl_po: e.target.value})} />
-              </div>
-              <div>
-                <label className={labelClass}>Gudang</label>
-                <select className={inputClass} value={form.gudang_id || ''} onChange={e => setForm({...form, gudang_id: e.target.value ? Number(e.target.value) : ''})}>
-                  <option value="">{loadingData ? 'Loading data...' : '-- Pilih Gudang --'}</option>
-                  {gudangs.map(g => <option key={g.id} value={g.id}>{g.nama_gudang}</option>)}
-                </select>
-              </div>
-              <div className="flex flex-wrap items-center gap-6 mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" className="w-4 h-4 text-blue-600 rounded border-gray-300" checked={form.is_jasa || false} onChange={e => setForm({...form, is_jasa: e.target.checked})} />
-                  <label className="text-sm font-semibold text-gray-700">Jasa?</label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" className="w-4 h-4 text-blue-600 rounded border-gray-300" checked={form.is_paid || false} onChange={e => setForm({...form, is_paid: e.target.checked})} />
-                  <label className="text-sm font-semibold text-gray-700">Paid?</label>
-                </div>
-              </div>
-            </div>
-
-            {/* Kolom 4 */}
-            <div className="flex flex-col gap-4 h-full">
-              <div className="flex-1 flex flex-col">
-                <label className={labelClass}>Catatan Internal</label>
-                <textarea className={`${inputClass} flex-1 resize-none h-full min-h-[120px]`} value={form.catatan || ''} onChange={e => setForm({...form, catatan: e.target.value})} />
-              </div>
-              <div className="flex flex-col gap-3 mt-2">
-                <div className="border border-gray-200 p-3 relative rounded-md bg-gray-50 shadow-sm">
-                  <span className="absolute -top-2.5 left-3 bg-gray-50 px-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Record Created</span>
-                  <div className="flex gap-2 mt-2">
-                    <input type="text" className="w-full h-8 px-2 border border-gray-200 bg-white font-mono text-xs rounded-md" readOnly value={form.create_date ? new Date(form.create_date).toLocaleString('id-ID') : '-'} />
-                    <input type="text" className="w-24 h-8 px-2 border border-gray-200 bg-white text-center text-xs rounded-md" readOnly value={form.create_uid_name || user?.name || 'Unknown'} />
-                  </div>
-                </div>
-                <div className="border border-gray-200 p-3 relative rounded-md bg-gray-50 shadow-sm">
-                  <span className="absolute -top-2.5 left-3 bg-gray-50 px-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wide">Record Modified</span>
-                  <div className="flex gap-2 mt-2">
-                    <input type="text" className="w-full h-8 px-2 border border-gray-200 bg-white font-mono text-xs rounded-md" readOnly value={form.write_date ? new Date(form.write_date).toLocaleString('id-ID') : '-'} />
-                    <input type="text" className="w-24 h-8 px-2 border border-gray-200 bg-white text-center text-xs rounded-md" readOnly value={form.write_uid_name || user?.name || 'Unknown'} />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Tabs Tabel */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col shrink-0 overflow-hidden">
-          <div className="flex border-b border-gray-200 bg-slate-50">
-            <button 
-              onClick={() => setActiveTab('detail')}
-              className={`px-8 py-3 text-sm font-bold transition-colors ${activeTab === 'detail' ? 'bg-white text-blue-700 border-t-2 border-t-blue-600 border-r border-gray-200' : 'text-slate-600 hover:bg-slate-100 border-t-2 border-t-transparent border-r border-transparent'}`}>
-              Detail Barang/Jasa
-            </button>
-            <button 
-              onClick={() => setActiveTab('surat-jalan')}
-              className={`px-8 py-3 text-sm font-bold transition-colors ${activeTab === 'surat-jalan' ? 'bg-white text-blue-700 border-t-2 border-t-blue-600 border-x border-gray-200' : 'text-slate-600 hover:bg-slate-100 border-t-2 border-t-transparent border-x border-transparent'}`}>
-              Surat Jalan
-            </button>
-            <button 
-              onClick={() => setActiveTab('history')}
-              className={`px-8 py-3 text-sm font-bold transition-colors ${activeTab === 'history' ? 'bg-white text-blue-700 border-t-2 border-t-blue-600 border-x border-gray-200' : 'text-slate-600 hover:bg-slate-100 border-t-2 border-t-transparent border-x border-transparent'}`}>
-              History Pembayaran
-            </button>
-          </div>
-          
-          <div className="overflow-x-auto min-h-[250px] p-4">
-            {activeTab === 'detail' && (
-              <table className="w-full text-sm whitespace-nowrap border border-gray-200 rounded-md overflow-hidden">
-                <thead>
-                  <tr className="bg-slate-100 text-slate-700 border-b border-gray-300">
-                    <th className="w-12 px-3 py-3 text-center border-r border-gray-200 font-semibold">No.</th>
-                    <th className="w-48 px-3 py-3 text-left border-r border-gray-200 font-semibold">Kode Barang</th>
-                    <th className="px-3 py-3 text-left border-r border-gray-200 font-semibold">Nama Barang</th>
-                    <th className="w-24 px-3 py-3 text-center border-r border-gray-200 font-semibold">Satuan</th>
-                    <th className="w-24 px-3 py-3 text-center border-r border-gray-200 font-semibold">Kuantum</th>
-                    <th className="w-32 px-3 py-3 text-right border-r border-gray-200 font-semibold">Harga @</th>
-                    <th className="w-20 px-3 py-3 text-center border-r border-gray-200 font-semibold">% Disc</th>
-                    <th className="w-32 px-3 py-3 text-right border-r border-gray-200 font-semibold">Discount Harga</th>
-                    <th className="w-32 px-3 py-3 text-right border-r border-gray-200 font-semibold">Harga Jual</th>
-                    <th className="w-12 px-3 py-3 text-center font-semibold">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {form.lines.map((line: any, idx: number) => (
-                    <tr key={idx} className="hover:bg-blue-50/50 transition-colors group">
-                      <td className="px-3 py-2 text-center border-r border-gray-200 font-medium text-slate-600">{idx + 1}</td>
-                      <td className="px-3 py-2 border-r border-gray-200">
-                        <select className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm focus:outline-none focus:border-blue-500" value={line.item_id || ''} onChange={(e) => handleItemChange(idx, e.target.value ? Number(e.target.value) : '')}>
-                          <option value="">{loadingData ? 'Loading...' : '-- Pilih Kode Barang --'}</option>
-                          {items.map(i => <option key={i.id} value={i.id}>{i.kode}</option>)}
+            <div className="overflow-x-auto min-h-[350px]">
+              {activeTab === 'umum' && (
+                <div className="p-6">
+                  <div className="flex flex-col lg:flex-row gap-5">
+                    {/* Kolom Kiri */}
+                    <div className="flex-1 flex flex-col gap-3">
+                      <div className="flex items-start">
+                        <label className={labelClass}>No. Invoice</label>
+                        <div className="flex gap-1 flex-1">
+                          <input type="text" className={`${inputClass} font-mono w-48 bg-slate-50`} readOnly value={form.no_invoice || ''} />
+                          <button className="px-3 py-1.5 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm"><Search size={14} /></button>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Tgl Invoice</label>
+                        <input type="date" className={`${inputClass} w-48`} value={form.tgl_invoice || ''} onChange={e => setForm({...form, tgl_invoice: e.target.value})} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Nama Pembeli</label>
+                        <div className="flex gap-2 w-full">
+                          <select className={inputClass} value={form.pembeli_id || ''} onChange={e => handlePembeliChange(e.target.value ? Number(e.target.value) : '')}>
+                            <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
+                            {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
+                          </select>
+                          <button className="px-3 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm font-bold text-slate-600 transition-colors disabled:opacity-50" onClick={() => setShowPelangganModal(true)}>+</button>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Alamat</label>
+                        <textarea className={`${inputClass} h-24 resize-none`} value={form.alamat || ''} onChange={e => setForm({...form, alamat: e.target.value})} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>NPWP</label>
+                        <input type="text" className={`${inputClass} w-full`} value={form.npwp || ''} onChange={e => setForm({...form, npwp: e.target.value})} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Proyek</label>
+                        <select className={`${inputClass} w-full`} value={form.proyek || ''} onChange={e => setForm({...form, proyek: e.target.value})}>
+                          <option value="">{loadingData ? 'Loading...' : '-- Pilih Proyek --'}</option>
+                          {proyeks.map(p => <option key={p.id} value={p.kode}>{p.nama}</option>)}
                         </select>
-                      </td>
-                      <td className="px-3 py-2 border-r border-gray-200">
-                        <input type="text" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm bg-slate-50 focus:outline-none" readOnly value={line.nama || ''} />
-                      </td>
-                      <td className="px-3 py-2 border-r border-gray-200">
-                        <input type="text" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm bg-slate-50 text-center focus:outline-none" readOnly value={line.satuan || ''} />
-                      </td>
-                      <td className="px-3 py-2 border-r border-gray-200">
-                        <input type="number" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-right focus:outline-none focus:border-blue-500" value={line.kuantum || ''} />
-                      </td>
-                      <td className="px-3 py-2 border-r border-gray-200">
-                        <input type="number" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-right focus:outline-none focus:border-blue-500" value={line.harga || ''} />
-                      </td>
-                      <td className="px-3 py-2 border-r border-gray-200">
-                        <input type="number" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-center focus:outline-none focus:border-blue-500" value={line.disc_persen || ''} />
-                      </td>
-                      <td className="px-3 py-2 border-r border-gray-200">
-                        <input type="number" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-right focus:outline-none focus:border-blue-500" value={line.disc_harga || ''} />
-                      </td>
-                      <td className="px-3 py-2 border-r border-gray-200">
-                        <input type="text" className="w-full h-8 px-2 text-xs border border-gray-300 rounded-sm text-right bg-slate-100 font-semibold text-slate-800" disabled value={line.harga_jual || ''} />
-                      </td>
-                      <td className="px-3 py-2 text-center">
-                        <button className="text-red-500 hover:text-red-700 p-1.5 rounded transition-colors opacity-0 group-hover:opacity-100 hover:bg-red-50" title="Hapus">
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  <tr>
-                    <td className="px-3 py-3 border-r border-gray-200 text-center">
-                      <button className="w-7 h-7 mx-auto bg-slate-100 hover:bg-slate-200 text-slate-700 border border-gray-300 rounded-md flex items-center justify-center font-bold shadow-sm transition-colors" onClick={() => {
-                        const p = pelanggans.find(x => x.id === form.pembeli_id);
-                        const discPersen = p?.diskon || 0;
-                        setForm({...form, lines: [...form.lines, { item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, harga: 0, disc_persen: discPersen, disc_harga: 0, harga_jual: 0 }]});
-                      }}>+</button>
-                    </td>
-                    <td colSpan={9} className="px-4 py-3 text-sm text-slate-500 italic bg-slate-50">Klik tombol + untuk menambah baris barang/jasa</td>
-                  </tr>
-                </tbody>
-              </table>
-            )}
-            {activeTab !== 'detail' && (
-              <div className="p-12 text-center text-slate-500 font-medium">
-                Belum ada data riwayat.
-              </div>
-            )}
-          </div>
-        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Mata Uang</label>
+                        <select className={`${inputClass} w-48`} value={form.mata_uang || 'IDR'} onChange={e => setForm({...form, mata_uang: e.target.value})}>
+                          <option value="IDR">IDR</option>
+                          {mataUangs.map(m => m.kode !== 'IDR' && <option key={m.id} value={m.kode}>{m.kode}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Kurs Jual</label>
+                        <input type="number" className={`${inputClass} w-48 text-right`} value={form.kurs_jual || ''} onChange={e => setForm({...form, kurs_jual: e.target.value})} />
+                      </div>
+                    </div>
 
-        {/* Footer: Tanda Tangan & Kalkulasi */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 shrink-0">
+                    {/* Kolom Tengah */}
+                    <div className="flex-1 flex flex-col gap-3">
+                      <div className="flex items-start">
+                        <label className={labelClass}>No. SO</label>
+                        <div className="flex gap-1 flex-1">
+                          <select className={inputClass} value={form.no_so || ''} onChange={e => setForm({...form, no_so: e.target.value})}>
+                            <option value="">{loadingData ? 'Loading...' : '-- Pilih SO --'}</option>
+                            {salesOrders.map((so, idx) => <option key={idx} value={so.no_so}>{so.no_so}</option>)}
+                          </select>
+                          <button className="px-3 py-1.5 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm"><Search size={14} /></button>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>No. PO</label>
+                        <input type="text" className={`${inputClass} w-full`} value={form.no_po || ''} onChange={e => setForm({...form, no_po: e.target.value})} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Tgl PO</label>
+                        <input type="date" className={`${inputClass} w-48`} value={form.tgl_po || ''} onChange={e => setForm({...form, tgl_po: e.target.value})} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Tgl JT</label>
+                        <input type="date" className={`${inputClass} w-48`} value={form.tgl_jt || ''} onChange={e => setForm({...form, tgl_jt: e.target.value})} />
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Cara Pembayaran</label>
+                        <select className={`${inputClass} w-full`} value={form.cara_pembayaran || ''} onChange={e => setForm({...form, cara_pembayaran: e.target.value})}>
+                          <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
+                          {pembayarans.map(p => <option key={p.id} value={p.nama}>{p.nama}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Salesman</label>
+                        <select className={`${inputClass} w-full`} value={form.salesman_id || ''} onChange={e => setForm({...form, salesman_id: e.target.value ? Number(e.target.value) : ''})}>
+                          <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
+                          {salesmans.map(s => <option key={s.id} value={s.id}>{s.nama}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>Gudang</label>
+                        <select className={`${inputClass} w-full`} value={form.gudang_id || ''} onChange={e => setForm({...form, gudang_id: e.target.value ? Number(e.target.value) : ''})}>
+                          <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
+                          {gudangs.map(g => <option key={g.id} value={g.id}>{g.nama}</option>)}
+                        </select>
+                      </div>
+                      <div className="flex items-start mt-2 border-t border-slate-200 pt-3">
+                        <label className={labelClass}>No. Faktur Pajak</label>
+                        <div className="flex gap-1 flex-1">
+                          <input type="text" className={`${inputClass} w-full`} value={form.no_faktur_pajak || ''} onChange={e => setForm({...form, no_faktur_pajak: e.target.value})} />
+                          <button className="px-3 py-1.5 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm"><RefreshCcw size={14} /></button>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <label className={labelClass}>No. Kwitansi</label>
+                        <div className="flex gap-1 flex-1">
+                          <input type="text" className={`${inputClass} w-full`} value={form.no_kwitansi || ''} onChange={e => setForm({...form, no_kwitansi: e.target.value})} />
+                          <button className="px-3 py-1.5 border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm"><RefreshCcw size={14} /></button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Kolom Kanan - Audit */}
+                    <div className="w-[250px] flex flex-col gap-4">
+                      <div className="flex gap-4 items-center bg-slate-50 p-3 border border-slate-200 rounded-sm">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
+                          <input type="checkbox" checked={form.is_jasa || false} onChange={e => setForm({...form, is_jasa: e.target.checked})} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" /> Jasa ?
+                        </label>
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
+                          <input type="checkbox" checked={form.is_paid || false} onChange={e => setForm({...form, is_paid: e.target.checked})} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" /> Paid ?
+                        </label>
+                      </div>
+
+                      <div className="flex flex-col gap-2 mt-2">
+                        <label className="text-sm font-semibold text-slate-700">Catatan Internal</label>
+                        <textarea className={`${inputClass} h-24 resize-none`} value={form.catatan || ''} onChange={e => setForm({...form, catatan: e.target.value})} />
+                      </div>
+
+                      <div className="border border-slate-300 p-3 relative mt-4 rounded-sm bg-white shadow-sm">
+                        <span className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Record Created</span>
+                        <div className="flex gap-2 mt-2">
+                          <input type="text" className="w-full px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 font-mono rounded-sm" readOnly value={form.create_date ? new Date(form.create_date).toLocaleString('id-ID') : '-'} />
+                          <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.create_uid_name || user?.name || 'Unknown'} />
+                        </div>
+                      </div>
+                      <div className="border border-slate-300 p-3 relative mt-3 rounded-sm bg-white shadow-sm">
+                        <span className="absolute -top-2 left-3 bg-white px-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide">Record Modified</span>
+                        <div className="flex gap-2 mt-2">
+                          <input type="text" className="w-full px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 font-mono rounded-sm" readOnly value={form.write_date ? new Date(form.write_date).toLocaleString('id-ID') : '-'} />
+                          <input type="text" className="w-20 px-2 py-1.5 text-xs border border-slate-200 bg-slate-50 text-center rounded-sm" readOnly value={form.write_uid_name || user?.name || 'Unknown'} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {activeTab === 'detail' && (
+                <div className="flex flex-col h-full">
+                  <div className="p-3 bg-white border-b border-slate-200 shrink-0">
+                    <button onClick={handleAddLine} className="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 transition-colors rounded-sm shadow-sm">
+                      <Plus size={14} /> TAMBAH BARANG
+                    </button>
+                  </div>
+                  <table className="w-full text-sm text-left">
+                    <thead className="text-xs text-slate-700 bg-slate-100 border-b border-slate-300">
+                      <tr>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-12 text-center">No.</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-64">Kode / Nama Barang</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-24 text-center">Satuan</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-24 text-right">Kuantum</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-32 text-right">Harga Satuan</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-20 text-center">% Disc</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-32 text-right">Disc Harga</th>
+                        <th className="px-3 py-2 border-r border-slate-300 font-semibold w-32 text-right">Harga Jual</th>
+                        <th className="px-3 py-2 w-16 text-center font-semibold">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {(form.lines || []).map((line: any, idx: number) => {
+                        const base = (line.kuantum || 0) * (line.harga_satuan || 0);
+                        const disc = (base * (line.disc_persen || 0) / 100) + (line.disc_harga || 0);
+                        const hJual = base - disc;
+                        const itemInfo = items.find(i => i.id === line.item_id);
+                        return (
+                          <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-3 py-2 text-center border-r border-slate-200 font-bold text-slate-500">{idx + 1}</td>
+                            <td className="px-3 py-2 border-r border-slate-200">
+                               <div className="flex flex-col gap-1">
+                                 <select className={`${inputClass} font-mono h-8 py-1`} value={line.item_id || ''} onChange={e => handleItemChange(idx, e.target.value ? Number(e.target.value) : '')}>
+                                   <option value="">- Pilih Item -</option>
+                                   {items.map(i => <option key={i.id} value={i.id}>{i.kode}</option>)}
+                                 </select>
+                                 <input type="text" className={`${inputClass} text-xs bg-slate-50 h-7 py-1`} readOnly value={itemInfo?.nama || ''} />
+                               </div>
+                            </td>
+                            <td className="px-3 py-2 border-r border-slate-200">
+                              <input type="text" className={`${inputClass} text-center bg-slate-50 h-8 py-1`} readOnly value={line.satuan || ''} />
+                            </td>
+                            <td className="px-3 py-2 border-r border-slate-200">
+                              <input type="number" className={`${inputClass} text-right h-8 py-1`} value={line.kuantum || ''} onChange={e => {
+                                const newLines = [...form.lines];
+                                newLines[idx].kuantum = Number(e.target.value);
+                                setForm({...form, lines: newLines});
+                              }} />
+                            </td>
+                            <td className="px-3 py-2 border-r border-slate-200">
+                              <input type="number" className={`${inputClass} text-right h-8 py-1`} value={line.harga_satuan || ''} onChange={e => {
+                                const newLines = [...form.lines];
+                                newLines[idx].harga_satuan = Number(e.target.value);
+                                setForm({...form, lines: newLines});
+                              }} />
+                            </td>
+                            <td className="px-3 py-2 border-r border-slate-200">
+                              <input type="number" className={`${inputClass} text-center h-8 py-1`} value={line.disc_persen || ''} onChange={e => {
+                                const newLines = [...form.lines];
+                                newLines[idx].disc_persen = Number(e.target.value);
+                                setForm({...form, lines: newLines});
+                              }} />
+                            </td>
+                            <td className="px-3 py-2 border-r border-slate-200">
+                              <input type="number" className={`${inputClass} text-right h-8 py-1`} value={line.disc_harga || ''} onChange={e => {
+                                const newLines = [...form.lines];
+                                newLines[idx].disc_harga = Number(e.target.value);
+                                setForm({...form, lines: newLines});
+                              }} />
+                            </td>
+                            <td className="px-3 py-2 border-r border-slate-200 font-mono text-right font-semibold text-slate-800">
+                              {hJual.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                            </td>
+                            <td className="px-3 py-2 text-center">
+                              <button onClick={() => {
+                                const newLines = form.lines.filter((_: any, i: number) => i !== idx);
+                                setForm({...form, lines: newLines});
+                              }} className="p-1.5 text-red-600 hover:bg-red-50 rounded-sm transition-colors">
+                                <Trash2 size={16} />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {activeTab !== 'umum' && activeTab !== 'detail' && (
+                <div className="flex items-center justify-center h-64 text-slate-500 italic">
+                  Modul {activeTab === 'surat_jalan' ? 'Surat Jalan' : 'History Pembayaran'} sedang dalam pengembangan...
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Form (Footers) */}
+            {(() => {
+              const subtotal = (form.lines || []).reduce((acc: number, line: any) => {
+                const base = (line.kuantum || 0) * (line.harga_satuan || 0);
+                const disc = (base * (line.disc_persen || 0) / 100) + (line.disc_harga || 0);
+                return acc + (base - disc);
+              }, 0);
+              
+              const ppnPercent = 11;
+              const ppnAmount = subtotal * (ppnPercent / 100);
+              const totalAkhir = subtotal + ppnAmount;
+              
+              return (
+                <div className="bg-slate-50 border-t border-slate-300 p-6 shrink-0 flex flex-col lg:flex-row gap-8 justify-between mt-auto">
+                   {/* Kiri: Tanda Tangan */}
+                   <div className="flex-1 max-w-lg flex flex-col gap-4">
+                     <div className="flex gap-4 items-start">
+                        <div className="w-24 shrink-0 flex flex-col gap-1">
+                          <label className="text-sm font-semibold text-slate-700">Ttd / Cap</label>
+                          {signatureData && signatureData.ttd_image ? (
+                            <img src={`data:image/png;base64,${signatureData.ttd_image}`} alt="Tanda Tangan" className="h-16 object-contain border border-slate-200 bg-white p-1 rounded-sm shadow-sm" />
+                          ) : (
+                            <div className="h-16 border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-[10px] text-slate-400 text-center p-2 rounded-sm leading-tight">Canvas / Kosong</div>
+                          )}
+                        </div>
+                        <div className="flex-1 flex flex-col gap-3">
+                          <div className="flex items-center gap-2">
+                             <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">Nama</label>
+                             <input type="text" className={`${inputClass} flex-1 min-w-[120px]`} value={form.penandatangan || ''} onChange={e => setForm({...form, penandatangan: e.target.value})} />
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">Jabatan</label>
+                             <input type="text" className={`${inputClass} flex-1 min-w-[120px]`} value={form.jabatan || ''} onChange={e => setForm({...form, jabatan: e.target.value})} />
+                          </div>
+                        </div>
+                     </div>
+                     <div className="flex flex-col gap-1">
+                        <label className="text-sm font-semibold text-slate-700">Keterangan</label>
+                        <textarea className={`${inputClass} w-full h-16 resize-none`} value={form.keterangan || ''} onChange={e => setForm({...form, keterangan: e.target.value})} />
+                     </div>
+                   </div>
+
+                   {/* Kanan: Dua Kolom Kalkulasi */}
+                   <div className="flex flex-wrap lg:flex-nowrap gap-6 shrink-0">
+                     {/* Kalkulasi Piutang */}
+                     <div className="flex flex-col gap-2 w-[240px] shrink-0 lg:border-l border-slate-300 lg:pl-6">
+                       <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-slate-700">Nilai Invoice</span>
+                          <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800" readOnly value={totalAkhir.toLocaleString('en-US', {minimumFractionDigits: 2})} />
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-slate-700">Pembayaran</span>
+                          <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800" readOnly value="0.00" />
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-slate-700">Potongan</span>
+                          <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800" readOnly value="0.00" />
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-slate-700">Nota Kredit</span>
+                          <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800" readOnly value="0.00" />
+                       </div>
+                       <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-300">
+                          <span className="text-sm font-bold text-slate-800">Sisa Piutang</span>
+                          <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-white border border-slate-400 rounded-sm font-mono font-bold text-slate-900" readOnly value={totalAkhir.toLocaleString('en-US', {minimumFractionDigits: 2})} />
+                       </div>
+                     </div>
+
+                     {/* Kalkulasi Akhir */}
+                     <div className="flex flex-col gap-2 w-[260px] shrink-0 border-l border-slate-300 pl-6">
+                       <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-slate-700">Jlh Harga Jual</span>
+                          <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800" readOnly value={subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})} />
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-slate-700">Disc.</span>
+                          <div className="flex gap-1.5 w-32 justify-end">
+                            <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm" placeholder="%" />
+                            <input type="text" className="w-[80px] text-right px-2 py-1 text-sm bg-white border border-slate-300 rounded-sm font-mono" value="0.00" readOnly />
+                          </div>
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-slate-700">Uang Muka</span>
+                          <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-white border border-slate-300 rounded-sm font-mono" readOnly value="0.00" />
+                       </div>
+                       <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700 cursor-pointer">
+                            <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" /> Incl PPN
+                          </label>
+                          <div className="flex gap-1.5 items-center w-32 justify-end">
+                            <span className="text-xs font-bold text-slate-500">PPN</span>
+                            <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm" value={ppnPercent} readOnly />
+                            <input type="text" className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono" readOnly value={ppnAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} />
+                          </div>
+                       </div>
+                       <div className="flex items-center justify-end">
+                          <div className="flex gap-1.5 items-center w-32 justify-end">
+                            <span className="text-xs font-bold text-slate-500">PPh 22</span>
+                            <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm" defaultValue={0} />
+                            <input type="text" className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono" readOnly value="0.00" />
+                          </div>
+                       </div>
+                       <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-300">
+                          <span className="text-sm font-bold text-slate-800">Total</span>
+                          <input type="text" className="w-32 text-right px-2 py-1 text-base bg-white border border-slate-400 rounded-sm font-mono font-bold text-slate-900 shadow-inner" readOnly value={totalAkhir.toLocaleString('en-US', {minimumFractionDigits: 2})} />
+                       </div>
+                     </div>
+                   </div>
+                </div>
+              );
+            })()}
+          </div>
           
-          {/* Blok 1: Tanda Tangan */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col gap-4">
-            {signatureData && signatureData.ttd_image && (
-              <div className="mt-2 mb-2">
-                <img 
-                  src={`data:image/png;base64,${signatureData.ttd_image}`} 
-                  alt="Tanda Tangan" 
-                  className="h-16 w-auto object-contain border-b border-gray-300 mb-2 self-center mx-auto" 
-                />
-              </div>
-            )}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Tanda Tangan (Nama)</label>
-                <input 
-                  type="text" 
-                  className={inputClass} 
-                  value={form.penandatangan || ''} 
-                  onChange={e => setForm({...form, penandatangan: e.target.value})} 
-                />
-              </div>
-              <div>
-                <label className={labelClass}>Jabatan</label>
-                <input 
-                  type="text" 
-                  className={inputClass} 
-                  value={form.jabatan || ''} 
-                  onChange={e => setForm({...form, jabatan: e.target.value})} 
-                />
-              </div>
-            </div>
-            <div className="mt-auto">
-              <label className={labelClass}>Keterangan Tambahan</label>
-              <textarea className={`${inputClass} h-20 resize-none`} value={form.keterangan || ''} onChange={e => setForm({...form, keterangan: e.target.value})} />
-            </div>
+          <div className="flex justify-end gap-3 shrink-0 py-3 mt-3">
+            <button className={`${btnClass} bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 px-6 py-2 text-sm`}>
+               BATAL
+            </button>
+            <button onClick={handleSaveAll} className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 px-8 py-2 text-sm shadow-sm`}>
+              <Save size={16} /> SIMPAN INVOICE
+            </button>
           </div>
 
-          {/* Blok 2: Summary Read-Only */}
-          <div className="bg-slate-50 border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col gap-4">
-            <h4 className="text-lg font-bold text-slate-800 border-b border-gray-200 pb-3 mb-2">Summary Piutang</h4>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-semibold text-gray-600">Nilai Invoice</span>
-              <input type="text" className={`${inputClass} w-48 text-right bg-gray-200/50 font-semibold text-slate-800`} readOnly value="0" />
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-semibold text-gray-600">Total Pembayaran</span>
-              <input type="text" className={`${inputClass} w-48 text-right bg-gray-200/50 text-slate-800`} readOnly value="0" />
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-semibold text-gray-600">Total Potongan</span>
-              <input type="text" className={`${inputClass} w-48 text-right bg-gray-200/50 text-slate-800`} readOnly value="0" />
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-semibold text-gray-600">Nilai Nota Kredit</span>
-              <input type="text" className={`${inputClass} w-48 text-right bg-gray-200/50 text-slate-800`} readOnly value="0" />
-            </div>
-            <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-300">
-              <span className="text-base font-bold text-slate-800">Sisa Piutang</span>
-              <input type="text" className={`${inputClass} w-48 text-right bg-blue-50 font-bold text-blue-800 border-blue-200 text-lg`} readOnly value="0" />
-            </div>
-          </div>
-
-          {/* Blok 3: Kalkulasi Input */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-semibold text-gray-700">Jlh Harga Jual</span>
-              <input type="text" className={`${inputClass} w-48 text-right bg-slate-50`} readOnly value="0" />
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-semibold text-gray-700">Discount</span>
-              <div className="flex items-center gap-3 w-48">
-                <input type="number" className={`${inputClass} w-16 text-center`} placeholder="%" />
-                <input type="text" className={`${inputClass} flex-1 text-right`} placeholder="Rp" />
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-semibold text-gray-700">Uang Muka</span>
-              <input type="text" className={`${inputClass} w-48 text-right bg-slate-50`} readOnly value="0" />
-            </div>
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                <span className="text-sm font-semibold text-gray-700">Incl. PPN</span>
-              </div>
-              <div className="flex items-center gap-3 w-48">
-                <input type="number" className={`${inputClass} w-16 text-center`} placeholder="%" />
-                <input type="text" className={`${inputClass} flex-1 text-right bg-slate-50`} readOnly value="0" />
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-semibold text-gray-700">PPh 22</span>
-              <div className="flex items-center gap-3 w-48">
-                <input type="number" className={`${inputClass} w-16 text-center`} placeholder="%" />
-                <input type="text" className={`${inputClass} flex-1 text-right bg-slate-50`} readOnly value="0" />
-              </div>
-            </div>
-            <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-300">
-              <span className="text-lg font-bold text-slate-800">Total Akhir</span>
-              <input type="text" className="w-48 h-12 px-4 border border-gray-400 rounded-md text-right bg-slate-800 text-white font-bold text-xl shadow-inner outline-none" readOnly value="0" />
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-4 shrink-0 pb-6 mt-2">
-          <button className={`${btnClass} bg-white text-slate-700 border border-gray-300 hover:bg-slate-50 px-8 py-3 text-sm`}>
-             BATAL
-          </button>
-          <button onClick={handleSaveAll} className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 px-10 py-3 text-sm shadow-md`}>
-            <Save size={18} /> SIMPAN INVOICE
-          </button>
         </div>
       </div>
+      )}
 
       {/* Modal Tambah Invoice */}
       {showNewInvoiceModal && (
@@ -762,7 +920,7 @@ const Invoice: React.FC = () => {
         onClose={() => setShowPelangganModal(false)} 
         onSaved={fetchTtd} 
       />
-    </div>
+    </>
   );
 };
 
