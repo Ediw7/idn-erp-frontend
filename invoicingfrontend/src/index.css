@@ -22,3 +22,24 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* Print Styles */
+@media print {
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Hide sidebar and other app chrome */
+  nav, aside, .print\\:hidden {
+    display: none !important;
+  }
+  /* Ensure clean paper output */
+  .shadow-lg, .shadow-md {
+    box-shadow: none !important;
+  }
+  @page {
+    margin: 10mm;
+    size: A4;
+  }
+}

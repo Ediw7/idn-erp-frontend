@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, Save } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { SalesOrderLine } from '../api';
 
 interface SalesOrderLineModalProps {
@@ -15,6 +16,28 @@ export const SalesOrderLineModal: React.FC<SalesOrderLineModalProps> = ({
   editLineIndex, lineForm, setLineForm, items, onClose, onSave
 }) => {
   const inputCls = "w-full px-3 py-2 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm";
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  const handleSave = () => {
+    if ((lineForm.kuantum || 0) <= 0) {
+      toast.error('Kuantitas tidak boleh kurang dari atau sama dengan 0');
+      return;
+    }
+    if ((lineForm.harga_satuan || 0) < 0 || (lineForm.disc_persen || 0) < 0 || (lineForm.disc_harga || 0) < 0) {
+      toast.error('Nilai harga dan diskon tidak boleh negatif');
+      return;
+    }
+    onSave();
+  };
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
@@ -53,22 +76,22 @@ export const SalesOrderLineModal: React.FC<SalesOrderLineModalProps> = ({
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Kuantum</label>
-              <input type="number" className={`${inputCls} text-right font-mono`} value={lineForm.kuantum === 0 ? '' : lineForm.kuantum} onChange={e => setLineForm({ ...lineForm, kuantum: Number(e.target.value) })} />
+              <input type="number" min="0" className={`${inputCls} text-right font-mono`} value={lineForm.kuantum === 0 ? '' : lineForm.kuantum} onChange={e => setLineForm({ ...lineForm, kuantum: Number(e.target.value) })} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Harga Satuan</label>
-              <input type="number" className={`${inputCls} text-right font-mono`} value={lineForm.harga_satuan === 0 ? '' : lineForm.harga_satuan} onChange={e => setLineForm({ ...lineForm, harga_satuan: Number(e.target.value) })} />
+              <input type="number" min="0" className={`${inputCls} text-right font-mono`} value={lineForm.harga_satuan === 0 ? '' : lineForm.harga_satuan} onChange={e => setLineForm({ ...lineForm, harga_satuan: Number(e.target.value) })} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Diskon (%)</label>
-              <input type="number" className={`${inputCls} text-right font-mono`} value={lineForm.disc_persen === 0 ? '' : lineForm.disc_persen} onChange={e => setLineForm({ ...lineForm, disc_persen: Number(e.target.value) })} />
+              <input type="number" min="0" className={`${inputCls} text-right font-mono`} value={lineForm.disc_persen === 0 ? '' : lineForm.disc_persen} onChange={e => setLineForm({ ...lineForm, disc_persen: Number(e.target.value) })} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Diskon Harga (Nominal)</label>
-              <input type="number" className={`${inputCls} text-right font-mono`} value={lineForm.disc_harga === 0 ? '' : lineForm.disc_harga} onChange={e => setLineForm({ ...lineForm, disc_harga: Number(e.target.value) })} />
+              <input type="number" min="0" className={`${inputCls} text-right font-mono`} value={lineForm.disc_harga === 0 ? '' : lineForm.disc_harga} onChange={e => setLineForm({ ...lineForm, disc_harga: Number(e.target.value) })} />
             </div>
           </div>
 
@@ -87,7 +110,7 @@ export const SalesOrderLineModal: React.FC<SalesOrderLineModalProps> = ({
 
         <div className="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-3 shrink-0">
           <button onClick={onClose} className="px-6 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-sm transition-colors">Batal</button>
-          <button onClick={onSave} className="px-6 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors flex items-center gap-2">
+          <button onClick={handleSave} className="px-6 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors flex items-center gap-2">
             <Save size={14} /> Simpan Barang
           </button>
         </div>

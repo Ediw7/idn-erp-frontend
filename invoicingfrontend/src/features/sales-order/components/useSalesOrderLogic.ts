@@ -55,6 +55,23 @@ export const useSalesOrderLogic = () => {
 
   const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
   const [isNew, setIsNew] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const mergeSjToSo = (soList: SalesOrderData[]) => {
+    const savedSj = localStorage.getItem('edi_surat_jalans');
+    const sjList = savedSj ? JSON.parse(savedSj) : [];
+    return soList.map(so => {
+      const relatedSj = sjList.filter((sj: any) => sj.no_so === so.no_so);
+      const updatedLines = (so.lines || []).map(line => {
+        const totalKirim = relatedSj.reduce((sum: number, sj: any) => {
+          const sjLine = sj.lines?.find((sl: any) => sl.item_id === line.item_id);
+          return sum + (Number(sjLine?.kuantum) || 0);
+        }, 0);
+        return { ...line, qty_kirim: totalKirim };
+      });
+      return { ...so, lines: updatedLines, surat_jalans: relatedSj };
+    });
+  };
 
   useEffect(() => {
     fetchInitialData();
@@ -74,7 +91,9 @@ export const useSalesOrderLogic = () => {
         setupApi.getPerusahaan().catch(() => null)
       ]);
 
-      const soData = resSo || [];
+      let soData = resSo || [];
+      soData = mergeSjToSo(soData);
+
       setDataList(soData);
       setPelanggans(p || []); setMataUangs(m || []); setPembayarans(py || []);
       setSalesmans(s || []); setItems(i || []); setGudangs(g || []);
@@ -117,7 +136,7 @@ export const useSalesOrderLogic = () => {
     try {
       const savedRes = await salesOrderApi.save(newSoForm as SalesOrderData);
       const resSo = await salesOrderApi.getAll();
-      const soData = resSo || [];
+      const soData = mergeSjToSo(resSo || []);
       setDataList(soData);
       
       const newlyCreated = soData.find(so => so.id === savedRes.id) || soData[soData.length - 1];
@@ -139,7 +158,7 @@ export const useSalesOrderLogic = () => {
 
   const handleCetak = () => {
     if (form.no_so) {
-      navigate(`/laporan?so_number=${encodeURIComponent(form.no_so)}`);
+      navigate(`/laporan?reportName=${encodeURIComponent('Sales Order (A4 / Kwarto / 1/2 Kwarto)')}&so_number=${encodeURIComponent(form.no_so)}`);
     } else {
       navigate('/laporan');
     }
@@ -170,10 +189,12 @@ export const useSalesOrderLogic = () => {
   };
 
   const handleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
     try {
       await salesOrderApi.save(form as SalesOrderData);
       const resSo = await salesOrderApi.getAll();
-      const soData = resSo || [];
+      const soData = mergeSjToSo(resSo || []);
       setDataList(soData);
 
       if (isNew) {
@@ -186,6 +207,8 @@ export const useSalesOrderLogic = () => {
       toast.success('Data berhasil disimpan');
     } catch (error) {
       toast.error('Gagal menyimpan Sales Order');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -195,7 +218,7 @@ export const useSalesOrderLogic = () => {
     try {
       await salesOrderApi.delete(id);
       const resSo = await salesOrderApi.getAll();
-      const soData = resSo || [];
+      const soData = mergeSjToSo(resSo || []);
       setDataList(soData);
       toast.success('Data berhasil dihapus');
     } catch (error) {
@@ -210,7 +233,7 @@ export const useSalesOrderLogic = () => {
     try {
       await salesOrderApi.delete(form.id);
       const resSo = await salesOrderApi.getAll();
-      const soData = resSo || [];
+      const soData = mergeSjToSo(resSo || []);
       setDataList(soData);
 
       if (soData.length > 0) {
@@ -363,6 +386,7 @@ export const useSalesOrderLogic = () => {
     handleCetak,
     handleVoid,
     handleBuatSJClick,
+    isSaving,
     handleSave,
     handleDeleteSO,
     handleDelete,

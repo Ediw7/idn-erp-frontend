@@ -363,7 +363,8 @@ const Laporan: React.FC = () => {
                 onClick={() => {
                   const queryParams = new URLSearchParams({
                     reportType: selectedReport,
-                    no_sj: filter.dari_no_sj
+                    ...(filter.dari_no_sj ? { no_sj: filter.dari_no_sj } : {}),
+                    ...(filter.dari_no_so ? { no_so: filter.dari_no_so } : {})
                   });
                   window.open(`/preview-laporan?${queryParams.toString()}`, '_blank');
                 }}

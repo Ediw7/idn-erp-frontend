@@ -21,6 +21,7 @@ interface SalesOrderFormViewProps {
   salesmans: any[];
   items: any[];
   gudangs: any[];
+  dataList: any[];
   wajibPpnbm: boolean;
   loadingData: boolean;
   subtotal: number;
@@ -40,15 +41,17 @@ interface SalesOrderFormViewProps {
   removeLine: (idx: number) => void;
   setShowPelangganModal: (v: boolean) => void;
   setViewMode: (v: 'list' | 'form') => void;
+  onSelectSO: (so: any) => void;
+  isSaving?: boolean;
 }
 
 export const SalesOrderFormView: React.FC<SalesOrderFormViewProps> = ({
   form, setForm, isReadOnly, inputClass, labelClass, activeTab, setActiveTab,
   periode, setPeriode, pelanggans, mataUangs, pembayarans, salesmans, items, gudangs,
-  wajibPpnbm, loadingData, subtotal, dpp, ppnAmount, ppnbmAmount, total,
+  dataList, wajibPpnbm, loadingData, subtotal, dpp, ppnAmount, ppnbmAmount, total,
   handleNewClick, handleCetak, handleBuatSJClick, handleSave, handleDelete, handleVoid,
   handlePelangganChange, handleOpenAddLine, handleOpenEditLine, removeLine,
-  setShowPelangganModal, setViewMode
+  setShowPelangganModal, setViewMode, onSelectSO, isSaving
 }) => {
   return (
     <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
@@ -142,9 +145,11 @@ export const SalesOrderFormView: React.FC<SalesOrderFormViewProps> = ({
                 mataUangs={mataUangs}
                 pembayarans={pembayarans}
                 salesmans={salesmans}
+                dataList={dataList}
                 handlePelangganChange={handlePelangganChange}
                 setShowPelangganModal={setShowPelangganModal}
                 handleVoid={handleVoid}
+                onSelectSO={onSelectSO}
                 inputClass={inputClass}
                 labelClass={labelClass}
               />
@@ -229,8 +234,13 @@ export const SalesOrderFormView: React.FC<SalesOrderFormViewProps> = ({
                 <button disabled={isReadOnly || !form.id} onClick={handleDelete} className="px-6 py-3 text-sm font-bold text-red-600 bg-white border border-red-200 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 rounded-sm shadow-sm disabled:opacity-50">
                   <Trash2 size={16} /> HAPUS SO
                 </button>
-                <button disabled={isReadOnly} onClick={handleSave} className="px-8 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 rounded-sm shadow-md w-full disabled:bg-slate-400">
-                  <Save size={16} /> SIMPAN SALES ORDER
+                <button disabled={isReadOnly || isSaving} onClick={handleSave} className="px-8 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 rounded-sm shadow-md w-full disabled:bg-slate-400">
+                  {isSaving ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Save size={16} />
+                  )}
+                  {isSaving ? 'MENYIMPAN...' : 'SIMPAN SALES ORDER'}
                 </button>
               </div>
             </div>

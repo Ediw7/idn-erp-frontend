@@ -16,11 +16,11 @@ const SalesOrder: React.FC = () => {
     isLineModalOpen, setIsLineModalOpen, editLineIndex, lineForm, setLineForm, viewMode, setViewMode,
     isNew, setIsNew, setCurrentIndex, fetchInitialData, handleNewClick, handleCreateNewSo,
     handleCetak, handleVoid, handleBuatSJClick, handleSave, handleDeleteSO, handleDelete,
-    subtotal, ppnAmount, ppnbmAmount, total,
+    subtotal, ppnAmount, ppnbmAmount, total, isSaving,
     handlePelangganChange, handleOpenAddLine, handleOpenEditLine, handleSaveLine, removeLine
   } = useSalesOrderLogic();
 
-  const isReadOnly = form.is_closed || form.is_void;
+  const isReadOnly = !!(form.is_closed || form.is_void);
   const inputClass = "w-full px-3 py-1.5 bg-white border border-slate-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-sm text-sm disabled:bg-slate-100 disabled:text-slate-500 transition-colors";
   const labelClass = "w-36 text-xs font-semibold text-slate-700 shrink-0 mt-2";
   const dpp = subtotal - (form.potongan_harga || 0);
@@ -77,6 +77,7 @@ const SalesOrder: React.FC = () => {
           salesmans={salesmans}
           items={items}
           gudangs={gudangs}
+          dataList={dataList}
           wajibPpnbm={wajibPpnbm}
           loadingData={loadingData}
           subtotal={subtotal}
@@ -88,6 +89,7 @@ const SalesOrder: React.FC = () => {
           handleCetak={handleCetak}
           handleBuatSJClick={handleBuatSJClick}
           handleSave={handleSave}
+          isSaving={isSaving}
           handleDelete={handleDelete}
           handleVoid={handleVoid}
           handlePelangganChange={handlePelangganChange}
@@ -96,6 +98,12 @@ const SalesOrder: React.FC = () => {
           removeLine={removeLine}
           setShowPelangganModal={setShowPelangganModal}
           setViewMode={setViewMode}
+          onSelectSO={(so) => {
+            setForm(so);
+            const idx = dataList.findIndex(s => s.id === so.id);
+            if (idx >= 0) setCurrentIndex(idx);
+            setIsNew(false);
+          }}
         />
       )}
 
