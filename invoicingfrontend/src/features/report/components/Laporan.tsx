@@ -86,6 +86,7 @@ const Laporan: React.FC = () => {
     const reportNameParam = params.get('reportName');
     const sjNumberParam = params.get('sj_number');
     const soNumberParam = params.get('so_number');
+    const invoiceNumberParam = params.get('invoice_number');
 
     if (reportNameParam) {
       const foundReport = REPORT_TYPES.find(r => r.title === reportNameParam);
@@ -94,13 +95,15 @@ const Laporan: React.FC = () => {
       }
     }
 
-    if (sjNumberParam || soNumberParam) {
+    if (sjNumberParam || soNumberParam || invoiceNumberParam) {
       setFilter(prev => ({
         ...prev,
         dari_no_sj: sjNumberParam || prev.dari_no_sj,
         sampai_no_sj: sjNumberParam || prev.sampai_no_sj,
         dari_no_so: soNumberParam || prev.dari_no_so,
-        sampai_no_so: soNumberParam || prev.sampai_no_so
+        sampai_no_so: soNumberParam || prev.sampai_no_so,
+        dari_no_invoice: invoiceNumberParam || prev.dari_no_invoice,
+        sampai_no_invoice: invoiceNumberParam || prev.sampai_no_invoice
       }));
     }
   }, [location.search]);

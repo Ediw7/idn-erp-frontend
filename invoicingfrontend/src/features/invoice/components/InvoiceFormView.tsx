@@ -120,7 +120,7 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
           <button onClick={() => { setModalForm({...emptyForm, no_invoice: `INV/00${Math.floor(Math.random()*100)}/06/2026`}); setShowNewInvoiceModal(true); }} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
              <FilePlus size={12} /> + TAMBAH INVOICE
           </button>
-          <button onClick={() => navigate(form.no_invoice ? `/laporan?invoice_number=${encodeURIComponent(form.no_invoice)}&reportName=${encodeURIComponent('Invoice (A4 / Kwarto)')}` : '/laporan?reportName=Invoice (A4 / Kwarto)')} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
+          <button onClick={() => navigate(form.no_invoice ? `/laporan?invoice_number=${encodeURIComponent(form.no_invoice)}&reportName=${encodeURIComponent('Invoice (A4 / Kuarto)')}` : '/laporan?reportName=Invoice (A4 / Kuarto)')} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
              <Printer size={12} /> CETAK
           </button>
           <button onClick={handleUpdateFpClick} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-green-600 border border-transparent hover:bg-green-700 transition-colors rounded-sm shadow-sm whitespace-nowrap">
