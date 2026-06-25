@@ -24,9 +24,7 @@ export const SalesOrderListView: React.FC<SalesOrderListViewProps> = ({
 
   const filteredData = dataList.filter(item => {
     if (!searchPelanggan) return true;
-    const pelanggan = pelanggans.find(p => p.id === item.pelanggan_id);
-    const nama = pelanggan?.nama_pelanggan || '';
-    return nama.toLowerCase().includes(searchPelanggan.toLowerCase());
+    return String(item.pelanggan_id) === searchPelanggan;
   });
 
   return (
@@ -53,13 +51,16 @@ export const SalesOrderListView: React.FC<SalesOrderListViewProps> = ({
             <div className="h-4 w-px bg-slate-600"></div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-300 font-medium">Pelanggan:</span>
-              <input 
-                type="text" 
-                placeholder="Cari nama pelanggan..." 
+              <select 
                 value={searchPelanggan}
                 onChange={e => setSearchPelanggan(e.target.value)}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-48 placeholder-slate-400"
-              />
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-48"
+              >
+                <option value="">-- Semua Pelanggan --</option>
+                {pelanggans.map(p => (
+                  <option key={p.id} value={p.id}>{p.nama}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
