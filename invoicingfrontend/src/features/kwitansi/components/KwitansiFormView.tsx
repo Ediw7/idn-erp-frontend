@@ -95,9 +95,6 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
               <label className={labelClass}>No. Invoice</label>
               <div className="flex gap-2 flex-1">
                 <input type="text" className={`${inputClass} font-mono`} placeholder="No Invoice..." value={form.no_invoice || ''} onChange={e => setForm({...form, no_invoice: e.target.value})} />
-                <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm hover:bg-slate-200 transition-colors">
-                  <Search size={14} className="text-slate-600" />
-                </button>
               </div>
             </div>
 

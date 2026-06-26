@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Printer, RefreshCw } from 'lucide-react';
 import { setupApi, PelangganData, ProyekData, SalesmanData } from '../../setup/api';
+import { getOutstanding } from '../../transactionsApi';
 import toast from 'react-hot-toast';
 
 interface OutstandingData {
@@ -21,16 +22,7 @@ interface OutstandingData {
   catatan: string;
 }
 
-const mockData: OutstandingData[] = [
-  { id: '1', tanggal: '1/7/2020', no_invoice: 'FT/001/01/2020', nama_pelanggan: 'PT ISM Bogasari Flour', alamat: 'Jl. Raya Cilincing, Tanjung Priok', no_telp: '021-4301048', tgl_jt: '1/21/2020', mata_uang: 'IDR', jumlah: 11450400.00, saldo: 6450400.00, sales: 'Windi', proyek: '', no_so: '', no_po: '', catatan: '' },
-  { id: '2', tanggal: '6/1/2020', no_invoice: 'FT/001/06/2020', nama_pelanggan: 'PT Sari Wangi', alamat: 'Jl. Sukabumi No. 123, Menteng', no_telp: '', tgl_jt: '6/8/2020', mata_uang: 'IDR', jumlah: 1127500.00, saldo: 1127500.00, sales: 'Andi', proyek: '', no_so: 'SO/001/05/2020', no_po: 'PO-001', catatan: '' },
-  { id: '3', tanggal: '1/15/2020', no_invoice: 'FT/002/01/2020', nama_pelanggan: 'PT Sari Wangi', alamat: 'Jl. Sukabumi No. 123, Menteng', no_telp: '', tgl_jt: '1/22/2020', mata_uang: 'IDR', jumlah: 3413100.00, saldo: 3413100.00, sales: 'Andi', proyek: '', no_so: '', no_po: '', catatan: '' },
-  { id: '4', tanggal: '6/1/2020', no_invoice: 'FT/002/06/2020', nama_pelanggan: 'PT ISM Bogasari Flour', alamat: 'Jl. Raya Cilincing, Tanjung Priok', no_telp: '021-4301048', tgl_jt: '6/15/2020', mata_uang: 'IDR', jumlah: 1390400.00, saldo: 1390400.00, sales: '', proyek: '', no_so: 'SO/001/06/2020', no_po: 'PO-001', catatan: '' },
-  { id: '5', tanggal: '12/30/2020', no_invoice: 'FT/002/12/2020', nama_pelanggan: 'Toko Maju Jaya', alamat: 'Jl. Perhubungan Raya, Jakarta', no_telp: '', tgl_jt: '1/13/2021', mata_uang: 'IDR', jumlah: 418000.00, saldo: 418000.00, sales: '', proyek: '', no_so: 'SO/005/12/2020', no_po: '', catatan: '' },
-  { id: '6', tanggal: '1/15/2020', no_invoice: 'FT/003/01/2020', nama_pelanggan: 'PT ISM Bogasari Flour', alamat: 'Jl. Raya Cilincing, Tanjung Priok', no_telp: '021-4301048', tgl_jt: '1/29/2020', mata_uang: 'IDR', jumlah: 2530000.00, saldo: 2530000.00, sales: 'Windi', proyek: '', no_so: '', no_po: '', catatan: '' },
-  { id: '7', tanggal: '12/30/2020', no_invoice: 'FT/003/12/2020', nama_pelanggan: 'PT Sari Wangi', alamat: 'Jl. Sukabumi No. 123, Menteng', no_telp: '', tgl_jt: '1/6/2021', mata_uang: 'IDR', jumlah: 1100000.00, saldo: 1100000.00, sales: '', proyek: '', no_so: 'SO/003/01/2020', no_po: 'PO-005', catatan: '' },
-  { id: '8', tanggal: '12/12/2019', no_invoice: 'FT/124/12/2029', nama_pelanggan: 'PT ISM Bogasari Flour', alamat: 'Jl. Raya Cilincing, Tanjung Priok', no_telp: '021-4301048', tgl_jt: '12/26/2019', mata_uang: 'IDR', jumlah: 23000000.00, saldo: 23000000.00, sales: '', proyek: 'Proyek Kuningan', no_so: '', no_po: '', catatan: '' },
-];
+
 
 const OutstandingInvoice: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -52,81 +44,47 @@ const OutstandingInvoice: React.FC = () => {
 
   useEffect(() => {
     const fetchMasterData = async () => {
+      setIsLoading(true);
       try {
-        const [pelangganRes, proyekRes, salesRes] = await Promise.all([
+        const [pelangganRes, proyekRes, salesRes, outRes] = await Promise.all([
           setupApi.getPelanggan().catch(() => []),
           setupApi.getProyek().catch(() => []),
-          setupApi.getSalesman().catch(() => [])
+          setupApi.getSalesman().catch(() => []),
+          getOutstanding().catch(() => [])
         ]);
         setPelanggans(pelangganRes);
         setProyeks(proyekRes);
         setSalesmen(salesRes);
+        
+        const mapped: OutstandingData[] = outRes.map((inv: any) => ({
+          id: String(inv.id),
+          tanggal: inv.tgl_invoice,
+          no_invoice: inv.no_invoice,
+          nama_pelanggan: inv.pelanggan_nama,
+          alamat: '',
+          no_telp: '',
+          tgl_jt: '',
+          mata_uang: 'IDR',
+          jumlah: inv.total_tagihan,
+          saldo: inv.saldo_piutang,
+          sales: '',
+          proyek: '',
+          no_so: '',
+          no_po: '',
+          catatan: ''
+        }));
+        
+        setDataList(mapped);
       } catch (error: any) {
         toast.error('Gagal memuat master data');
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchMasterData();
   }, []);
 
-  useEffect(() => {
-    // Fetch live data from localStorage instead of mockData
-    if (pelanggans.length > 0) {
-      const savedInvoices = localStorage.getItem('edi_invoices');
-      const invoices = savedInvoices ? JSON.parse(savedInvoices) : [];
-      
-      const outstanding: OutstandingData[] = invoices.map((inv: any) => {
-        // Hitung total invoice dengan benar (memasukkan disc_persen dan disc_harga)
-        const subtotal = (inv.lines || []).reduce((acc: number, line: any) => {
-          const base = (line.kuantum || 0) * (line.harga_satuan || 0);
-          const disc = (base * (line.disc_persen || 0) / 100) + (line.disc_harga || 0);
-          return acc + (base - disc);
-        }, 0);
-        
-        const dpp = subtotal - (inv.potongan_harga || 0);
-        const ppn = dpp * (inv.ppn_persen || 0) / 100;
-        const totalInvoice = dpp + ppn + (inv.ongkos_angkut || 0);
 
-        // Simulasi saldo
-        // Dikurangi total pembayaran dan potongan dari edi_pembayaran
-        const pembayaranSaved = localStorage.getItem('edi_pembayaran');
-        const pembayaranList = pembayaranSaved ? JSON.parse(pembayaranSaved) : [];
-        const totalDibayar = pembayaranList.reduce((acc: number, bayar: any) => {
-          // Cari apakah invoice ini dibayar di dokumen pembayaran ini
-          const details = (bayar.lines || []).filter((l: any) => l.no_invoice === inv.no_invoice);
-          // Jumlahkan pembayaran + potongan yang diberikan untuk invoice ini
-          const sumPerBukti = details.reduce((sum: number, l: any) => sum + Number(l.pembayaran || 0) + Number(l.potongan || 0), 0);
-          return acc + sumPerBukti;
-        }, 0);
-
-        const saldo = totalInvoice - totalDibayar;
-
-        const pelanggan = pelanggans.find(p => p.id === inv.pembeli_id);
-        const proyekName = proyeks.find(p => p.kode === inv.proyek)?.nama || '';
-        const salesName = salesmen.find(s => s.id === inv.salesman_id)?.nama || '';
-
-        return {
-          id: inv.id || inv.no_invoice,
-          tanggal: inv.tgl_invoice,
-          no_invoice: inv.no_invoice,
-          nama_pelanggan: pelanggan ? pelanggan.nama : 'Unknown',
-          alamat: inv.alamat || '',
-          no_telp: pelanggan ? pelanggan.telepon : '',
-          tgl_jt: inv.tgl_jt,
-          mata_uang: inv.mata_uang || 'IDR',
-          jumlah: totalInvoice,
-          saldo: saldo,
-          sales: salesName,
-          proyek: proyekName,
-          no_so: inv.no_so || '',
-          no_po: inv.no_po || '',
-          catatan: inv.catatan || ''
-        };
-      });
-
-      // Filter yang benar-benar outstanding (saldo > 0)
-      setDataList(outstanding.filter(item => item.saldo > 0));
-    }
-  }, [pelanggans, proyeks, salesmen]);
 
   const handleResetFilter = () => {
     setFilter({

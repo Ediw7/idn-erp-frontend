@@ -10,7 +10,9 @@ export const useSignatureAutoFill = (jenisFormulir: string) => {
       setIsLoading(true);
       try {
         const data = await setupApi.getTandaTangan();
-        const matchedData = data.find(item => item.jenis_formulir === jenisFormulir);
+        const matchedData = data.find(item => 
+          item.jenis_formulir?.trim().toLowerCase() === jenisFormulir.trim().toLowerCase()
+        );
         if (matchedData) {
           setSignatureData(matchedData);
         } else {

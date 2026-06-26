@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { useConfirm } from '../../../contexts/ConfirmContext';
 import { setupApi } from '../../setup/api';
+import { getPembayaran, savePembayaran, getOutstanding } from '../../transactionsApi';
 
 export const emptyForm = {
   no_bukti: '',
@@ -29,10 +30,7 @@ export const usePembayaranLogic = () => {
   const confirm = useConfirm();
 
   const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
-  const [dataList, setDataList] = useState<any[]>(() => {
-    const saved = localStorage.getItem('edi_pembayaran');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [dataList, setDataList] = useState<any[]>([]);
   
   const [form, setForm] = useState<any>(emptyForm);
 
@@ -49,40 +47,14 @@ export const usePembayaranLogic = () => {
   const fetchData = async () => {
     setLoadingData(true);
     try {
-        const pelRes = await setupApi.getPelanggan().catch(() => []);
+        const [pelRes, outRes, pemRes] = await Promise.all([
+          setupApi.getPelanggan().catch(() => []),
+          getOutstanding().catch(() => []),
+          getPembayaran().catch(() => [])
+        ]);
         setPelanggans(pelRes);
-        
-        const savedInvoices = localStorage.getItem('edi_invoices');
-        const rawInvoices = savedInvoices ? JSON.parse(savedInvoices) : [];
-        
-        const pembayaranSaved = localStorage.getItem('edi_pembayaran');
-        const pembayaranList = pembayaranSaved ? JSON.parse(pembayaranSaved) : [];
-
-        const processedInvoices = rawInvoices.map((inv: any) => {
-          const subtotal = (inv.lines || []).reduce((acc: number, line: any) => {
-            const base = (line.kuantum || 0) * (line.harga_satuan || 0);
-            const disc = (base * (line.disc_persen || 0) / 100) + (line.disc_harga || 0);
-            return acc + (base - disc);
-          }, 0);
-          
-          const dpp = subtotal - (inv.potongan_harga || 0);
-          const ppn = dpp * (inv.ppn_persen || 0) / 100;
-          const totalInvoice = dpp + ppn + (inv.ongkos_angkut || 0);
-
-          const totalDibayar = pembayaranList.reduce((acc: number, bayar: any) => {
-            const details = (bayar.lines || []).filter((l: any) => l.no_invoice === inv.no_invoice);
-            const sumPerBukti = details.reduce((sum: number, l: any) => sum + Number(l.pembayaran || 0) + Number(l.potongan || 0), 0);
-            return acc + sumPerBukti;
-          }, 0);
-
-          return {
-            ...inv,
-            total_akhir: totalInvoice,
-            saldo: totalInvoice - totalDibayar
-          };
-        });
-
-        setInvoices(processedInvoices);
+        setInvoices(outRes);
+        setDataList(pemRes);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -136,7 +108,7 @@ export const usePembayaranLogic = () => {
     setForm({ ...form, lines: newLines });
   };
 
-  const handleSaveAll = () => {
+  const handleSaveAll = async () => {
     if (!form.no_bukti) {
       toast.error('Harap isi No. Bukti terlebih dahulu!');
       return;
@@ -145,56 +117,39 @@ export const usePembayaranLogic = () => {
       toast.error('Nama Pembeli harus dipilih!');
       return;
     }
-    if (!form.perkiraan_kas_bank) {
-      toast.error('Perkiraan Kas/Bank harus dipilih!');
-      return;
-    }
-    
-    const totalPembayaran = (form.lines || []).reduce((acc: number, line: any) => acc + (Number(line.pembayaran) || 0), 0);
-    const totalJumlahPenerimaan = Number(form.jumlah_penerimaan) || 0;
-    
-    // Auto sync penerimaan if 0, otherwise check if they match (optional, but good practice)
-    if (totalJumlahPenerimaan > 0 && totalJumlahPenerimaan !== totalPembayaran) {
-      toast.error(`Jumlah Penerimaan (IDR ${totalJumlahPenerimaan.toLocaleString()}) tidak sama dengan Total Alokasi (IDR ${totalPembayaran.toLocaleString()})!`);
-      return;
-    }
 
-    const updatedForm = {
-      ...form,
-      jumlah_penerimaan: totalJumlahPenerimaan === 0 ? totalPembayaran : totalJumlahPenerimaan,
-      write_date: new Date().toISOString(),
-      write_uid_name: user?.name || 'Unknown'
-    };
-
-    if (!updatedForm.id) {
-      updatedForm.id = Date.now();
-      updatedForm.create_date = new Date().toISOString();
-      updatedForm.create_uid_name = user?.name || 'Unknown';
+    try {
+      const payload = {
+        ...form,
+        tgl_pembayaran: form.tanggal,
+        pelanggan_id: Number(form.pelanggan_id),
+        perkiraan_kas_id: form.perkiraan_kas_bank ? Number(form.perkiraan_kas_bank) : null,
+        lines: (form.lines || []).map((l: any) => {
+          const inv = invoices.find(i => i.no_invoice === l.no_invoice);
+          return {
+            invoice_id: inv ? inv.id : null,
+            pembayaran: Number(l.pembayaran),
+            potongan: Number(l.potongan),
+            keterangan: l.keterangan || ''
+          };
+        })
+      };
+      
+      await savePembayaran(payload);
+      
+      // Refresh list
+      const pemRes = await getPembayaran();
+      setDataList(pemRes || []);
+      
+      toast.success('Bukti Pembayaran berhasil disimpan');
+      setViewMode('list');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Gagal menyimpan Pembayaran');
     }
-
-    setForm(updatedForm);
-    
-    let newDataList;
-    if (updatedForm.id && dataList.some(d => d.id === updatedForm.id)) {
-      newDataList = dataList.map(item => item.id === updatedForm.id ? updatedForm : item);
-    } else {
-      newDataList = [updatedForm, ...dataList];
-    }
-    setDataList(newDataList);
-    localStorage.setItem('edi_pembayaran', JSON.stringify(newDataList));
-    
-    toast.success('Bukti Pembayaran berhasil disimpan');
-    setViewMode('list');
   };
 
   const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus Bukti Pembayaran ini?');
-    if (!isConfirmed) return;
-    
-    const newDataList = dataList.filter(item => item.id !== id);
-    setDataList(newDataList);
-    localStorage.setItem('edi_pembayaran', JSON.stringify(newDataList));
-    toast.success('Data berhasil dihapus');
+    toast.error('Fungsi hapus belum aktif di backend');
   };
 
   const availableInvoices = invoices.filter(inv => inv.pembeli_id === form.pelanggan_id && inv.saldo > 0);

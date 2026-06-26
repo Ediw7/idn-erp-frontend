@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { setupApi, PelangganData } from '../../setup/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
 import { useConfirm } from '../../../contexts/ConfirmContext';
+import { getKwitansi, saveKwitansi } from '../../transactionsApi';
 
 const angkaMenjadiTerbilang = (angka: number): string => {
   const huruf = [
@@ -38,10 +39,7 @@ export const useKwitansiLogic = () => {
   const [loadingData, setLoadingData] = useState(true);
 
   const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
-  const [dataList, setDataList] = useState<any[]>(() => {
-    const saved = localStorage.getItem('edi_kwitansis');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [dataList, setDataList] = useState<any[]>([]);
 
   const [filter, setFilter] = useState({
     periode: '2026-06',
@@ -77,10 +75,14 @@ export const useKwitansiLogic = () => {
     const fetchData = async () => {
       setLoadingData(true);
       try {
-        const pelRes = await setupApi.getPelanggan();
+        const [pelRes, kwRes] = await Promise.all([
+           setupApi.getPelanggan(),
+           getKwitansi().catch(() => [])
+        ]);
         setPelanggans(pelRes);
+        setDataList(kwRes || []);
       } catch (err) {
-        console.error("Failed to fetch pelanggan:", err);
+        console.error("Failed to fetch:", err);
       } finally {
         setLoadingData(false);
       }
@@ -112,7 +114,7 @@ export const useKwitansiLogic = () => {
         jabatan: signatureData.jabatan || prev.jabatan
       }));
     }
-  }, [signatureData, viewMode]);
+  }, [signatureData, viewMode, form.no_kwitansi]);
 
   const handleJumlahChange = (val: string) => {
     const num = Number(val);
@@ -132,7 +134,7 @@ export const useKwitansiLogic = () => {
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.no_kwitansi) {
       toast.error('No. Kwitansi harus diisi!');
       return;
@@ -142,30 +144,25 @@ export const useKwitansiLogic = () => {
       return;
     }
 
-    const existingIndex = dataList.findIndex(k => k.no_kwitansi === form.no_kwitansi);
-    let newList = [...dataList];
-    if (existingIndex >= 0) {
-      newList[existingIndex] = form;
-    } else {
-      newList.push(form);
+    try {
+      const payload = {
+        ...form,
+        pelanggan_id: form.pembeli_id ? Number(form.pembeli_id) : null,
+      };
+      
+      await saveKwitansi(payload);
+      const latestData = await getKwitansi();
+      setDataList(latestData || []);
+      
+      toast.success('Kwitansi berhasil disimpan!');
+      setViewMode('list');
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || 'Gagal menyimpan Kwitansi');
     }
-    
-    setDataList(newList);
-    localStorage.setItem('edi_kwitansis', JSON.stringify(newList));
-    toast.success('Kwitansi berhasil disimpan!');
-    setViewMode('list');
   };
 
   const handleDelete = async (no_kwitansi: string) => {
-    if (await confirm('Hapus Kwitansi ini?')) {
-      const newList = dataList.filter(k => k.no_kwitansi !== no_kwitansi);
-      setDataList(newList);
-      localStorage.setItem('edi_kwitansis', JSON.stringify(newList));
-      toast.success('Kwitansi dihapus');
-      if (form.no_kwitansi === no_kwitansi) {
-        setViewMode('list');
-      }
-    }
+    toast.error('Fungsi hapus belum aktif di backend');
   };
 
   const filteredData = useMemo(() => {

@@ -5,6 +5,7 @@ import { useAuth } from '../../auth/contexts/AuthContext';
 import { setupApi, PelangganData, GudangData, ItemData } from '../../setup/api';
 import { salesOrderApi, SalesOrderData } from '../../sales-order/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
+import { getSuratJalan, saveSuratJalan } from '../../transactionsApi';
 
 export const useSuratJalanLogic = () => {
   const navigate = useNavigate();
@@ -29,10 +30,7 @@ export const useSuratJalanLogic = () => {
   const [lineForm, setLineForm] = useState<any>({ item_id: null, kode: '', nama: '', satuan: '', kuantum: 1, keterangan: '' });
 
   const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
-  const [dataList, setDataList] = useState<any[]>(() => {
-    const saved = localStorage.getItem('edi_surat_jalans');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [dataList, setDataList] = useState<any[]>([]);
 
   const emptyForm = {
     id: '', no_sj: '', tanggal: new Date().toISOString().split('T')[0],
@@ -111,16 +109,18 @@ export const useSuratJalanLogic = () => {
 
   const fetchInitialData = async () => {
     try {
-      const [p, g, i, so] = await Promise.all([
+      const [p, g, i, so, sjData] = await Promise.all([
         setupApi.getPelanggan(),
         setupApi.getGudang(),
         setupApi.getItem(),
-        salesOrderApi.getAll()
+        salesOrderApi.getAll(),
+        getSuratJalan()
       ]);
       setPelanggans(p || []);
       setGudangs(g || []);
       setItems(i || []);
       setSalesOrders(so || []);
+      setDataList(sjData || []);
       
       const defGudang = (g || []).find((x: any) => x.is_default);
       if (defGudang && !form.gudang_id && !form.no_so) {
@@ -207,7 +207,7 @@ export const useSuratJalanLogic = () => {
     toast.success('Header Surat Jalan berhasil dibuat. Silakan cek detail barang.');
   };
 
-  const handleSaveAll = () => {
+  const handleSaveAll = async () => {
     if (isSaving) return;
     if (!form.no_sj) {
       toast.error('Harap isi header Surat Jalan terlebih dahulu!');
@@ -220,26 +220,31 @@ export const useSuratJalanLogic = () => {
 
     setIsSaving(true);
     try {
-      const updatedForm = {
+      const selectedSO = salesOrders.find(so => so.no_so === form.no_so);
+      
+      const payload = {
         ...form,
-        write_date: new Date().toISOString(),
-        write_uid_name: user?.name || 'Unknown'
+        tgl_sj: form.tanggal,
+        so_id: selectedSO ? selectedSO.id : null,
+        pelanggan_id: form.pelanggan_id ? Number(form.pelanggan_id) : null,
+        gudang_id: form.gudang_id ? Number(form.gudang_id) : null,
+        lines: form.lines.map((l: any) => ({
+          item_id: Number(l.item_id),
+          satuan: l.satuan,
+          kuantum: Number(l.kuantum),
+          keterangan: l.keterangan || ''
+        }))
       };
 
-      setForm(updatedForm);
+      await saveSuratJalan(payload);
       
-      const existingIndex = dataList.findIndex(sj => sj.no_sj === updatedForm.no_sj);
-      let newList = [...dataList];
-      if (existingIndex >= 0) {
-        newList[existingIndex] = updatedForm;
-      } else {
-        newList.push(updatedForm);
-      }
-      setDataList(newList);
-      localStorage.setItem('edi_surat_jalans', JSON.stringify(newList));
-
+      const latestData = await getSuratJalan();
+      setDataList(latestData || []);
+      
       toast.success('Surat Jalan berhasil disimpan');
       setViewMode('list');
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || e.message || 'Gagal menyimpan Surat Jalan');
     } finally {
       setIsSaving(false);
     }

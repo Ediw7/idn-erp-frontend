@@ -4,6 +4,7 @@ import { useAuth } from '../../auth/contexts/AuthContext';
 import { useConfirm } from '../../../contexts/ConfirmContext';
 import { setupApi } from '../../setup/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
+import { getInvoices, saveInvoice } from '../../transactionsApi';
 
 export const emptyForm = {
   no_invoice: '',
@@ -42,10 +43,7 @@ export const useInvoiceLogic = (locationSearch: string) => {
 
   const [activeTab, setActiveTab] = useState('umum');
   const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
-  const [dataList, setDataList] = useState<any[]>(() => {
-    const saved = localStorage.getItem('edi_invoices');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [dataList, setDataList] = useState<any[]>([]);
   
   const [showNewInvoiceModal, setShowNewInvoiceModal] = useState(false);
   const [showFpModal, setShowFpModal] = useState(false);
@@ -73,14 +71,15 @@ export const useInvoiceLogic = (locationSearch: string) => {
   const fetchTtd = async () => {
     setLoadingData(true);
     try {
-        const [pelRes, proRes, muRes, pemRes, salRes, gudRes, itmRes] = await Promise.all([
+        const [pelRes, proRes, muRes, pemRes, salRes, gudRes, itmRes, invRes] = await Promise.all([
           setupApi.getPelanggan().catch(() => []),
           setupApi.getProyek().catch(() => []),
           setupApi.getMataUang().catch(() => []),
           setupApi.getPembayaran().catch(() => []),
           setupApi.getSalesman().catch(() => []),
           setupApi.getGudang().catch(() => []),
-          setupApi.getItem().catch(() => [])
+          setupApi.getItem().catch(() => []),
+          getInvoices().catch(() => [])
         ]);
 
         setPelanggans(pelRes);
@@ -90,6 +89,7 @@ export const useInvoiceLogic = (locationSearch: string) => {
         setSalesmans(salRes);
         setGudangs(gudRes);
         setItems(itmRes);
+        setDataList(invRes);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -258,40 +258,46 @@ export const useInvoiceLogic = (locationSearch: string) => {
     toast.success('Header Invoice berhasil dibuat. Silakan lengkapi detail barang.');
   };
 
-  const handleSaveAll = () => {
+  const handleSaveAll = async () => {
     if (!form.no_invoice) {
       toast.error('Harap isi header Invoice terlebih dahulu!');
       return;
     }
     
-    const updatedForm = {
-      ...form,
-      write_date: new Date().toISOString(),
-      write_uid_name: user?.name || 'Unknown'
-    };
-    setForm(updatedForm);
-    
-    let newDataList;
-    if (updatedForm.id) {
-      newDataList = dataList.map(item => item.id === updatedForm.id ? updatedForm : item);
-    } else {
-      updatedForm.id = Date.now();
-      newDataList = [updatedForm, ...dataList];
+    try {
+      let soId = null;
+      if (form.no_so) {
+          const so = salesOrders.find(s => s.no_so === form.no_so);
+          if (so) soId = so.id;
+      }
+      
+      const payload = {
+        ...form,
+        pelanggan_id: form.pembeli_id ? Number(form.pembeli_id) : null,
+        sales_order_id: soId,
+        lines: (form.lines || []).map((l: any) => ({
+          item_id: Number(l.item_id),
+          kuantum: Number(l.kuantum),
+          harga_satuan: Number(l.harga_satuan),
+          disc_persen: Number(l.disc_persen),
+          disc_harga: Number(l.disc_harga)
+        }))
+      };
+      
+      await saveInvoice(payload);
+      const latestData = await getInvoices();
+      setDataList(latestData || []);
+      
+      toast.success('Invoice berhasil disimpan');
+      setViewMode('list');
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Gagal menyimpan Invoice');
     }
-    setDataList(newDataList);
-    localStorage.setItem('edi_invoices', JSON.stringify(newDataList));
-    
-    toast.success('Invoice berhasil disimpan');
   };
 
   const handleDeleteInvoice = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus Invoice ini?');
-    if (!isConfirmed) return;
-    
-    const newDataList = dataList.filter(item => item.id !== id);
-    setDataList(newDataList);
-    localStorage.setItem('edi_invoices', JSON.stringify(newDataList));
-    toast.success('Data berhasil dihapus');
+    // API Controller for delete not implemented yet, using placeholder
+    toast.error('Fungsi Hapus belum aktif dari backend');
   };
 
   return {
