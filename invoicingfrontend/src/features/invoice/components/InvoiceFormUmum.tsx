@@ -131,7 +131,7 @@ export const InvoiceFormUmum: React.FC<InvoiceFormUmumProps> = ({
             <label className={labelClass}>Gudang</label>
             <select className={`${inputClass} w-full`} value={form.gudang_id || ''} onChange={e => setForm({...form, gudang_id: e.target.value ? Number(e.target.value) : ''})}>
               <option value="">{loadingData ? 'Loading...' : '-- Pilih --'}</option>
-              {gudangs.map(g => <option key={g.id} value={g.id}>{g.nama}</option>)}
+              {gudangs.map(g => <option key={g.id} value={g.id}>{g.nama_gudang || g.nama}</option>)}
             </select>
           </div>
           <div className="flex items-start mt-2 border-t border-slate-200 pt-3">

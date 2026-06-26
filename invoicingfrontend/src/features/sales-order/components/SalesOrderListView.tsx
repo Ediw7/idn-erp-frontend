@@ -34,18 +34,34 @@ export const SalesOrderListView: React.FC<SalesOrderListViewProps> = ({
           <h2 className="text-lg font-semibold text-white">Sales Order</h2>
           <div className="flex items-center gap-4 mt-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium">Periode:</span>
+              <span className="text-xs text-slate-300 font-medium">Bulan:</span>
               <select 
-                value={periode} 
-                onChange={e => setPeriode(e.target.value)}
+                value={periode.split('-')[1]} 
+                onChange={e => setPeriode(`${periode.split('-')[0]}-${e.target.value}`)}
                 className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
               >
-                <option value="2026-06">Juni 2026</option>
-                <option value="2026-05">Mei 2026</option>
-                <option value="2026-04">April 2026</option>
-                <option value="2026-03">Maret 2026</option>
-                <option value="2026-02">Februari 2026</option>
-                <option value="2026-01">Januari 2026</option>
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Maret</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Juni</option>
+                <option value="07">Juli</option>
+                <option value="08">Agustus</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+              </select>
+              <span className="text-xs text-slate-300 font-medium ml-1">Tahun:</span>
+              <select 
+                value={periode.split('-')[0]} 
+                onChange={e => setPeriode(`${e.target.value}-${periode.split('-')[1]}`)}
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
+              >
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
               </select>
             </div>
             <div className="h-4 w-px bg-slate-600"></div>

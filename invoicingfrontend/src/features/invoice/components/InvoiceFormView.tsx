@@ -90,9 +90,11 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
     return acc + (base - disc);
   }, 0);
   
-  const ppnPercent = 11;
-  const ppnAmount = subtotal * (ppnPercent / 100);
-  const totalAkhir = subtotal + ppnAmount;
+  const potonganHarga = form.potongan_harga || 0;
+  const dpp = subtotal - potonganHarga;
+  const ppnPercent = form.ppn_persen || 0;
+  const ppnAmount = dpp * (ppnPercent / 100);
+  const totalAkhir = dpp + ppnAmount + (form.ongkos_angkut || 0);
 
   return (
     <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
@@ -225,7 +227,7 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
                </div>
                <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-700">Potongan</span>
-                  <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800" readOnly value="0.00" />
+                  <input type="number" className="w-32 text-right px-2 py-1 text-sm bg-white border border-slate-300 rounded-sm font-mono text-slate-800 focus:outline-none focus:border-blue-500" value={form.potongan_harga || 0} onChange={e => setForm({...form, potongan_harga: Number(e.target.value)})} />
                </div>
                <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-700">Nota Kredit</span>
@@ -246,28 +248,28 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
                <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-700">Disc.</span>
                   <div className="flex gap-1.5 w-32 justify-end">
-                    <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm" placeholder="%" />
-                    <input type="text" className="w-[80px] text-right px-2 py-1 text-sm bg-white border border-slate-300 rounded-sm font-mono" value="0.00" readOnly />
+                    <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm bg-slate-100" readOnly placeholder="%" />
+                    <input type="text" className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono" value={potonganHarga.toLocaleString('en-US', {minimumFractionDigits: 2})} readOnly />
                   </div>
                </div>
                <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-700">Uang Muka</span>
-                  <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-white border border-slate-300 rounded-sm font-mono" readOnly value="0.00" />
+                  <input type="text" className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono" readOnly value="0.00" />
                </div>
                <div className="flex items-center justify-between">
                   <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700 cursor-pointer">
-                    <input type="checkbox" className="w-3.5 h-3.5 rounded border-slate-300" /> Incl PPN
+                    <input type="checkbox" checked={form.ppn_persen > 0} onChange={e => setForm({...form, ppn_persen: e.target.checked ? 11 : 0})} className="w-3.5 h-3.5 rounded border-slate-300" /> Incl PPN
                   </label>
                   <div className="flex gap-1.5 items-center w-32 justify-end">
                     <span className="text-xs font-bold text-slate-500">PPN</span>
-                    <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm" value={ppnPercent} readOnly />
+                    <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500" value={form.ppn_persen || 0} onChange={e => setForm({...form, ppn_persen: Number(e.target.value)})} />
                     <input type="text" className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono" readOnly value={ppnAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} />
                   </div>
                </div>
                <div className="flex items-center justify-end">
                   <div className="flex gap-1.5 items-center w-32 justify-end">
                     <span className="text-xs font-bold text-slate-500">PPh 22</span>
-                    <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm" defaultValue={0} />
+                    <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm bg-slate-100" readOnly value={0} />
                     <input type="text" className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono" readOnly value="0.00" />
                   </div>
                </div>

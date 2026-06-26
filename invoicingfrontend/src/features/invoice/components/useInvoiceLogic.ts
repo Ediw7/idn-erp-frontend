@@ -124,6 +124,55 @@ export const useInvoiceLogic = (locationSearch: string) => {
     }
   }, [locationSearch]);
 
+  useEffect(() => {
+    // Auto-fill alamat & npwp if pembeli_id is set (e.g. from URL params) but alamat is empty
+    // and the pelanggans data has finally loaded from API.
+    if (form.pembeli_id && !form.alamat && pelanggans.length > 0) {
+      const p = pelanggans.find(x => x.id === form.pembeli_id);
+      if (p) {
+        setForm((prev: any) => ({
+          ...prev,
+          alamat: p.alamat_wp || p.alamat || '',
+          npwp: p.npwp || ''
+        }));
+      }
+    }
+  }, [form.pembeli_id, form.alamat, pelanggans]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(locationSearch);
+    const so = params.get('so');
+    const sj = params.get('sj');
+
+    // Auto-fill lines from Sales Order if 'so' is present in URL
+    if (so && salesOrders.length > 0 && (!form.lines || form.lines.length === 0)) {
+      const targetSO = salesOrders.find(x => x.no_so === so);
+      if (targetSO) {
+        setForm((prev: any) => ({
+          ...prev,
+          lines: targetSO.lines.map((l: any) => ({
+             ...l,
+             harga_satuan: l.harga_satuan || 0,
+             disc_persen: l.disc_persen || 0,
+             disc_harga: l.disc_harga || 0,
+             harga_jual: l.harga_jual || (l.kuantum * (l.harga_satuan || 0)) - (l.disc_harga || 0)
+          })),
+          surat_jalans: sj ? [{ no_sj: sj, tanggal: new Date().toISOString().split('T')[0], keterangan: `Auto-generated from ${sj}` }] : [],
+          potongan_harga: targetSO.potongan_harga || 0,
+          ppn_persen: targetSO.ppn_persen || 0,
+          ppnbm_persen: targetSO.ppnbm_persen || 0,
+          ongkos_angkut: targetSO.ongkos_angkut || 0
+        }));
+      }
+    } else if (sj && (!form.surat_jalans || form.surat_jalans.length === 0)) {
+       // If only SJ is present
+       setForm((prev: any) => ({
+          ...prev,
+          surat_jalans: [{ no_sj: sj, tanggal: new Date().toISOString().split('T')[0], keterangan: `Auto-generated from ${sj}` }]
+       }));
+    }
+  }, [salesOrders, locationSearch, form.lines, form.surat_jalans]);
+
   const { signatureData } = useSignatureAutoFill('Invoice');
 
   useEffect(() => {
