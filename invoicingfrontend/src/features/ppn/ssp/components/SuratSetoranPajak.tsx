@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FilePlus, Trash2, Printer, Save, Eye, Search } from 'lucide-react';
-import { useConfirm } from '../../../contexts/ConfirmContext';
+import { useConfirm } from '../../../../../contexts/ConfirmContext';
 import { sspApi, SuratSetoranPajakData } from '../api';
-import axiosClient from '../../../lib/axiosClient';
+import axiosClient from '../../../../../lib/axiosClient';
 import toast from 'react-hot-toast';
 
 const SuratSetoranPajak: React.FC = () => {
