@@ -3,7 +3,7 @@ import axiosClient from '../lib/axiosClient';
 // --- INVOICE ---
 export const getInvoices = async () => {
   const response = await axiosClient.get('/api/invoice/get');
-  return response.data;
+  return response.data?.data || [];
 };
 
 export const saveInvoice = async (data: any) => {
@@ -14,7 +14,7 @@ export const saveInvoice = async (data: any) => {
 // --- SURAT JALAN ---
 export const getSuratJalan = async () => {
   const response = await axiosClient.get('/api/surat_jalan/get');
-  return response.data;
+  return response.data?.data || [];
 };
 
 export const saveSuratJalan = async (data: any) => {
@@ -25,7 +25,7 @@ export const saveSuratJalan = async (data: any) => {
 // --- KWITANSI ---
 export const getKwitansi = async () => {
   const response = await axiosClient.get('/api/kwitansi/get');
-  return response.data;
+  return response.data?.data || [];
 };
 
 export const saveKwitansi = async (data: any) => {
@@ -36,7 +36,7 @@ export const saveKwitansi = async (data: any) => {
 // --- PEMBAYARAN PIUTANG ---
 export const getPembayaran = async () => {
   const response = await axiosClient.get('/api/pembayaran/get');
-  return response.data;
+  return response.data?.data || [];
 };
 
 export const savePembayaran = async (data: any) => {
@@ -48,5 +48,5 @@ export const savePembayaran = async (data: any) => {
 export const getOutstanding = async (pelangganId?: number) => {
   const url = pelangganId ? `/api/outstanding/get?pelanggan_id=${pelangganId}` : '/api/outstanding/get';
   const response = await axiosClient.get(url);
-  return response.data;
+  return response.data?.data || [];
 };

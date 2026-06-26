@@ -43,7 +43,7 @@ export const useSalesOrderLogic = () => {
     no_so: '', tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
     no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
     tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
-    potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0, 
+    potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0,
     lines: []
   });
 
@@ -81,11 +81,11 @@ export const useSalesOrderLogic = () => {
     setLoadingData(true);
     try {
       const [resSo, p, m, py, s, i, g, company] = await Promise.all([
-        salesOrderApi.getAll().catch(() => []), 
-        setupApi.getPelanggan().catch(() => []), 
+        salesOrderApi.getAll().catch(() => []),
+        setupApi.getPelanggan().catch(() => []),
         setupApi.getMataUang().catch(() => []),
-        setupApi.getPembayaran().catch(() => []), 
-        setupApi.getSalesman().catch(() => []), 
+        setupApi.getPembayaran().catch(() => []),
+        setupApi.getSalesman().catch(() => []),
         setupApi.getItem().catch(() => []),
         setupApi.getGudang().catch(() => []),
         setupApi.getPerusahaan().catch(() => null)
@@ -118,7 +118,7 @@ export const useSalesOrderLogic = () => {
         no_so: res.no_so, tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
         no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
         tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
-        potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0, 
+        potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0,
         lines: []
       });
       setShowNewSoModal(true);
@@ -138,7 +138,7 @@ export const useSalesOrderLogic = () => {
       const resSo = await salesOrderApi.getAll();
       const soData = mergeSjToSo(resSo || []);
       setDataList(soData);
-      
+
       const newlyCreated = soData.find(so => so.id === savedRes.id) || soData[soData.length - 1];
       if (newlyCreated) {
         setForm({
@@ -244,7 +244,7 @@ export const useSalesOrderLogic = () => {
           no_so: '', tgl_so: new Date().toISOString().split('T')[0], pelanggan_id: null, alamat_kirim: '',
           no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
           tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
-          potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0, 
+          potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0,
           lines: [{ item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: '' }]
         });
       }
