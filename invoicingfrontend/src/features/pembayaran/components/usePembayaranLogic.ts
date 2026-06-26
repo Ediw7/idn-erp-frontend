@@ -53,7 +53,36 @@ export const usePembayaranLogic = () => {
         setPelanggans(pelRes);
         
         const savedInvoices = localStorage.getItem('edi_invoices');
-        setInvoices(savedInvoices ? JSON.parse(savedInvoices) : []);
+        const rawInvoices = savedInvoices ? JSON.parse(savedInvoices) : [];
+        
+        const pembayaranSaved = localStorage.getItem('edi_pembayaran');
+        const pembayaranList = pembayaranSaved ? JSON.parse(pembayaranSaved) : [];
+
+        const processedInvoices = rawInvoices.map((inv: any) => {
+          const subtotal = (inv.lines || []).reduce((acc: number, line: any) => {
+            const base = (line.kuantum || 0) * (line.harga_satuan || 0);
+            const disc = (base * (line.disc_persen || 0) / 100) + (line.disc_harga || 0);
+            return acc + (base - disc);
+          }, 0);
+          
+          const dpp = subtotal - (inv.potongan_harga || 0);
+          const ppn = dpp * (inv.ppn_persen || 0) / 100;
+          const totalInvoice = dpp + ppn + (inv.ongkos_angkut || 0);
+
+          const totalDibayar = pembayaranList.reduce((acc: number, bayar: any) => {
+            const details = (bayar.lines || []).filter((l: any) => l.no_invoice === inv.no_invoice);
+            const sumPerBukti = details.reduce((sum: number, l: any) => sum + Number(l.pembayaran || 0) + Number(l.potongan || 0), 0);
+            return acc + sumPerBukti;
+          }, 0);
+
+          return {
+            ...inv,
+            total_akhir: totalInvoice,
+            saldo: totalInvoice - totalDibayar
+          };
+        });
+
+        setInvoices(processedInvoices);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -125,6 +154,11 @@ export const usePembayaranLogic = () => {
     const totalJumlahPenerimaan = Number(form.jumlah_penerimaan) || 0;
     
     // Auto sync penerimaan if 0, otherwise check if they match (optional, but good practice)
+    if (totalJumlahPenerimaan > 0 && totalJumlahPenerimaan !== totalPembayaran) {
+      toast.error(`Jumlah Penerimaan (IDR ${totalJumlahPenerimaan.toLocaleString()}) tidak sama dengan Total Alokasi (IDR ${totalPembayaran.toLocaleString()})!`);
+      return;
+    }
+
     const updatedForm = {
       ...form,
       jumlah_penerimaan: totalJumlahPenerimaan === 0 ? totalPembayaran : totalJumlahPenerimaan,
@@ -163,7 +197,7 @@ export const usePembayaranLogic = () => {
     toast.success('Data berhasil dihapus');
   };
 
-  const availableInvoices = invoices.filter(inv => inv.pembeli_id === form.pelanggan_id && !inv.is_paid);
+  const availableInvoices = invoices.filter(inv => inv.pembeli_id === form.pelanggan_id && inv.saldo > 0);
 
   return {
     form, setForm,

@@ -86,13 +86,16 @@ const OutstandingInvoice: React.FC = () => {
         const ppn = dpp * (inv.ppn_persen || 0) / 100;
         const totalInvoice = dpp + ppn + (inv.ongkos_angkut || 0);
 
-        // Simulasi saldo (misal belum ada pembayaran)
-        // Di sistem riil, ini dikurangi total pembayaran dari edi_pembayaran_piutang
-        const pembayaranSaved = localStorage.getItem('edi_pembayaran_piutang');
+        // Simulasi saldo
+        // Dikurangi total pembayaran dan potongan dari edi_pembayaran
+        const pembayaranSaved = localStorage.getItem('edi_pembayaran');
         const pembayaranList = pembayaranSaved ? JSON.parse(pembayaranSaved) : [];
         const totalDibayar = pembayaranList.reduce((acc: number, bayar: any) => {
-          const detail = (bayar.lines || []).find((l: any) => l.no_invoice === inv.no_invoice);
-          return acc + (detail ? detail.jumlah_bayar : 0);
+          // Cari apakah invoice ini dibayar di dokumen pembayaran ini
+          const details = (bayar.lines || []).filter((l: any) => l.no_invoice === inv.no_invoice);
+          // Jumlahkan pembayaran + potongan yang diberikan untuk invoice ini
+          const sumPerBukti = details.reduce((sum: number, l: any) => sum + Number(l.pembayaran || 0) + Number(l.potongan || 0), 0);
+          return acc + sumPerBukti;
         }, 0);
 
         const saldo = totalInvoice - totalDibayar;

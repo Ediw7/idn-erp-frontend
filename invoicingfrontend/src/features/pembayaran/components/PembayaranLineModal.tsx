@@ -21,8 +21,8 @@ export const PembayaranLineModal: React.FC<PembayaranLineModalProps> = ({
     const inv = availableInvoices.find(i => i.no_invoice === noInvoice);
     if (inv) {
       // In a real system, saldo_piutang should be calculated from invoice total minus existing payments.
-      // We will assume the invoice object has total_akhir or similar.
-      const totalInvoice = inv.total_akhir || 0;
+      // We already calculated saldo in usePembayaranLogic.ts
+      const totalInvoice = inv.saldo || 0;
       setLineForm({
         ...lineForm,
         no_invoice: inv.no_invoice,
@@ -47,6 +47,14 @@ export const PembayaranLineModal: React.FC<PembayaranLineModalProps> = ({
     }
     if (Number(lineForm.pembayaran) <= 0) {
       toast.error('Nominal Pembayaran harus lebih dari 0!');
+      return;
+    }
+    const saldoAwal = Number(lineForm.saldo_piutang) || 0;
+    const totalBayar = Number(lineForm.pembayaran) || 0;
+    const totalPotongan = Number(lineForm.potongan) || 0;
+    
+    if (totalBayar + totalPotongan > saldoAwal) {
+      toast.error('Total Pembayaran dan Potongan melebihi Saldo Piutang!');
       return;
     }
     onSave();

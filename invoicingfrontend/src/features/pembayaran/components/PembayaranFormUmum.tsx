@@ -10,12 +10,12 @@ interface PembayaranFormUmumProps {
 export const PembayaranFormUmum: React.FC<PembayaranFormUmumProps> = ({
   form, setForm, pelanggans, handlePembeliChange
 }) => {
-  const inputClass = "w-full px-3 py-1.5 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 rounded-sm text-sm";
-  const readOnlyClass = "w-full px-3 py-1.5 bg-slate-50 text-slate-500 border border-slate-300 focus:outline-none rounded-sm text-sm cursor-not-allowed";
+  const inputClass = "w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white";
+  const readOnlyClass = "w-full px-3 py-2 border border-slate-200 rounded-sm text-sm bg-slate-50 text-slate-500 cursor-not-allowed";
   const labelClass = "block text-xs font-semibold text-slate-700 mb-1 shrink-0 w-40";
 
   return (
-    <div className="bg-white rounded-sm shadow-sm border border-slate-200 p-6 flex flex-col gap-6">
+    <div className="p-6">
       <div className="flex gap-12">
         {/* Left Column */}
         <div className="flex-1 flex flex-col gap-3">
