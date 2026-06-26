@@ -1,5 +1,5 @@
 import React from 'react';
-import { FilePlus, Printer, Save } from 'lucide-react';
+import { FilePlus, Printer, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { InvoiceFormUmum } from './InvoiceFormUmum';
 import { InvoiceDetail } from './InvoiceDetail';
@@ -101,8 +101,13 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
       {/* Header */}
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex flex-wrap gap-3 justify-between items-center shrink-0">
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold text-white">Invoice</h2>
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setViewMode('list')} className="text-slate-300 hover:text-white transition-colors">
+              <ArrowLeft size={20} />
+            </button>
+            <h2 className="text-lg font-semibold text-white">Invoice</h2>
+          </div>
+          <div className="flex items-center gap-2 mt-1.5 ml-9">
             <span className="text-xs text-slate-300 font-medium">Pilih Periode:</span>
             <select className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400">
               <option>Juni 2026</option>
@@ -116,9 +121,6 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={() => setViewMode('list')} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-slate-300 hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
-             KEMBALI KE LIST
-          </button>
           <button onClick={() => { setModalForm({...emptyForm, no_invoice: `INV/00${Math.floor(Math.random()*100)}/06/2026`}); setShowNewInvoiceModal(true); }} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
              <FilePlus size={12} /> + TAMBAH INVOICE
           </button>

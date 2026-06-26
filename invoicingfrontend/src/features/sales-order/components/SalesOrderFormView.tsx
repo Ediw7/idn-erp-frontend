@@ -1,5 +1,5 @@
 import React from 'react';
-import { FilePlus, Trash2, Printer, Save, Send } from 'lucide-react';
+import { FilePlus, Trash2, Printer, Save, Send, ArrowLeft } from 'lucide-react';
 import { SalesOrderFormUmum } from './SalesOrderFormUmum';
 import { SalesOrderDetail } from './SalesOrderDetail';
 import { SalesOrderSuratJalan } from './SalesOrderSuratJalan';
@@ -58,8 +58,13 @@ export const SalesOrderFormView: React.FC<SalesOrderFormViewProps> = ({
       {/* Header */}
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold text-white">Sales Order</h2>
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setViewMode('list')} className="text-slate-300 hover:text-white transition-colors">
+              <ArrowLeft size={20} />
+            </button>
+            <h2 className="text-lg font-semibold text-white">Sales Order</h2>
+          </div>
+          <div className="flex items-center gap-2 mt-1.5 ml-9">
             <span className="text-xs text-slate-300 font-medium">Pilih Periode:</span>
             <select 
               value={periode} 
@@ -76,9 +81,6 @@ export const SalesOrderFormView: React.FC<SalesOrderFormViewProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setViewMode('list')} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-slate-300 hover:bg-slate-100 transition-colors rounded-sm shadow-sm mr-2">
-             KEMBALI KE LIST
-          </button>
           <button onClick={handleNewClick} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm">
              <FilePlus size={14} /> + TAMBAH SO
           </button>

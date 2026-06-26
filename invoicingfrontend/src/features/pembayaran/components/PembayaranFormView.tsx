@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, X, FileText, Printer, FilePlus } from 'lucide-react';
+import { Save, X, FileText, Printer, FilePlus, ArrowLeft } from 'lucide-react';
 import { PembayaranFormUmum } from './PembayaranFormUmum';
 import { PembayaranDetail } from './PembayaranDetail';
 import { useNavigate } from 'react-router-dom';
@@ -32,8 +32,13 @@ export const PembayaranFormView: React.FC<PembayaranFormViewProps> = ({
       {/* Header Form */}
       <div className="bg-slate-800 px-6 py-4 flex justify-between items-center shrink-0 shadow-sm relative z-10">
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold text-white">Pembayaran Piutang Dagang</h2>
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setViewMode('list')} className="text-slate-300 hover:text-white transition-colors">
+              <ArrowLeft size={20} />
+            </button>
+            <h2 className="text-lg font-semibold text-white">Pembayaran Piutang Dagang</h2>
+          </div>
+          <div className="flex items-center gap-2 mt-1.5 ml-9">
              <span className="text-xs text-slate-300 font-medium">No. Bukti:</span>
              <span className="text-xs text-blue-300 font-bold font-mono">{form.no_bukti || '-'}</span>
              <span className="text-xs text-slate-500 mx-2">|</span>
@@ -42,9 +47,6 @@ export const PembayaranFormView: React.FC<PembayaranFormViewProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setViewMode('list')} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-slate-300 hover:bg-slate-100 transition-colors rounded-sm shadow-sm mr-2">
-             KEMBALI KE LIST
-          </button>
           <button onClick={() => {}} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm">
              <FilePlus size={14} /> + TAMBAH BARU
           </button>
