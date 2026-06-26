@@ -51,7 +51,7 @@ const SalesOrder: React.FC = () => {
               no_po: '', tgl_po: '', mata_uang_id: null, pembayaran_id: null, salesman_id: null,
               tgl_kirim: '', dipesan_oleh: '', is_closed: false, is_void: false, keterangan: '',
               potongan_harga: 0, ppn_persen: 10, ppnbm_persen: 0, ongkos_angkut: 0,
-              lines: [{ item_id: null, satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: '' }]
+              lines: []
             });
             setIsNew(true);
             setViewMode('form');

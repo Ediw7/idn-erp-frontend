@@ -21,7 +21,7 @@ const NotaReturPenjualan: React.FC = () => {
     gudang_id: '', jenis_retur: 'Barang Kena Pajak',
     atas_no_fp: '', tgl_fp: '', atas_no_invoice: '', mata_uang_id: null,
     tarif_ppn: 11, kurs_pajak: 1, 
-    lines: [{ item_id: null, kode_barang: '', nama_barang: '', satuan: 'Pcs', kuantum: 1, harga_satuan: 0, harga_jual: 0, hpp: 0, total_hpp: 0 }],
+    lines: [],
     lokasi_pelaporan: '', tanda_tangan: '', jabatan: ''
   });
 
@@ -66,7 +66,7 @@ const NotaReturPenjualan: React.FC = () => {
         gudang_id: '', jenis_retur: 'Barang Kena Pajak',
         atas_no_fp: '', tgl_fp: '', atas_no_invoice: '', mata_uang_id: null,
         tarif_ppn: 11, kurs_pajak: 1, 
-        lines: [{ item_id: null, kode_barang: '', nama_barang: '', satuan: 'Pcs', kuantum: 1, harga_satuan: 0, harga_jual: 0, hpp: 0, total_hpp: 0 }],
+        lines: [],
         lokasi_pelaporan: '', tanda_tangan: '', jabatan: ''
       });
       setIsNew(true);
@@ -129,7 +129,7 @@ const NotaReturPenjualan: React.FC = () => {
       newLines.splice(idx, 1);
       setForm({ ...form, lines: newLines });
     } else {
-      setForm({ ...form, lines: [{ item_id: null, kode_barang: '', nama_barang: '', satuan: 'Pcs', kuantum: 1, harga_satuan: 0, harga_jual: 0, hpp: 0, total_hpp: 0 }] });
+      setForm({ ...form, lines: [] });
     }
   };
 

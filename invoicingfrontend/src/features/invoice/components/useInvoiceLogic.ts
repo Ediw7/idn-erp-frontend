@@ -249,7 +249,7 @@ export const useInvoiceLogic = (locationSearch: string) => {
     
     setForm({
       ...modalForm,
-      lines: [{ item_id: '', kode: '', nama: '', satuan: '', kuantum: 1, harga_satuan: 0, disc_persen: 0, disc_harga: 0, harga_jual: 0 }],
+      lines: [],
       create_date: new Date().toISOString(),
       create_uid_name: user?.name || 'Unknown'
     });

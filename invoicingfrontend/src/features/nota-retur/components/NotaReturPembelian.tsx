@@ -18,7 +18,7 @@ const NotaReturPembelian: React.FC = () => {
     alamat_penjual: '', jenis_retur: 'Barang Kena Pajak', gudang_id: '',
     atas_no_fp: '', tgl_fp: '', mata_uang_id: null, kurs_pajak: 1, tarif_ppn: 11,
     jenis_transaksi: 'Kepada Bukan Pemungut PPN (01)', status: '',
-    lines: [{ item_id: null, kode_barang: '', nama_barang: '', satuan: 'Pcs', kuantum: 1, harga_satuan: 0, harga_jual: 0 }],
+    lines: [],
     tanda_tangan: '', jabatan: ''
   });
 
@@ -57,7 +57,7 @@ const NotaReturPembelian: React.FC = () => {
         alamat_penjual: '', jenis_retur: 'Barang Kena Pajak', gudang_id: '',
         atas_no_fp: '', tgl_fp: '', mata_uang_id: null, kurs_pajak: 1, tarif_ppn: 11,
         jenis_transaksi: 'Kepada Bukan Pemungut PPN (01)', status: '',
-        lines: [{ item_id: null, kode_barang: '', nama_barang: '', satuan: 'Pcs', kuantum: 1, harga_satuan: 0, harga_jual: 0 }],
+        lines: [],
         tanda_tangan: '', jabatan: ''
       });
       setIsNew(true);
@@ -120,7 +120,7 @@ const NotaReturPembelian: React.FC = () => {
       newLines.splice(idx, 1);
       setForm({ ...form, lines: newLines });
     } else {
-      setForm({ ...form, lines: [{ item_id: null, kode_barang: '', nama_barang: '', satuan: 'Pcs', kuantum: 1, harga_satuan: 0, harga_jual: 0 }] });
+      setForm({ ...form, lines: [] });
     }
   };
 
