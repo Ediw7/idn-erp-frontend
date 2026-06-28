@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import axiosClient from '../../../../../lib/axiosClient';
+import axiosClient from '../../../../lib/axiosClient';
 import toast from 'react-hot-toast';
 
 interface ErrorBoundaryProps {

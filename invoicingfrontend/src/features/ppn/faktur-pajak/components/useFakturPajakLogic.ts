@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useConfirm } from '../../../../../contexts/ConfirmContext';
+import { useConfirm } from '../../../../contexts/ConfirmContext';
 import { useAuth } from '../../../auth/contexts/AuthContext';
 import { fakturPajakApi, FakturPajakData, FakturPajakLine } from '../api';
 import { setupApi, PelangganData, ItemData } from '../../../setup/api';
-import { useSignatureAutoFill } from '../../../../../hooks/useSignatureAutoFill';
+import { useSignatureAutoFill } from '../../../../hooks/useSignatureAutoFill';
 import toast from 'react-hot-toast';
 
 export const useFakturPajakLogic = () => {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FilePlus, Trash2, Printer, Save, Lock, Copy, RefreshCw, Unlock } from 'lucide-react';
-import { useConfirm } from '../../../../../contexts/ConfirmContext';
+import { useConfirm } from '../../../../contexts/ConfirmContext';
 import { sptMasaApi, SptMasa1111Data } from '../api';
-import axiosClient from '../../../../../lib/axiosClient';
+import axiosClient from '../../../../lib/axiosClient';
 import toast from 'react-hot-toast';
 
 const SptMasa1111: React.FC = () => {
