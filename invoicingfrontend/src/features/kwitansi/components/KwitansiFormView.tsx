@@ -6,10 +6,12 @@ interface KwitansiFormViewProps {
   form: any;
   setForm: (form: any) => void;
   pelanggans: any[];
+  invoices: any[];
   loadingData: boolean;
   signatureData: any;
   handleJumlahChange: (val: string) => void;
   handlePembeliChange: (id: number | '') => void;
+  handleInvoiceChange: (no: string) => void;
   handleSave: () => void;
   handleDelete: (no_kwitansi: string) => void;
   onBack: () => void;
@@ -17,8 +19,8 @@ interface KwitansiFormViewProps {
 }
 
 export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
-  form, setForm, pelanggans, loadingData, signatureData,
-  handleJumlahChange, handlePembeliChange, handleSave, handleDelete, onBack, onPrint
+  form, setForm, pelanggans, invoices, loadingData, signatureData,
+  handleJumlahChange, handlePembeliChange, handleInvoiceChange, handleSave, handleDelete, onBack, onPrint
 }) => {
   const inputClass = "w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white";
   const readOnlyClass = "w-full px-3 py-2 border border-slate-200 rounded-sm text-sm bg-slate-50 text-slate-500 cursor-not-allowed";
@@ -94,7 +96,20 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
             <div className="flex items-center">
               <label className={labelClass}>No. Invoice</label>
               <div className="flex gap-2 flex-1">
-                <input type="text" className={`${inputClass} font-mono`} placeholder="No Invoice..." value={form.no_invoice || ''} onChange={e => setForm({...form, no_invoice: e.target.value})} />
+                <select 
+                  className={`${inputClass} font-mono`} 
+                  value={form.no_invoice || ''} 
+                  onChange={e => handleInvoiceChange(e.target.value)}
+                >
+                  <option value="">- Tanpa Invoice / Isi Manual -</option>
+                  {invoices.map(inv => (
+                    <option key={inv.id} value={inv.no_invoice}>{inv.no_invoice} (Rp {inv.total?.toLocaleString('id-ID')})</option>
+                  ))}
+                </select>
+                {/* Fallback input jika user ingin mengetik manual yg tidak ada di list */}
+                {form.no_invoice && !invoices.find(i => i.no_invoice === form.no_invoice) && (
+                   <input type="text" className={`${inputClass} font-mono`} placeholder="No Invoice..." value={form.no_invoice || ''} onChange={e => handleInvoiceChange(e.target.value)} />
+                )}
               </div>
             </div>
 

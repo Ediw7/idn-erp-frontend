@@ -5,7 +5,7 @@ import { useAuth } from '../../auth/contexts/AuthContext';
 import { setupApi, PelangganData, GudangData, ItemData } from '../../setup/api';
 import { salesOrderApi, SalesOrderData } from '../../sales-order/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
-import { getSuratJalan, saveSuratJalan } from '../../transactionsApi';
+import { getSuratJalan, saveSuratJalan, deleteSuratJalan } from '../../transactionsApi';
 
 export const useSuratJalanLogic = () => {
   const navigate = useNavigate();
@@ -328,12 +328,18 @@ export const useSuratJalanLogic = () => {
     setForm({ ...form, lines: newLines });
   };
 
-  const handleDeleteSJ = (no_sj: string) => {
+  const handleDeleteSJ = async (no_sj: string) => {
     if (window.confirm('Yakin ingin menghapus Surat Jalan ini?')) {
-      const newList = dataList.filter(sj => sj.no_sj !== no_sj);
-      setDataList(newList);
-      localStorage.setItem('edi_surat_jalans', JSON.stringify(newList));
-      toast.success('Surat Jalan berhasil dihapus');
+      const sj = dataList.find(s => s.no_sj === no_sj);
+      if (!sj) return;
+      try {
+        await deleteSuratJalan(sj.id);
+        const newList = await getSuratJalan();
+        setDataList(newList || []);
+        toast.success('Surat Jalan berhasil dihapus');
+      } catch (e: any) {
+        toast.error(e?.response?.data?.message || 'Gagal menghapus Surat Jalan');
+      }
     }
   };
 

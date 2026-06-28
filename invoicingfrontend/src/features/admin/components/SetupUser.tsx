@@ -38,8 +38,8 @@ const SetupUser: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      // Fetching dari GET /api/users sesuai instruksi (bisa disesuaikan jika endpoint aslinya berbeda)
-      const response = await axiosClient.get('/api/users');
+      // Fetching dari GET /api/auth/users
+      const response = await axiosClient.get('/api/auth/users');
       // Menyesuaikan struktur balikan, biasanya response.data.data atau response.data
       const data = response.data.data || response.data;
       if (Array.isArray(data)) {

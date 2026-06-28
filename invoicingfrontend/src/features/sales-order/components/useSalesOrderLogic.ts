@@ -58,13 +58,11 @@ export const useSalesOrderLogic = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const mergeSjToSo = (soList: SalesOrderData[]) => {
-    const savedSj = localStorage.getItem('edi_surat_jalans');
-    const sjList = savedSj ? JSON.parse(savedSj) : [];
     return soList.map(so => {
-      const relatedSj = sjList.filter((sj: any) => sj.no_so === so.no_so);
+      const relatedSj = so.surat_jalans || [];
       const updatedLines = (so.lines || []).map(line => {
         const totalKirim = relatedSj.reduce((sum: number, sj: any) => {
-          const sjLine = sj.lines?.find((sl: any) => sl.item_id === line.item_id);
+          const sjLine = sj.lines?.find((sl: any) => String(sl.item_id) === String(line.item_id));
           return sum + (Number(sjLine?.kuantum) || 0);
         }, 0);
         return { ...line, qty_kirim: totalKirim };

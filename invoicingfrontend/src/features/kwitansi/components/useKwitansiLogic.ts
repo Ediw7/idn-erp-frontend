@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { setupApi, PelangganData } from '../../setup/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
 import { useConfirm } from '../../../contexts/ConfirmContext';
-import { getKwitansi, saveKwitansi } from '../../transactionsApi';
+import { getKwitansi, saveKwitansi, deleteKwitansi, getInvoices } from '../../transactionsApi';
 
 const angkaMenjadiTerbilang = (angka: number): string => {
   const huruf = [
@@ -40,6 +40,7 @@ export const useKwitansiLogic = () => {
 
   const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
   const [dataList, setDataList] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
 
   const [filter, setFilter] = useState({
     periode: '2026-06',
@@ -75,12 +76,14 @@ export const useKwitansiLogic = () => {
     const fetchData = async () => {
       setLoadingData(true);
       try {
-        const [pelRes, kwRes] = await Promise.all([
+        const [pelRes, kwRes, invRes] = await Promise.all([
            setupApi.getPelanggan(),
-           getKwitansi().catch(() => [])
+           getKwitansi().catch(() => []),
+           getInvoices().catch(() => [])
         ]);
         setPelanggans(pelRes);
         setDataList(kwRes || []);
+        setInvoices(invRes || []);
       } catch (err) {
         console.error("Failed to fetch:", err);
       } finally {
@@ -134,6 +137,26 @@ export const useKwitansiLogic = () => {
     });
   };
 
+  const handleInvoiceChange = (no_invoice: string) => {
+    const inv = invoices.find(i => i.no_invoice === no_invoice);
+    if (inv) {
+      const jumlah = inv.total || 0;
+      setForm({
+        ...form,
+        no_invoice,
+        pembeli_id: inv.pelanggan_id || form.pembeli_id,
+        jumlah,
+        terbilang: formatTerbilang(jumlah),
+        untuk_pembayaran: `Pembayaran Invoice No. ${no_invoice}`
+      });
+      if (inv.pelanggan_id) {
+         handlePembeliChange(inv.pelanggan_id);
+      }
+    } else {
+      setForm({ ...form, no_invoice });
+    }
+  };
+
   const handleSave = async () => {
     if (!form.no_kwitansi) {
       toast.error('No. Kwitansi harus diisi!');
@@ -162,7 +185,18 @@ export const useKwitansiLogic = () => {
   };
 
   const handleDelete = async (no_kwitansi: string) => {
-    toast.error('Fungsi hapus belum aktif di backend');
+    if (await confirm('Yakin ingin menghapus Kwitansi ini?')) {
+      const kw = dataList.find(k => k.no_kwitansi === no_kwitansi);
+      if (!kw) return;
+      try {
+        await deleteKwitansi(kw.id);
+        const latestData = await getKwitansi();
+        setDataList(latestData || []);
+        toast.success('Kwitansi berhasil dihapus');
+      } catch (e: any) {
+        toast.error(e?.response?.data?.message || 'Gagal menghapus Kwitansi');
+      }
+    }
   };
 
   const filteredData = useMemo(() => {
@@ -200,7 +234,7 @@ export const useKwitansiLogic = () => {
     filter, setFilter, handleResetFilter,
     emptyForm, form, setForm,
     showNewModal, setShowNewModal,
-    signatureData,
-    handleJumlahChange, handlePembeliChange, handleSave, handleDelete
+    signatureData, invoices,
+    handleJumlahChange, handlePembeliChange, handleInvoiceChange, handleSave, handleDelete
   };
 };

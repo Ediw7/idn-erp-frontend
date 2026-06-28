@@ -11,6 +11,11 @@ export const saveInvoice = async (data: any) => {
   return response.data;
 };
 
+export const deleteInvoice = async (id: number) => {
+  const response = await axiosClient.post('/api/invoice/delete', { id });
+  return response.data;
+};
+
 // --- SURAT JALAN ---
 export const getSuratJalan = async () => {
   const response = await axiosClient.get('/api/surat_jalan/get');
@@ -19,6 +24,11 @@ export const getSuratJalan = async () => {
 
 export const saveSuratJalan = async (data: any) => {
   const response = await axiosClient.post('/api/surat_jalan/save', data);
+  return response.data;
+};
+
+export const deleteSuratJalan = async (id: number) => {
+  const response = await axiosClient.post('/api/surat_jalan/delete', { id });
   return response.data;
 };
 
@@ -33,6 +43,11 @@ export const saveKwitansi = async (data: any) => {
   return response.data;
 };
 
+export const deleteKwitansi = async (id: number) => {
+  const response = await axiosClient.post('/api/kwitansi/delete', { id });
+  return response.data;
+};
+
 // --- PEMBAYARAN PIUTANG ---
 export const getPembayaran = async () => {
   const response = await axiosClient.get('/api/pembayaran/get');
@@ -41,6 +56,11 @@ export const getPembayaran = async () => {
 
 export const savePembayaran = async (data: any) => {
   const response = await axiosClient.post('/api/pembayaran/save', data);
+  return response.data;
+};
+
+export const deletePembayaran = async (id: number) => {
+  const response = await axiosClient.post('/api/pembayaran/delete', { id });
   return response.data;
 };
 

@@ -4,7 +4,7 @@ import { useAuth } from '../../auth/contexts/AuthContext';
 import { useConfirm } from '../../../contexts/ConfirmContext';
 import { setupApi } from '../../setup/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
-import { getInvoices, saveInvoice } from '../../transactionsApi';
+import { getInvoices, saveInvoice, deleteInvoice } from '../../transactionsApi';
 
 export const emptyForm = {
   no_invoice: '',
@@ -296,8 +296,16 @@ export const useInvoiceLogic = (locationSearch: string) => {
   };
 
   const handleDeleteInvoice = async (id: number) => {
-    // API Controller for delete not implemented yet, using placeholder
-    toast.error('Fungsi Hapus belum aktif dari backend');
+    if (await confirm('Yakin ingin menghapus Invoice ini?')) {
+      try {
+        await deleteInvoice(id);
+        const latestData = await getInvoices();
+        setDataList(latestData || []);
+        toast.success('Invoice berhasil dihapus');
+      } catch (e: any) {
+        toast.error(e?.response?.data?.message || 'Gagal menghapus Invoice');
+      }
+    }
   };
 
   return {

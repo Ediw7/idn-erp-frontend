@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../auth/contexts/AuthContext';
 import { useConfirm } from '../../../contexts/ConfirmContext';
 import { setupApi } from '../../setup/api';
-import { getPembayaran, savePembayaran, getOutstanding } from '../../transactionsApi';
+import { getPembayaran, savePembayaran, getOutstanding, deletePembayaran } from '../../transactionsApi';
 
 export const emptyForm = {
   no_bukti: '',
@@ -149,7 +149,16 @@ export const usePembayaranLogic = () => {
   };
 
   const handleDelete = async (id: number) => {
-    toast.error('Fungsi hapus belum aktif di backend');
+    if (await confirm('Yakin ingin menghapus data Pembayaran ini?')) {
+      try {
+        await deletePembayaran(id);
+        const pemRes = await getPembayaran();
+        setDataList(pemRes || []);
+        toast.success('Pembayaran berhasil dihapus');
+      } catch (e: any) {
+        toast.error(e?.response?.data?.message || 'Gagal menghapus Pembayaran');
+      }
+    }
   };
 
   const availableInvoices = invoices.filter(inv => inv.pembeli_id === form.pelanggan_id && inv.saldo > 0);

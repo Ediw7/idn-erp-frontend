@@ -12,8 +12,8 @@ const Kwitansi: React.FC = () => {
     filter, setFilter, handleResetFilter,
     emptyForm, form, setForm,
     showNewModal, setShowNewModal,
-    signatureData,
-    handleJumlahChange, handlePembeliChange, handleSave, handleDelete
+    signatureData, invoices,
+    handleJumlahChange, handlePembeliChange, handleInvoiceChange, handleSave, handleDelete
   } = useKwitansiLogic();
 
   if (viewMode === 'list') {
@@ -46,10 +46,12 @@ const Kwitansi: React.FC = () => {
       form={form}
       setForm={setForm}
       pelanggans={pelanggans}
+      invoices={invoices}
       loadingData={loadingData}
       signatureData={signatureData}
       handleJumlahChange={handleJumlahChange}
       handlePembeliChange={handlePembeliChange}
+      handleInvoiceChange={handleInvoiceChange}
       handleSave={handleSave}
       handleDelete={handleDelete}
       onBack={() => setViewMode('list')}
