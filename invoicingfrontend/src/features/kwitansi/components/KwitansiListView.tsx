@@ -1,5 +1,5 @@
 import React from 'react';
-import { FilePlus, Search } from 'lucide-react';
+import { FilePlus, Search, Edit2, Trash2 } from 'lucide-react';
 import { formatTerbilang } from './useKwitansiLogic';
 
 interface KwitansiListViewProps {
@@ -19,58 +19,16 @@ export const KwitansiListView: React.FC<KwitansiListViewProps> = ({
 }) => {
   return (
     <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
-      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-start shrink-0">
-        <div className="flex flex-col gap-3 w-full">
-          <div className="flex justify-between w-full">
-            <h2 className="text-lg font-semibold text-white">Daftar Kwitansi</h2>
-            <div className="flex gap-2">
-              <button onClick={handleResetFilter} className="px-3 py-1.5 text-xs font-semibold bg-slate-700 text-white hover:bg-slate-600 rounded-sm border border-slate-600 transition-colors">
-                Reset Filter
-              </button>
-              <button onClick={onOpenForm} className="px-4 py-1.5 text-xs font-semibold bg-white text-slate-800 hover:bg-slate-100 rounded-sm shadow-sm flex items-center gap-2 transition-colors">
-                <FilePlus size={14} /> + BUKA FORM
-              </button>
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap items-end gap-x-6 gap-y-3">
+      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
+        <div className="flex flex-col">
+          <h2 className="text-lg font-semibold text-white">Daftar Kwitansi</h2>
+          <div className="flex items-center gap-4 mt-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium w-24">Nama Pelanggan</span>
-              <select 
-                value={filter.pelanggan_id}
-                onChange={e => setFilter({...filter, pelanggan_id: e.target.value})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-48"
-              >
-                <option value="">-- Semua Pelanggan --</option>
-                {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
-              </select>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium w-20">Dari Kwitansi No</span>
-              <input 
-                type="text"
-                value={filter.dari_no}
-                onChange={e => setFilter({...filter, dari_no: e.target.value})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-32"
-              />
-              <span className="text-xs text-slate-300 font-medium ml-1">s/d</span>
-              <input 
-                type="text"
-                value={filter.sampai_no}
-                onChange={e => setFilter({...filter, sampai_no: e.target.value})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-32"
-              />
-            </div>
-            
-            <div className="w-full h-0"></div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium w-24">Bulan / Tahun</span>
+              <span className="text-xs text-slate-300 font-medium">Bulan:</span>
               <select 
                 value={filter.periode.split('-')[1]} 
                 onChange={e => setFilter({...filter, periode: `${filter.periode.split('-')[0]}-${e.target.value}`})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400"
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
               >
                 <option value="01">Januari</option>
                 <option value="02">Februari</option>
@@ -85,57 +43,39 @@ export const KwitansiListView: React.FC<KwitansiListViewProps> = ({
                 <option value="11">November</option>
                 <option value="12">Desember</option>
               </select>
+              <span className="text-xs text-slate-300 font-medium ml-1">Tahun:</span>
               <select 
                 value={filter.periode.split('-')[0]} 
                 onChange={e => setFilter({...filter, periode: `${e.target.value}-${filter.periode.split('-')[1]}`})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400"
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
               >
                 <option value="2026">2026</option>
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
               </select>
             </div>
-
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium w-20">Dari Tanggal</span>
-              <input 
-                type="date"
-                value={filter.dari_tgl}
-                onChange={e => setFilter({...filter, dari_tgl: e.target.value})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-32"
-              />
-              <span className="text-xs text-slate-300 font-medium ml-1">s/d</span>
-              <input 
-                type="date"
-                value={filter.sampai_tgl}
-                onChange={e => setFilter({...filter, sampai_tgl: e.target.value})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-32"
-              />
-            </div>
-            
-            <div className="flex items-center gap-2 ml-4">
-              <span className="text-xs text-slate-300 font-medium">Jenis:</span>
+              <span className="text-xs text-slate-300 font-medium">Pelanggan:</span>
               <select 
-                value={filter.jenis}
-                onChange={e => setFilter({...filter, jenis: e.target.value})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-24"
+                value={filter.pelanggan_id} 
+                onChange={e => setFilter({...filter, pelanggan_id: e.target.value})}
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-48"
               >
-                <option value="">Semua</option>
-                <option value="VAT">VAT</option>
-                <option value="Non-VAT">Non-VAT</option>
-              </select>
-              <span className="text-xs text-slate-300 font-medium ml-2">Curr:</span>
-              <select 
-                value={filter.mata_uang}
-                onChange={e => setFilter({...filter, mata_uang: e.target.value})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-20"
-              >
-                <option value="">Semua</option>
-                <option value="IDR">IDR</option>
-                <option value="USD">USD</option>
+                <option value="">-- Semua Pelanggan --</option>
+                {pelanggans.map(p => (
+                  <option key={p.id} value={p.id}>{p.nama}</option>
+                ))}
               </select>
             </div>
           </div>
+        </div>
+        <div className="flex gap-2">
+          <button 
+            onClick={onOpenForm} 
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
+          >
+            <FilePlus size={14} /> + BUKA FORM
+          </button>
         </div>
       </div>
 
@@ -152,6 +92,7 @@ export const KwitansiListView: React.FC<KwitansiListViewProps> = ({
               <th className="py-2 px-4 text-xs font-semibold text-slate-700 border-b border-slate-300">Curr</th>
               <th className="py-2 px-4 text-xs font-semibold text-slate-700 border-b border-slate-300 text-right">Jumlah</th>
               <th className="py-2 px-4 text-xs font-semibold text-slate-700 border-b border-slate-300">Keterangan</th>
+              <th className="py-2 px-4 text-xs font-semibold text-slate-700 border-b border-slate-300 text-center w-20">Aksi</th>
             </tr>
           </thead>
           <tbody className="bg-white">
@@ -171,12 +112,30 @@ export const KwitansiListView: React.FC<KwitansiListViewProps> = ({
                   <td className="py-1.5 px-4 text-xs text-slate-800">{p?.nama || '-'}</td>
                   <td className="py-1.5 px-4 text-xs text-slate-600">{item.mata_uang}</td>
                   <td className="py-1.5 px-4 text-xs text-slate-800 text-right font-mono">{Number(item.jumlah).toLocaleString()}</td>
-                  <td className="py-1.5 px-4 text-xs text-slate-500 truncate max-w-[200px]">{item.untuk_pembayaran || '-'}</td>
+                  <td className="py-1.5 px-4 text-xs text-slate-500 truncate max-w-[200px]" title={item.untuk_pembayaran}>{item.untuk_pembayaran || '-'}</td>
+                  <td className="py-1.5 px-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onEdit(item.no_kwitansi); }}
+                        className="text-blue-600 hover:text-blue-800 transition-colors"
+                        title="Edit"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onDelete(item.no_kwitansi); }}
+                        className="text-red-500 hover:text-red-700 transition-colors"
+                        title="Hapus"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               );
             }) : (
               <tr>
-                <td colSpan={9} className="py-8 text-center text-sm text-slate-500 bg-slate-50">
+                <td colSpan={10} className="py-8 text-center text-sm text-slate-500 bg-slate-50">
                   Tidak ada data kwitansi.
                 </td>
               </tr>

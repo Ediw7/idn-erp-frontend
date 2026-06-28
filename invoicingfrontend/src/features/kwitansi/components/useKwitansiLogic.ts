@@ -141,17 +141,18 @@ export const useKwitansiLogic = () => {
     const inv = invoices.find(i => i.no_invoice === no_invoice);
     if (inv) {
       const jumlah = inv.total || 0;
+      const pId = inv.pelanggan_id || form.pembeli_id;
+      const p = pelanggans.find(x => x.id === pId);
+      
       setForm({
         ...form,
         no_invoice,
-        pembeli_id: inv.pelanggan_id || form.pembeli_id,
+        pembeli_id: pId,
+        alamat: p?.alamat_wp || p?.alamat || '',
         jumlah,
         terbilang: formatTerbilang(jumlah),
         untuk_pembayaran: `Pembayaran Invoice No. ${no_invoice}`
       });
-      if (inv.pelanggan_id) {
-         handlePembeliChange(inv.pelanggan_id);
-      }
     } else {
       setForm({ ...form, no_invoice });
     }

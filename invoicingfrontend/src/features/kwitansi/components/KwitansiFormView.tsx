@@ -37,30 +37,6 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
           </button>
           <h2 className="text-lg font-semibold text-white">Kwitansi: {form.no_kwitansi || 'Baru'}</h2>
         </div>
-        <div className="flex items-center gap-2">
-          {form.no_kwitansi && (
-            <>
-              <button 
-                onClick={() => onPrint(form.no_kwitansi)} 
-                className={`${btnClass} bg-slate-700 text-white hover:bg-slate-600 border border-slate-600`}
-              >
-                <Printer size={16} /> Cetak
-              </button>
-              <button 
-                onClick={() => handleDelete(form.no_kwitansi)} 
-                className={`${btnClass} bg-slate-700 text-red-400 hover:bg-slate-600 border border-slate-600`}
-              >
-                <Trash2 size={16} /> Hapus
-              </button>
-            </>
-          )}
-          <button 
-            onClick={handleSave} 
-            className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-sm`}
-          >
-            <Save size={16} /> Simpan
-          </button>
-        </div>
       </div>
 
       <div className="flex-1 overflow-auto p-6">
@@ -102,7 +78,9 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
                   onChange={e => handleInvoiceChange(e.target.value)}
                 >
                   <option value="">- Tanpa Invoice / Isi Manual -</option>
-                  {invoices.map(inv => (
+                  {invoices
+                    .filter(inv => form.pembeli_id ? Number(inv.pelanggan_id) === Number(form.pembeli_id) : true)
+                    .map(inv => (
                     <option key={inv.id} value={inv.no_invoice}>{inv.no_invoice} (Rp {inv.total?.toLocaleString('id-ID')})</option>
                   ))}
                 </select>
@@ -207,10 +185,36 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
                   </div>
                 )}
               </div>
+              </div>
             </div>
           </div>
         </div>
+        
+        {/* Footer Actions */}
+        <div className="mt-8 pt-4 border-t border-slate-200 flex justify-end gap-3">
+          {form.no_kwitansi && (
+            <>
+              <button 
+                onClick={() => onPrint(form.no_kwitansi)} 
+                className={`${btnClass} bg-white text-slate-700 hover:bg-slate-50 border border-slate-300`}
+              >
+                <Printer size={16} /> Cetak
+              </button>
+              <button 
+                onClick={() => handleDelete(form.no_kwitansi)} 
+                className={`${btnClass} bg-white text-red-600 hover:bg-red-50 border border-red-200`}
+              >
+                <Trash2 size={16} /> Hapus
+              </button>
+            </>
+          )}
+          <button 
+            onClick={handleSave} 
+            className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 shadow-sm px-6`}
+          >
+            <Save size={16} /> Simpan Kwitansi
+          </button>
+        </div>
       </div>
-    </div>
   );
 };
