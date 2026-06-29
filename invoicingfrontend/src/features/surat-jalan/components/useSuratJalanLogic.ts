@@ -80,7 +80,7 @@ export const useSuratJalanLogic = () => {
         soLines = selectedSO.lines.reduce((acc: any[], line: any) => {
           let previouslyShipped = 0;
           dataList.forEach(sj => {
-            if (sj.no_so === selectedSO.no_so) {
+            if (sj.no_so === selectedSO.no_so && !sj.is_void) {
               sj.lines?.forEach((l: any) => {
                 if (String(l.item_id) === String(line.item_id)) {
                   previouslyShipped += Number(l.kuantum) || 0;
@@ -162,7 +162,7 @@ export const useSuratJalanLogic = () => {
         soLines = so.lines.reduce((acc: any[], line: any) => {
           let previouslyShipped = 0;
           dataList.forEach(sj => {
-            if (sj.no_so === so.no_so) {
+            if (sj.no_so === so.no_so && !sj.is_void) {
               sj.lines?.forEach((l: any) => {
                 if (String(l.item_id) === String(line.item_id)) {
                   previouslyShipped += Number(l.kuantum) || 0;
@@ -219,7 +219,7 @@ export const useSuratJalanLogic = () => {
         initialLines = selectedSO.lines.reduce((acc: any[], line: any) => {
           let previouslyShipped = 0;
           dataList.forEach(sj => {
-            if (sj.no_so === selectedSO.no_so) {
+            if (sj.no_so === selectedSO.no_so && !sj.is_void) {
               sj.lines?.forEach((l: any) => {
                 if (String(l.item_id) === String(line.item_id)) {
                   previouslyShipped += Number(l.kuantum) || 0;
