@@ -129,16 +129,28 @@ export const SuratJalanListView: React.FC<SuratJalanListViewProps> = ({
                       <td className="px-3 py-2 text-center">
                         <div className="flex items-center justify-center gap-1">
                           <button
-                            onClick={() => onEdit(item)}
-                            className="p-1 text-blue-600 hover:bg-blue-50 rounded-sm transition-colors"
-                            title="Edit"
+                            onClick={() => {
+                              if (item.no_invoice) {
+                                alert(`Surat Jalan ini tidak bisa diedit karena sudah memiliki Invoice (${item.no_invoice}).`);
+                                return;
+                              }
+                              onEdit(item);
+                            }}
+                            className={`p-1 rounded-sm transition-colors ${item.no_invoice ? 'text-slate-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
+                            title={item.no_invoice ? 'Terkunci (Sudah ada Invoice)' : 'Edit'}
                           >
                             <Edit2 size={14} />
                           </button>
                           <button
-                            onClick={() => onDelete(item.no_sj)}
-                            className="p-1 text-red-600 hover:bg-red-50 rounded-sm transition-colors"
-                            title="Hapus"
+                            onClick={() => {
+                              if (item.no_invoice) {
+                                alert(`Surat Jalan ini tidak bisa dihapus karena sudah memiliki Invoice (${item.no_invoice}).`);
+                                return;
+                              }
+                              onDelete(item.no_sj);
+                            }}
+                            className={`p-1 rounded-sm transition-colors ${item.no_invoice ? 'text-slate-400 cursor-not-allowed' : 'text-red-600 hover:bg-red-50'}`}
+                            title={item.no_invoice ? 'Terkunci (Sudah ada Invoice)' : 'Hapus'}
                           >
                             <Trash2 size={14} />
                           </button>

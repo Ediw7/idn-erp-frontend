@@ -84,6 +84,7 @@ export const SuratJalanFormView: React.FC<SuratJalanFormViewProps> = ({
             <Printer size={14} /> CETAK
           </button>
           <button
+            disabled={!!form.no_invoice}
             onClick={() => {
               if (!form.no_sj) {
                 alert('Harap buat atau pilih Surat Jalan terlebih dahulu! Data invoice akan ditarik otomatis dari Surat Jalan tersebut.');
@@ -91,7 +92,12 @@ export const SuratJalanFormView: React.FC<SuratJalanFormViewProps> = ({
               }
               setShowInvoiceModal(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-green-600 border border-transparent hover:bg-green-500 transition-colors ml-2 rounded-sm shadow-sm"
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white border border-transparent rounded-sm shadow-sm transition-colors ml-2 ${
+              form.no_invoice 
+                ? 'bg-slate-400 cursor-not-allowed opacity-70' 
+                : 'bg-green-600 hover:bg-green-500'
+            }`}
+            title={form.no_invoice ? `Sudah di-invoice (${form.no_invoice})` : 'Buat Invoice Baru dari SJ ini'}
           >
             <Send size={14} /> BUAT INVOICE </button>
         </div>
