@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../auth/contexts/AuthContext';
+import { useConfirm } from '../../../contexts/ConfirmContext';
 import { setupApi, PelangganData, GudangData, ItemData } from '../../setup/api';
 import { salesOrderApi, SalesOrderData } from '../../sales-order/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
@@ -11,6 +12,7 @@ export const useSuratJalanLogic = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const confirm = useConfirm();
 
   // Master Data
   const [pelanggans, setPelanggans] = useState<PelangganData[]>([]);
@@ -75,17 +77,33 @@ export const useSuratJalanLogic = () => {
       const selectedSO = salesOrders.find(s => s.no_so === so);
       let soLines: any[] = [];
       if (selectedSO && selectedSO.lines) {
-        soLines = selectedSO.lines.map((line: any) => {
-          const itemInfo = items.find(i => String(i.id) === String(line.item_id));
-          return {
-            item_id: line.item_id,
-            kode: itemInfo?.kode || line.kode || '',
-            nama: itemInfo?.nama || line.nama || '',
-            satuan: itemInfo?.satuan || line.satuan || '',
-            kuantum: line.kuantum,
-            keterangan: line.keterangan || ''
-          };
-        });
+        soLines = selectedSO.lines.reduce((acc: any[], line: any) => {
+          let previouslyShipped = 0;
+          dataList.forEach(sj => {
+            if (sj.no_so === selectedSO.no_so) {
+              sj.lines?.forEach((l: any) => {
+                if (String(l.item_id) === String(line.item_id)) {
+                  previouslyShipped += Number(l.kuantum) || 0;
+                }
+              });
+            }
+          });
+          
+          const sisaKuantum = Number(line.kuantum) - previouslyShipped;
+          
+          if (sisaKuantum > 0) {
+            const itemInfo = items.find(i => String(i.id) === String(line.item_id));
+            acc.push({
+              item_id: line.item_id,
+              kode: itemInfo?.kode || line.kode || '',
+              nama: itemInfo?.nama || line.nama || '',
+              satuan: itemInfo?.satuan || line.satuan || '',
+              kuantum: sisaKuantum,
+              keterangan: line.keterangan || ''
+            });
+          }
+          return acc;
+        }, []);
       }
 
       setForm((prev: any) => {
@@ -141,17 +159,33 @@ export const useSuratJalanLogic = () => {
     if (so) {
       let soLines: any[] = [];
       if (so.lines) {
-        soLines = so.lines.map((line: any) => {
-          const itemInfo = items.find(i => String(i.id) === String(line.item_id));
-          return {
-            item_id: line.item_id,
-            kode: itemInfo?.kode || line.kode || '',
-            nama: itemInfo?.nama || line.nama || '',
-            satuan: itemInfo?.satuan || line.satuan || '',
-            kuantum: line.kuantum,
-            keterangan: line.keterangan || ''
-          };
-        });
+        soLines = so.lines.reduce((acc: any[], line: any) => {
+          let previouslyShipped = 0;
+          dataList.forEach(sj => {
+            if (sj.no_so === so.no_so) {
+              sj.lines?.forEach((l: any) => {
+                if (String(l.item_id) === String(line.item_id)) {
+                  previouslyShipped += Number(l.kuantum) || 0;
+                }
+              });
+            }
+          });
+          
+          const sisaKuantum = Number(line.kuantum) - previouslyShipped;
+          
+          if (sisaKuantum > 0) {
+            const itemInfo = items.find(i => String(i.id) === String(line.item_id));
+            acc.push({
+              item_id: line.item_id,
+              kode: itemInfo?.kode || line.kode || '',
+              nama: itemInfo?.nama || line.nama || '',
+              satuan: itemInfo?.satuan || line.satuan || '',
+              kuantum: sisaKuantum,
+              keterangan: line.keterangan || ''
+            });
+          }
+          return acc;
+        }, []);
       }
 
       setTargetForm({
@@ -182,17 +216,33 @@ export const useSuratJalanLogic = () => {
     if (modalForm.no_so) {
       const selectedSO = salesOrders.find(so => so.no_so === modalForm.no_so);
       if (selectedSO && selectedSO.lines) {
-        initialLines = selectedSO.lines.map((line: any) => {
-          const itemInfo = items.find(i => String(i.id) === String(line.item_id));
-          return {
-            item_id: line.item_id,
-            kode: itemInfo?.kode || line.kode || '',
-            nama: itemInfo?.nama || line.nama || '',
-            satuan: itemInfo?.satuan || line.satuan || '',
-            kuantum: line.kuantum,
-            keterangan: line.keterangan || ''
-          };
-        });
+        initialLines = selectedSO.lines.reduce((acc: any[], line: any) => {
+          let previouslyShipped = 0;
+          dataList.forEach(sj => {
+            if (sj.no_so === selectedSO.no_so) {
+              sj.lines?.forEach((l: any) => {
+                if (String(l.item_id) === String(line.item_id)) {
+                  previouslyShipped += Number(l.kuantum) || 0;
+                }
+              });
+            }
+          });
+          
+          const sisaKuantum = Number(line.kuantum) - previouslyShipped;
+          
+          if (sisaKuantum > 0) {
+            const itemInfo = items.find(i => String(i.id) === String(line.item_id));
+            acc.push({
+              item_id: line.item_id,
+              kode: itemInfo?.kode || line.kode || '',
+              nama: itemInfo?.nama || line.nama || '',
+              satuan: itemInfo?.satuan || line.satuan || '',
+              kuantum: sisaKuantum,
+              keterangan: line.keterangan || ''
+            });
+          }
+          return acc;
+        }, []);
       }
     }
 
@@ -329,7 +379,7 @@ export const useSuratJalanLogic = () => {
   };
 
   const handleDeleteSJ = async (no_sj: string) => {
-    if (window.confirm('Yakin ingin menghapus Surat Jalan ini?')) {
+    if (await confirm('Yakin ingin menghapus Surat Jalan ini?')) {
       const sj = dataList.find(s => s.no_sj === no_sj);
       if (!sj) return;
       try {
