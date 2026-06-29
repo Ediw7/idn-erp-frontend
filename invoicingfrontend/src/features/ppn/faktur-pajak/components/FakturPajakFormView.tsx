@@ -10,6 +10,7 @@ interface FormViewProps {
   pelanggans: PelangganData[];
   items: ItemData[];
   fakturPajakSetups: any[];
+  invoices: any[];
 
   onSave: () => void;
   onDelete: () => void;
@@ -17,6 +18,7 @@ interface FormViewProps {
   onNew: () => void;
 
   handlePembeliChange: (id: number | '') => void;
+  handleInvoiceChange: (no_inv: string) => void;
   handleAddLine: () => void;
   handleRemoveLine: (idx: number) => void;
   handleUpdateLine: (idx: number, field: keyof FakturPajakLine, value: any) => void;
@@ -31,9 +33,9 @@ interface FormViewProps {
 }
 
 export const FakturPajakFormView: React.FC<FormViewProps> = ({
-  form, setForm, isNew, pelanggans, items, fakturPajakSetups,
+  form, setForm, isNew, pelanggans, items, fakturPajakSetups, invoices,
   onSave, onDelete, onClose, onNew,
-  handlePembeliChange, handleAddLine, handleRemoveLine, handleUpdateLine,
+  handlePembeliChange, handleInvoiceChange, handleAddLine, handleRemoveLine, handleUpdateLine,
   setShowNsfpModal, setShowPelangganModal, setShowPenggantiModal, setShowEFakturModal,
   totals, isSaving
 }) => {
@@ -197,7 +199,18 @@ export const FakturPajakFormView: React.FC<FormViewProps> = ({
 
                   <div className="flex items-start">
                     <label className={labelClass}>No. Invoice Ref.</label>
-                    <input type="text" className={inputClass} value={form.no_invoice || ''} onChange={e => setForm({ ...form, no_invoice: e.target.value })} />
+                    <select 
+                      className={inputClass} 
+                      value={form.no_invoice || ''} 
+                      onChange={e => handleInvoiceChange(e.target.value)}
+                    >
+                      <option value="">- Tanpa Invoice / Isi Manual -</option>
+                      {invoices
+                        .filter(inv => form.pembeli_id ? Number(inv.pelanggan_id) === Number(form.pembeli_id) : true)
+                        .map(inv => (
+                        <option key={inv.id} value={inv.no_invoice}>{inv.no_invoice} (Rp {inv.total?.toLocaleString('id-ID')})</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="flex items-start">

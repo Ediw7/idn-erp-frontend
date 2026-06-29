@@ -38,22 +38,22 @@ export interface NotaReturData {
 
 export const notaReturApi = {
   getAll: async () => {
-    const response = await axiosClient.post('/api/nota-retur/get', {});
-    return response.data.data as NotaReturData[];
+    const response = await axiosClient.post('/api/nota-retur/get', { jsonrpc: '2.0', params: {} });
+    return (response.data.result?.data || []) as NotaReturData[];
   },
   
   save: async (data: NotaReturData) => {
-    const response = await axiosClient.post('/api/nota-retur/create', data);
-    return response.data;
+    const response = await axiosClient.post('/api/nota-retur/create', { jsonrpc: '2.0', params: data });
+    return response.data.result;
   },
   
   delete: async (id: number) => {
-    const response = await axiosClient.post('/api/nota-retur/delete', { id });
-    return response.data;
+    const response = await axiosClient.post('/api/nota-retur/delete', { jsonrpc: '2.0', params: { id } });
+    return response.data.result;
   },
 
   autoNo: async () => {
-    const response = await axiosClient.post('/api/nota-retur/autono', {});
-    return response.data;
+    const response = await axiosClient.post('/api/nota-retur/autono', { jsonrpc: '2.0', params: {} });
+    return response.data.result;
   }
 };

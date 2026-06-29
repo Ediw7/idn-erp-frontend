@@ -35,22 +35,22 @@ export interface NotaReturPembelianData {
 
 export const notaReturPembelianApi = {
   getAll: async () => {
-    const response = await axiosClient.post('/api/nota-retur-pembelian/get', {});
-    return response.data.data as NotaReturPembelianData[];
+    const response = await axiosClient.post('/api/nota-retur-pembelian/get', { jsonrpc: '2.0', params: {} });
+    return (response.data.result?.data || []) as NotaReturPembelianData[];
   },
   
   save: async (data: NotaReturPembelianData) => {
-    const response = await axiosClient.post('/api/nota-retur-pembelian/create', data);
-    return response.data;
+    const response = await axiosClient.post('/api/nota-retur-pembelian/create', { jsonrpc: '2.0', params: data });
+    return response.data.result;
   },
   
   delete: async (id: number) => {
-    const response = await axiosClient.post('/api/nota-retur-pembelian/delete', { id });
-    return response.data;
+    const response = await axiosClient.post('/api/nota-retur-pembelian/delete', { jsonrpc: '2.0', params: { id } });
+    return response.data.result;
   },
 
   autoNo: async () => {
-    const response = await axiosClient.post('/api/nota-retur-pembelian/autono', {});
-    return response.data;
+    const response = await axiosClient.post('/api/nota-retur-pembelian/autono', { jsonrpc: '2.0', params: {} });
+    return response.data.result;
   }
 };

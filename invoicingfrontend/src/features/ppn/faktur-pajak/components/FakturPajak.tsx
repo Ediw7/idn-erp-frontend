@@ -54,6 +54,7 @@ const FakturPajak: React.FC = () => {
             logic.setIsNew(false);
             logic.setViewMode('form');
           }}
+          onDelete={(id) => logic.handleDeleteById(id)}
         />
       ) : (
         <FakturPajakFormView
@@ -63,11 +64,13 @@ const FakturPajak: React.FC = () => {
           pelanggans={logic.pelanggans}
           items={logic.items}
           fakturPajakSetups={logic.fakturPajakSetups}
+          invoices={logic.invoices}
           onSave={logic.handleSave}
           onDelete={logic.handleDelete}
           onClose={() => logic.setViewMode('list')}
           onNew={logic.handleNewClick}
           handlePembeliChange={logic.handlePembeliChange}
+          handleInvoiceChange={logic.handleInvoiceChange}
           handleAddLine={logic.handleAddLine}
           handleRemoveLine={logic.handleRemoveLine}
           handleUpdateLine={logic.handleUpdateLine}

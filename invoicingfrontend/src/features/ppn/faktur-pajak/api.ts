@@ -50,32 +50,16 @@ export interface FakturPajakData {
 
 export const fakturPajakApi = {
   getAll: async (params?: any): Promise<FakturPajakData[]> => {
-    try {
-      const response = await axiosClient.post('/api/faktur_pajak/get', params || {});
-      return response.data?.data || [];
-    } catch (error) {
-      // Return empty array for now since backend might not exist
-      console.warn("Faktur Pajak API not ready, returning empty array");
-      return [];
-    }
+    const response = await axiosClient.post('/api/faktur_pajak/get', params || {});
+    return response.data?.data || [];
   },
 
   save: async (data: FakturPajakData): Promise<{ id: number }> => {
-    // If backend doesn't exist, we just simulate success for UI demo
-    try {
-      const response = await axiosClient.post('/api/faktur_pajak/save', data);
-      return response.data;
-    } catch (error) {
-      console.warn("Faktur Pajak API save failed, simulating success");
-      return { id: Math.floor(Math.random() * 1000) };
-    }
+    const response = await axiosClient.post('/api/faktur_pajak/save', data);
+    return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    try {
-      await axiosClient.post('/api/faktur_pajak/delete', { id });
-    } catch (error) {
-      console.warn("Faktur Pajak API delete failed, simulating success");
-    }
+    await axiosClient.post('/api/faktur_pajak/delete', { id });
   }
 };

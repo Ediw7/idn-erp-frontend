@@ -5,6 +5,7 @@ import { useAuth } from '../../../auth/contexts/AuthContext';
 import { fakturPajakApi, FakturPajakData, FakturPajakLine } from '../api';
 import { setupApi, PelangganData, ItemData } from '../../../setup/api';
 import { useSignatureAutoFill } from '../../../../hooks/useSignatureAutoFill';
+import { getInvoices } from '../../../transactionsApi';
 import toast from 'react-hot-toast';
 
 export const useFakturPajakLogic = () => {
@@ -19,6 +20,7 @@ export const useFakturPajakLogic = () => {
   const [pelanggans, setPelanggans] = useState<PelangganData[]>([]);
   const [items, setItems] = useState<ItemData[]>([]);
   const [fakturPajakSetups, setFakturPajakSetups] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   // Filters for ListView
@@ -88,15 +90,17 @@ export const useFakturPajakLogic = () => {
   const fetchInitialData = async () => {
     setLoadingData(true);
     try {
-      const [p, fpSetups, i, fData] = await Promise.all([
+      const [p, fpSetups, i, fData, invs] = await Promise.all([
         setupApi.getPelanggan().catch(() => []),
         setupApi.getFakturPajak().catch(() => []),
         setupApi.getItem().catch(() => []),
-        fakturPajakApi.getAll().catch(() => [])
+        fakturPajakApi.getAll().catch(() => []),
+        getInvoices().catch(() => [])
       ]);
       setPelanggans(p);
       setFakturPajakSetups(fpSetups);
       setItems(i);
+      setInvoices(invs);
       
       // Simulate mapping names since backend API might not join
       const mappedData = fData.map((d: any) => {
@@ -151,6 +155,35 @@ export const useFakturPajakLogic = () => {
       alamat: p?.alamat_wp || p?.alamat || '',
       npwp: p?.npwp || ''
     });
+  };
+
+  const handleInvoiceChange = (no_inv: string) => {
+    const inv = invoices.find(x => x.no_invoice === no_inv);
+    if (inv) {
+      const pId = inv.pelanggan_id || form.pembeli_id;
+      const p = pelanggans.find(x => x.id === pId);
+      
+      const newForm: FakturPajakData = {
+        ...form,
+        no_invoice: no_inv,
+        pembeli_id: pId,
+        alamat: p?.alamat_wp || p?.alamat || '',
+        npwp: p?.npwp || '',
+        mata_uang: inv.mata_uang || 'IDR',
+        lines: (inv.lines || []).map((l: any) => ({
+           item_id: l.item_id,
+           kode_barang: l.kode_barang,
+           nama_barang: l.nama_barang,
+           satuan: l.satuan || 'Pcs',
+           kuantum: l.qty || 1,
+           harga_satuan: l.harga_satuan || 0,
+           harga_jual: (l.qty || 1) * (l.harga_satuan || 0)
+        }))
+      };
+      setForm(newForm);
+    } else {
+      setForm({ ...form, no_invoice: no_inv });
+    }
   };
 
   const calculateTotal = () => {
@@ -218,6 +251,26 @@ export const useFakturPajakLogic = () => {
     }
   };
 
+  const handleDeleteById = async (id: number) => {
+    try {
+      await fakturPajakApi.delete(id);
+      toast.success('Berhasil dihapus');
+      const newList = dataList.filter(x => x.id !== id);
+      setDataList(newList);
+      if (form.id === id) {
+        if (newList.length > 0) {
+          setForm(newList[0]);
+          setCurrentIndex(0);
+        } else {
+          setForm(emptyForm);
+          setViewMode('list');
+        }
+      }
+    } catch (e) {
+      toast.error('Gagal menghapus');
+    }
+  };
+
   // Line item handlers
   const handleAddLine = () => {
     setForm({
@@ -263,6 +316,7 @@ export const useFakturPajakLogic = () => {
     pelanggans,
     items,
     fakturPajakSetups,
+    invoices,
     loadingData,
     fetchInitialData,
     filterTglMulai, setFilterTglMulai,
@@ -284,8 +338,10 @@ export const useFakturPajakLogic = () => {
     signatureData,
     handleNewClick,
     handlePembeliChange,
+    handleInvoiceChange,
     handleSave,
     handleDelete,
+    handleDeleteById,
     calculateTotal,
     handleAddLine,
     handleRemoveLine,

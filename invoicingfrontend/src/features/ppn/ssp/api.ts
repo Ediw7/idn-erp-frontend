@@ -25,17 +25,17 @@ export interface SuratSetoranPajakData {
 
 export const sspApi = {
   getAll: async () => {
-    const response = await axiosClient.post('/api/ssp/get', {});
-    return response.data.data as SuratSetoranPajakData[];
+    const response = await axiosClient.post('/api/ssp/get', { jsonrpc: '2.0', params: {} });
+    return (response.data.result?.data || []) as SuratSetoranPajakData[];
   },
   
   save: async (data: SuratSetoranPajakData) => {
-    const response = await axiosClient.post('/api/ssp/create', data);
-    return response.data;
+    const response = await axiosClient.post('/api/ssp/create', { jsonrpc: '2.0', params: data });
+    return response.data.result;
   },
   
   delete: async (id: number) => {
-    const response = await axiosClient.post('/api/ssp/delete', { id });
-    return response.data;
+    const response = await axiosClient.post('/api/ssp/delete', { jsonrpc: '2.0', params: { id } });
+    return response.data.result;
   }
 };
