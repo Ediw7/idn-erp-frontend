@@ -4,7 +4,7 @@ import { useAuth } from '../../auth/contexts/AuthContext';
 import { useConfirm } from '../../../contexts/ConfirmContext';
 import { setupApi } from '../../setup/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
-import { getInvoices, saveInvoice, deleteInvoice } from '../../transactionsApi';
+import { getInvoices, saveInvoice, deleteInvoice, getSuratJalan } from '../../transactionsApi';
 
 export const emptyForm = {
   no_invoice: '',
@@ -66,12 +66,13 @@ export const useInvoiceLogic = (locationSearch: string) => {
   const [gudangs, setGudangs] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
   const [salesOrders, setSalesOrders] = useState<any[]>([]);
+  const [suratJalans, setSuratJalans] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   const fetchTtd = async () => {
     setLoadingData(true);
     try {
-        const [pelRes, proRes, muRes, pemRes, salRes, gudRes, itmRes, invRes] = await Promise.all([
+        const [pelRes, proRes, muRes, pemRes, salRes, gudRes, itmRes, invRes, sjRes] = await Promise.all([
           setupApi.getPelanggan().catch(() => []),
           setupApi.getProyek().catch(() => []),
           setupApi.getMataUang().catch(() => []),
@@ -79,7 +80,8 @@ export const useInvoiceLogic = (locationSearch: string) => {
           setupApi.getSalesman().catch(() => []),
           setupApi.getGudang().catch(() => []),
           setupApi.getItem().catch(() => []),
-          getInvoices().catch(() => [])
+          getInvoices().catch(() => []),
+          getSuratJalan().catch(() => [])
         ]);
 
         setPelanggans(pelRes);
@@ -90,6 +92,7 @@ export const useInvoiceLogic = (locationSearch: string) => {
         setGudangs(gudRes);
         setItems(itmRes);
         setDataList(invRes);
+        setSuratJalans(sjRes);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -144,8 +147,48 @@ export const useInvoiceLogic = (locationSearch: string) => {
     const so = params.get('so');
     const sj = params.get('sj');
 
-    // Auto-fill lines from Sales Order if 'so' is present in URL
-    if (so && salesOrders.length > 0 && (!form.lines || form.lines.length === 0)) {
+    // Auto-fill lines correctly: Quantities from Surat Jalan, Prices from Sales Order
+    if (sj && suratJalans.length > 0 && salesOrders.length > 0 && (!form.lines || form.lines.length === 0)) {
+      const targetSJ = suratJalans.find(x => x.no_sj === sj);
+      if (targetSJ) {
+        // Cari SO terkait dari SJ ini
+        const activeSoNo = so || targetSJ.no_so;
+        const targetSO = salesOrders.find(x => x.no_so === activeSoNo);
+        
+        const mergedLines = targetSJ.lines.map((sjLine: any) => {
+          // Cari harga dari targetSO
+          let soLine = null;
+          if (targetSO && targetSO.lines) {
+            soLine = targetSO.lines.find((l: any) => l.item_id === sjLine.item_id);
+          }
+          const harga_satuan = soLine ? soLine.harga_satuan : 0;
+          const disc_persen = soLine ? soLine.disc_persen : 0;
+          const disc_harga = soLine ? soLine.disc_harga : 0;
+          
+          const basePrice = sjLine.kuantum * harga_satuan;
+          const discount = (basePrice * (disc_persen / 100)) + disc_harga;
+          
+          return {
+            ...sjLine,
+            harga_satuan,
+            disc_persen,
+            disc_harga,
+            harga_jual: basePrice - discount
+          };
+        });
+
+        setForm((prev: any) => ({
+          ...prev,
+          lines: mergedLines,
+          surat_jalans: [{ no_sj: targetSJ.no_sj, tanggal: targetSJ.tanggal, keterangan: targetSJ.keterangan || `Auto-generated from ${targetSJ.no_sj}` }],
+          potongan_harga: targetSO ? (targetSO.potongan_harga || 0) : 0,
+          ppn_persen: targetSO ? (targetSO.ppn_persen || 0) : 0,
+          ppnbm_persen: targetSO ? (targetSO.ppnbm_persen || 0) : 0,
+          ongkos_angkut: targetSO ? (targetSO.ongkos_angkut || 0) : 0
+        }));
+      }
+    } else if (so && (!sj) && salesOrders.length > 0 && (!form.lines || form.lines.length === 0)) {
+      // Fallback: If only SO is provided without SJ, pull everything from SO
       const targetSO = salesOrders.find(x => x.no_so === so);
       if (targetSO) {
         setForm((prev: any) => ({
@@ -157,21 +200,14 @@ export const useInvoiceLogic = (locationSearch: string) => {
              disc_harga: l.disc_harga || 0,
              harga_jual: l.harga_jual || (l.kuantum * (l.harga_satuan || 0)) - (l.disc_harga || 0)
           })),
-          surat_jalans: sj ? [{ no_sj: sj, tanggal: new Date().toISOString().split('T')[0], keterangan: `Auto-generated from ${sj}` }] : [],
           potongan_harga: targetSO.potongan_harga || 0,
           ppn_persen: targetSO.ppn_persen || 0,
           ppnbm_persen: targetSO.ppnbm_persen || 0,
           ongkos_angkut: targetSO.ongkos_angkut || 0
         }));
       }
-    } else if (sj && (!form.surat_jalans || form.surat_jalans.length === 0)) {
-       // If only SJ is present
-       setForm((prev: any) => ({
-          ...prev,
-          surat_jalans: [{ no_sj: sj, tanggal: new Date().toISOString().split('T')[0], keterangan: `Auto-generated from ${sj}` }]
-       }));
     }
-  }, [salesOrders, locationSearch, form.lines, form.surat_jalans]);
+  }, [salesOrders, suratJalans, locationSearch, form.lines, form.surat_jalans]);
 
   const { signatureData } = useSignatureAutoFill('Invoice');
 
