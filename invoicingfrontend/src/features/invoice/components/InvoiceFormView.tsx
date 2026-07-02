@@ -93,9 +93,9 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
   
   const potonganHarga = form.potongan_harga || 0;
   const dpp = subtotal - potonganHarga;
-  const ppnPercent = form.ppn_persen || 0;
-  const ppnAmount = dpp * (ppnPercent / 100);
-  const totalAkhir = dpp + ppnAmount + (form.ongkos_angkut || 0);
+  const ppnAmount = form.ppn_persen ? dpp * (form.ppn_persen / 100) : 0;
+  const pphAmount = form.pph_persen ? dpp * (form.pph_persen / 100) : 0;
+  const totalAkhir = dpp + ppnAmount + pphAmount + (form.ongkos_angkut || 0);
 
   return (
     <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
@@ -272,8 +272,8 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
                <div className="flex items-center justify-end">
                   <div className="flex gap-1.5 items-center w-32 justify-end">
                     <span className="text-xs font-bold text-slate-500">PPh 22</span>
-                    <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm bg-slate-100" readOnly value={0} />
-                    <input type="text" className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono" readOnly value="0.00" />
+                    <input type="number" className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm bg-white focus:outline-none focus:border-blue-500" value={form.pph_persen || 0} onChange={e => setForm({...form, pph_persen: Number(e.target.value)})} />
+                    <input type="text" className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono" readOnly value={pphAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} />
                   </div>
                </div>
                <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-300">

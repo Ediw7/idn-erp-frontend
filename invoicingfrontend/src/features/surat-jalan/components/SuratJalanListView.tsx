@@ -1,5 +1,6 @@
 import React from 'react';
 import { FilePlus, Edit2, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface SuratJalanListViewProps {
   dataList: any[];
@@ -131,7 +132,7 @@ export const SuratJalanListView: React.FC<SuratJalanListViewProps> = ({
                           <button
                             onClick={() => {
                               if (item.no_invoice) {
-                                alert(`Surat Jalan ini tidak bisa diedit karena sudah memiliki Invoice (${item.no_invoice}).`);
+                                toast.error(`Surat Jalan ini tidak bisa diedit karena sudah memiliki Invoice (${item.no_invoice}).`);
                                 return;
                               }
                               onEdit(item);
@@ -144,7 +145,7 @@ export const SuratJalanListView: React.FC<SuratJalanListViewProps> = ({
                           <button
                             onClick={() => {
                               if (item.no_invoice) {
-                                alert(`Surat Jalan ini tidak bisa dihapus karena sudah memiliki Invoice (${item.no_invoice}).`);
+                                toast.error(`Surat Jalan ini tidak bisa dihapus karena sudah memiliki Invoice (${item.no_invoice}).`);
                                 return;
                               }
                               onDelete(item.no_sj);

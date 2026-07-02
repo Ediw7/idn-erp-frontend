@@ -133,8 +133,8 @@ export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
                   }, 0);
                   const dpp = subtotal - (item.potongan_harga || 0);
                   const ppnAmount = dpp * (item.ppn_persen || 0) / 100;
-                  const pphAmount = 0;
-                  const total = dpp + ppnAmount + (item.ongkos_angkut || 0);
+                  const pphAmount = dpp * (item.pph_persen || 0) / 100;
+                  const total = dpp + ppnAmount + pphAmount + (item.ongkos_angkut || 0);
 
                   return (
                     <tr key={idx} className="hover:bg-slate-50">

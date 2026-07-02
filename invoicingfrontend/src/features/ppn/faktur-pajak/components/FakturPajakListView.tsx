@@ -147,7 +147,7 @@ export const FakturPajakListView: React.FC<ListViewProps> = ({
                         </button>
                         <button
                           onClick={() => {
-                             if(item.id && window.confirm('Yakin ingin menghapus Faktur Pajak ini?')) onDelete(item.id);
+                             if(item.id) onDelete(item.id);
                           }}
                           className="p-1 text-red-600 hover:bg-red-50 rounded-sm transition-colors"
                           title="Hapus"

@@ -184,7 +184,12 @@ export const useInvoiceLogic = (locationSearch: string) => {
           potongan_harga: targetSO ? (targetSO.potongan_harga || 0) : 0,
           ppn_persen: targetSO ? (targetSO.ppn_persen || 0) : 0,
           ppnbm_persen: targetSO ? (targetSO.ppnbm_persen || 0) : 0,
-          ongkos_angkut: targetSO ? (targetSO.ongkos_angkut || 0) : 0
+          ongkos_angkut: targetSO ? (targetSO.ongkos_angkut || 0) : 0,
+          mata_uang: targetSO?.mata_uang_id ? String(targetSO.mata_uang_id) : prev.mata_uang,
+          salesman_id: targetSO?.salesman_id ? String(targetSO.salesman_id) : prev.salesman_id,
+          cara_pembayaran: targetSO?.pembayaran_id ? String(targetSO.pembayaran_id) : prev.cara_pembayaran,
+          proyek: targetSO?.proyek ? String(targetSO.proyek) : prev.proyek,
+          no_po: targetSO?.no_po || prev.no_po
         }));
       }
     } else if (so && (!sj) && salesOrders.length > 0 && (!form.lines || form.lines.length === 0)) {
@@ -203,11 +208,33 @@ export const useInvoiceLogic = (locationSearch: string) => {
           potongan_harga: targetSO.potongan_harga || 0,
           ppn_persen: targetSO.ppn_persen || 0,
           ppnbm_persen: targetSO.ppnbm_persen || 0,
-          ongkos_angkut: targetSO.ongkos_angkut || 0
+          ongkos_angkut: targetSO.ongkos_angkut || 0,
+          mata_uang: targetSO.mata_uang_id ? String(targetSO.mata_uang_id) : prev.mata_uang,
+          salesman_id: targetSO.salesman_id ? String(targetSO.salesman_id) : prev.salesman_id,
+          cara_pembayaran: targetSO.pembayaran_id ? String(targetSO.pembayaran_id) : prev.cara_pembayaran,
+          proyek: targetSO.proyek ? String(targetSO.proyek) : prev.proyek,
+          no_po: targetSO.no_po || prev.no_po
         }));
       }
     }
   }, [salesOrders, suratJalans, locationSearch, form.lines, form.surat_jalans]);
+
+  // Watch for manual SO selection changes in UI
+  useEffect(() => {
+    if (form.no_so && salesOrders.length > 0) {
+      const targetSO = salesOrders.find(x => x.no_so === form.no_so);
+      if (targetSO) {
+        setForm((prev: any) => ({
+          ...prev,
+          mata_uang: prev.mata_uang || (targetSO.mata_uang_id ? String(targetSO.mata_uang_id) : 'IDR'),
+          salesman_id: prev.salesman_id || (targetSO.salesman_id ? String(targetSO.salesman_id) : ''),
+          cara_pembayaran: prev.cara_pembayaran || (targetSO.pembayaran_id ? String(targetSO.pembayaran_id) : ''),
+          proyek: prev.proyek || (targetSO.proyek ? String(targetSO.proyek) : ''),
+          no_po: prev.no_po || targetSO.no_po || ''
+        }));
+      }
+    }
+  }, [form.no_so, salesOrders]);
 
   const { signatureData } = useSignatureAutoFill('Invoice');
 

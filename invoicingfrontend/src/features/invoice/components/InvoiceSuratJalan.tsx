@@ -46,19 +46,31 @@ export const InvoiceSuratJalan: React.FC<InvoiceSuratJalanProps> = ({ form, setF
       const existingLineIndex = newLines.findIndex((l: any) => l.item_id === sjLine.item_id);
       if (existingLineIndex >= 0) {
         // Tambahkan kuantum
-        newLines[existingLineIndex].kuantum += (sjLine.kuantum || 1);
+        const line = newLines[existingLineIndex];
+        line.kuantum += (sjLine.kuantum || 1);
+        // Recalculate harga_jual
+        const basePrice = line.kuantum * line.harga_satuan;
+        const discount = (basePrice * (line.disc_persen / 100)) + line.disc_harga;
+        line.harga_jual = basePrice - discount;
       } else {
         // Tambahkan baris baru
+        const p = soLine ? (soLine.harga_satuan || 0) : 0;
+        const dp = soLine ? (soLine.disc_persen || 0) : 0;
+        const dh = soLine ? (soLine.disc_harga || 0) : 0;
+        const q = sjLine.kuantum || 1;
+        const base = q * p;
+        const disc = (base * (dp / 100)) + dh;
+        
         newLines.push({
           item_id: sjLine.item_id,
           kode: sjLine.kode || '',
           nama: sjLine.nama_barang || '',
           satuan: sjLine.satuan || '',
-          kuantum: sjLine.kuantum || 1,
-          harga_satuan: soLine ? (soLine.harga_satuan || 0) : 0,
-          disc_persen: soLine ? (soLine.disc_persen || 0) : 0,
-          disc_harga: soLine ? (soLine.disc_harga || 0) : 0,
-          harga_jual: soLine ? (soLine.harga_jual || 0) : 0
+          kuantum: q,
+          harga_satuan: p,
+          disc_persen: dp,
+          disc_harga: dh,
+          harga_jual: base - disc
         });
       }
     });

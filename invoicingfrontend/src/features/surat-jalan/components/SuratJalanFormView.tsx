@@ -1,5 +1,6 @@
 import React from 'react';
 import { FilePlus, Printer, Send, Save, ArrowLeft } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { SuratJalanFormUmum } from './SuratJalanFormUmum';
 import { SuratJalanDetail } from './SuratJalanDetail';
 
@@ -87,7 +88,7 @@ export const SuratJalanFormView: React.FC<SuratJalanFormViewProps> = ({
             disabled={!!form.no_invoice}
             onClick={() => {
               if (!form.no_sj) {
-                alert('Harap buat atau pilih Surat Jalan terlebih dahulu! Data invoice akan ditarik otomatis dari Surat Jalan tersebut.');
+                toast.error('Harap buat atau pilih Surat Jalan terlebih dahulu! Data invoice akan ditarik otomatis dari Surat Jalan tersebut.');
                 return;
               }
               setShowInvoiceModal(true);
