@@ -359,6 +359,6 @@ export const useInvoiceLogic = (locationSearch: string) => {
     loadingData, fetchTtd,
     handlePembeliChange, handleOpenAddLine, handleOpenEditLine, handleSaveLine, removeLine,
     handleCreateInvoiceHeader, handleSaveAll, handleDeleteInvoice,
-    signatureData, user, confirm
+    signatureData, user, confirm, suratJalans
   };
 };

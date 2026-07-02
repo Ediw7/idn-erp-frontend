@@ -43,6 +43,7 @@ const Invoice: React.FC = () => {
           salesmans={logic.salesmans} 
           gudangs={logic.gudangs} 
           items={logic.items} 
+          suratJalans={logic.suratJalans}
           loadingData={logic.loadingData} 
           activeTab={logic.activeTab} 
           setActiveTab={logic.setActiveTab} 

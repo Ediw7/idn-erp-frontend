@@ -20,6 +20,7 @@ interface InvoiceFormViewProps {
   salesmans: any[];
   gudangs: any[];
   items: any[];
+  suratJalans: any[];
   loadingData: boolean;
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -40,7 +41,7 @@ interface InvoiceFormViewProps {
 
 export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
   form, setForm, emptyForm, dataList, pelanggans, proyeks, mataUangs, salesOrders,
-  pembayarans, salesmans, gudangs, items, loadingData, activeTab, setActiveTab,
+  pembayarans, salesmans, gudangs, items, suratJalans, loadingData, activeTab, setActiveTab,
   setViewMode, setModalForm, setShowNewInvoiceModal, setShowPelangganModal, setShowFpModal,
   handlePembeliChange, handleOpenAddLine, handleOpenEditLine, removeLine, handleSaveAll,
   signatureData, user, confirm
@@ -176,7 +177,7 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
 
         {activeTab === 'surat_jalan' && (
           <div className="flex flex-col gap-6 h-full">
-            <InvoiceSuratJalan form={form} />
+            <InvoiceSuratJalan form={form} setForm={setForm} suratJalans={suratJalans} salesOrders={salesOrders} />
           </div>
         )}
 
