@@ -17,7 +17,10 @@ interface InvoiceListViewProps {
 export const InvoiceListView: React.FC<InvoiceListViewProps> = ({
   dataList, setForm, setModalForm, emptyForm, setViewMode, handleDeleteInvoice, pelanggans, salesmans, mataUangs, proyeks
 }) => {
-  const [periode, setPeriode] = React.useState('2026-06');
+  const [periode, setPeriode] = React.useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
   const [searchPelanggan, setSearchPelanggan] = React.useState('');
 
   const filteredData = dataList.filter(item => {
