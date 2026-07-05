@@ -242,9 +242,9 @@ const Laporan: React.FC = () => {
             <div className={rowClass}>
               <label className={`${labelClass} ${!isInvActive && 'text-gray-400'}`}>Dari No. Invoice</label>
               <div className={inputWrapperClass}>
-                <select className={inputClass} disabled={!isInvActive}></select>
+                <input type="text" className={inputClass} disabled={!isInvActive} value={filter.dari_no_invoice} onChange={e => handleFilterChange('dari_no_invoice', e.target.value)} />
                 <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
-                <select className={inputClass} disabled={!isInvActive}></select>
+                <input type="text" className={inputClass} disabled={!isInvActive} value={filter.sampai_no_invoice} onChange={e => handleFilterChange('sampai_no_invoice', e.target.value)} />
               </div>
             </div>
 
@@ -367,7 +367,8 @@ const Laporan: React.FC = () => {
                   const queryParams = new URLSearchParams({
                     reportType: selectedReport,
                     ...(filter.dari_no_sj ? { no_sj: filter.dari_no_sj } : {}),
-                    ...(filter.dari_no_so ? { no_so: filter.dari_no_so } : {})
+                    ...(filter.dari_no_so ? { no_so: filter.dari_no_so } : {}),
+                    ...(filter.dari_no_invoice ? { no_invoice: filter.dari_no_invoice } : {})
                   });
                   window.open(`/preview-laporan?${queryParams.toString()}`, '_blank');
                 }}
