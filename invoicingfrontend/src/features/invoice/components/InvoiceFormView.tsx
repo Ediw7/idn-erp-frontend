@@ -6,6 +6,7 @@ import { InvoiceDetail } from './InvoiceDetail';
 import { InvoiceSuratJalan } from './InvoiceSuratJalan';
 import { InvoiceHistory } from './InvoiceHistory';
 import toast from 'react-hot-toast';
+import { getInvoiceAutoNo } from '../../transactionsApi';
 
 interface InvoiceFormViewProps {
   form: any;
@@ -122,7 +123,7 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={() => { setModalForm({...emptyForm, no_invoice: `INV/00${Math.floor(Math.random()*100)}/06/2026`}); setShowNewInvoiceModal(true); }} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
+          <button onClick={async () => { const autoNo = await getInvoiceAutoNo(); setModalForm({...emptyForm, no_invoice: autoNo}); setShowNewInvoiceModal(true); }} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">
              <FilePlus size={12} /> + TAMBAH INVOICE
           </button>
           <button onClick={() => navigate(form.no_invoice ? `/laporan?invoice_number=${encodeURIComponent(form.no_invoice)}&reportName=${encodeURIComponent('Invoice (A4 / Kuarto)')}` : '/laporan?reportName=Invoice (A4 / Kuarto)')} className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm whitespace-nowrap">

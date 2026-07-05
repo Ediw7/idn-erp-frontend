@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { setupApi, PelangganData } from '../../setup/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
 import { useConfirm } from '../../../contexts/ConfirmContext';
-import { getKwitansi, saveKwitansi, deleteKwitansi, getInvoices } from '../../transactionsApi';
+import { getKwitansi, saveKwitansi, deleteKwitansi, getInvoices, getKwitansiAutoNo } from '../../transactionsApi';
 
 const angkaMenjadiTerbilang = (angka: number): string => {
   const huruf = [
@@ -94,16 +94,20 @@ export const useKwitansiLogic = () => {
 
     if (location.state && location.state.no_invoice) {
       const { no_invoice, pembeli_id, alamat, jumlah, keterangan } = location.state;
-      setForm((prev: any) => ({
-        ...prev,
-        no_kwitansi: `KT/00${Math.floor(Math.random()*100)}/06/2026`,
-        no_invoice: no_invoice || '',
-        pembeli_id: pembeli_id || '',
-        alamat: alamat || '',
-        jumlah: jumlah || 0,
-        terbilang: formatTerbilang(jumlah || 0),
-        untuk_pembayaran: keterangan || `Pembayaran Invoice No. ${no_invoice}`
-      }));
+      const fetchAutoNo = async () => {
+        const autoNo = await getKwitansiAutoNo();
+        setForm((prev: any) => ({
+          ...prev,
+          no_kwitansi: autoNo,
+          no_invoice: no_invoice || '',
+          pembeli_id: pembeli_id || '',
+          alamat: alamat || '',
+          jumlah: jumlah || 0,
+          terbilang: formatTerbilang(jumlah || 0),
+          untuk_pembayaran: keterangan || `Pembayaran Invoice No. ${no_invoice}`
+        }));
+      };
+      fetchAutoNo();
       setViewMode('form');
       window.history.replaceState({}, document.title);
     }

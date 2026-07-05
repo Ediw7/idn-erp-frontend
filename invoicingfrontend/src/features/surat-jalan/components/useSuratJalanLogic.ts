@@ -6,7 +6,7 @@ import { useConfirm } from '../../../contexts/ConfirmContext';
 import { setupApi, PelangganData, GudangData, ItemData } from '../../setup/api';
 import { salesOrderApi, SalesOrderData } from '../../sales-order/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
-import { getSuratJalan, saveSuratJalan, deleteSuratJalan } from '../../transactionsApi';
+import { getSuratJalan, saveSuratJalan, deleteSuratJalan, getSjAutoNo } from '../../transactionsApi';
 
 export const useSuratJalanLogic = () => {
   const navigate = useNavigate();
@@ -106,13 +106,11 @@ export const useSuratJalanLogic = () => {
         }, []);
       }
 
-      setForm((prev: any) => {
-        // Hanya generate No. SJ jika belum ada
-        const autoSjNumber = prev.no_sj || `SJ/00${Math.floor(Math.random() * 100)}/06/2026`;
-        
-        return {
+      const fetchAutoNo = async () => {
+        const generatedSj = await getSjAutoNo();
+        setForm((prev: any) => ({
           ...prev,
-          no_sj: autoSjNumber,
+          no_sj: prev.no_sj || generatedSj,
           no_so: so,
           pelanggan_id: pelanggan || (selectedSO?.pelanggan_id ? String(selectedSO.pelanggan_id) : ''),
           alamat_kirim: selectedSO?.alamat_kirim || prev.alamat_kirim || '',
@@ -120,10 +118,12 @@ export const useSuratJalanLogic = () => {
           gudang_id: gudang || prev.gudang_id || '',
           tanggal: tgl || prev.tanggal,
           lines: soLines.length > 0 ? soLines : prev.lines
-        };
-      });
+        }));
+      };
+      
+      fetchAutoNo();
     }
-  }, [location.search, salesOrders, items]);
+  }, [location.search, salesOrders, items, dataList]);
 
   const fetchInitialData = async () => {
     try {
@@ -154,7 +154,7 @@ export const useSuratJalanLogic = () => {
     setTargetForm({ ...targetForm, pelanggan_id: val, alamat_kirim: p?.alamat_kirim || p?.alamat || '' });
   };
 
-  const handleSOChange = (targetForm: any, setTargetForm: any, val: string) => {
+  const handleSOChange = async (targetForm: any, setTargetForm: any, val: string) => {
     const so = salesOrders.find(x => x.no_so === val);
     if (so) {
       let soLines: any[] = [];
@@ -188,10 +188,11 @@ export const useSuratJalanLogic = () => {
         }, []);
       }
 
+      const generatedSj = await getSjAutoNo();
       setTargetForm({
         ...targetForm,
         no_so: val,
-        no_sj: targetForm.no_sj || `SJ/00${Math.floor(Math.random() * 100)}/06/2026`,
+        no_sj: targetForm.no_sj || generatedSj,
         pelanggan_id: String(so.pelanggan_id || ''),
         alamat_kirim: so.alamat_kirim || '',
         no_po: so.no_po || '',

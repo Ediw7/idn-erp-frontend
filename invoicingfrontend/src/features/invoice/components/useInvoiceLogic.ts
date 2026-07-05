@@ -4,7 +4,7 @@ import { useAuth } from '../../auth/contexts/AuthContext';
 import { useConfirm } from '../../../contexts/ConfirmContext';
 import { setupApi } from '../../setup/api';
 import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
-import { getInvoices, saveInvoice, deleteInvoice, getSuratJalan } from '../../transactionsApi';
+import { getInvoices, saveInvoice, deleteInvoice, getInvoiceAutoNo } from '../../transactionsApi';
 
 export const emptyForm = {
   no_invoice: '',
@@ -122,12 +122,16 @@ export const useInvoiceLogic = (locationSearch: string) => {
     }
 
     if (sj || so) {
-      setForm((prev: any) => ({
-        ...prev,
-        no_invoice: prev.no_invoice || `INV/${new Date().getFullYear()}/${Math.floor(Math.random() * 1000)}`,
-        no_so: so || prev.no_so,
-        pembeli_id: pelanggan ? Number(pelanggan) : prev.pembeli_id
-      }));
+      const fetchAutoNo = async () => {
+        const autoNo = await getInvoiceAutoNo();
+        setForm((prev: any) => ({
+          ...prev,
+          no_invoice: prev.no_invoice || autoNo,
+          no_so: so || prev.no_so,
+          pembeli_id: pelanggan ? Number(pelanggan) : prev.pembeli_id
+        }));
+      };
+      fetchAutoNo();
     }
   }, [locationSearch]);
 

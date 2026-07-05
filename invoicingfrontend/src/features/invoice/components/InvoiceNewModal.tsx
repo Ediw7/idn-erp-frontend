@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { getInvoiceAutoNo } from '../../transactionsApi';
 
 interface InvoiceNewModalProps {
   modalForm: any;
@@ -33,7 +34,7 @@ export const InvoiceNewModal: React.FC<InvoiceNewModalProps> = ({
             <label className={labelClass}>No. Invoice</label>
             <div className="flex gap-3">
               <input type="text" className={`${inputClass} font-mono flex-1 bg-slate-50`} value={modalForm.no_invoice || ''} onChange={e => setModalForm({...modalForm, no_invoice: e.target.value})} />
-              <button className="px-5 text-sm font-bold border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md shadow-sm transition-colors" onClick={() => setModalForm({...modalForm, no_invoice: `INV/${new Date().getFullYear()}/${Math.floor(Math.random() * 1000)}`})}>
+              <button className="px-5 text-sm font-bold border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-md shadow-sm transition-colors" onClick={async () => { const autoNo = await getInvoiceAutoNo(); setModalForm({...modalForm, no_invoice: autoNo}); }}>
                 Auto No
               </button>
             </div>

@@ -16,6 +16,14 @@ export const deleteInvoice = async (id: number) => {
   return response.data;
 };
 
+export const getInvoiceAutoNo = async () => {
+  const response = await axiosClient.post('/api/invoice/auto-no', {
+    jsonrpc: '2.0',
+    params: {}
+  });
+  return response.data?.result?.data || '';
+};
+
 // --- SURAT JALAN ---
 export const getSuratJalan = async () => {
   const response = await axiosClient.get('/api/surat_jalan/get');
@@ -30,6 +38,14 @@ export const saveSuratJalan = async (data: any) => {
 export const deleteSuratJalan = async (id: number) => {
   const response = await axiosClient.post('/api/surat_jalan/delete', { id });
   return response.data;
+};
+
+export const getSjAutoNo = async () => {
+  const response = await axiosClient.post('/api/surat_jalan/auto-no', {
+    jsonrpc: '2.0',
+    params: {}
+  });
+  return response.data?.result?.data || '';
 };
 
 // --- KWITANSI ---
@@ -48,6 +64,14 @@ export const deleteKwitansi = async (id: number) => {
   return response.data;
 };
 
+export const getKwitansiAutoNo = async () => {
+  const response = await axiosClient.post('/api/kwitansi/auto-no', {
+    jsonrpc: '2.0',
+    params: {}
+  });
+  return response.data?.result?.data || '';
+};
+
 // --- PEMBAYARAN PIUTANG ---
 export const getPembayaran = async () => {
   const response = await axiosClient.get('/api/pembayaran/get');
@@ -62,6 +86,14 @@ export const savePembayaran = async (data: any) => {
 export const deletePembayaran = async (id: number) => {
   const response = await axiosClient.post('/api/pembayaran/delete', { id });
   return response.data;
+};
+
+export const getPembayaranAutoNo = async () => {
+  const response = await axiosClient.post('/api/pembayaran/auto-no', {
+    jsonrpc: '2.0',
+    params: {}
+  });
+  return response.data?.result?.data || '';
 };
 
 // --- OUTSTANDING ---

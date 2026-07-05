@@ -1,6 +1,7 @@
 import React from 'react';
 import { Save, Search, Printer, Trash2, ArrowLeft } from 'lucide-react';
 import { formatTerbilang } from './useKwitansiLogic';
+import { getKwitansiAutoNo } from '../../transactionsApi';
 
 interface KwitansiFormViewProps {
   form: any;
@@ -48,7 +49,7 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
               <div className="flex gap-2 flex-1">
                 <input type="text" className={`${inputClass} font-mono`} value={form.no_kwitansi || ''} onChange={e => setForm({...form, no_kwitansi: e.target.value})} />
                 <button 
-                  onClick={() => setForm({...form, no_kwitansi: `KT/00${Math.floor(Math.random()*100)}/06/2026`})}
+                  onClick={async () => { const autoNo = await getKwitansiAutoNo(); setForm({...form, no_kwitansi: autoNo}) }}
                   className="px-3 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-colors whitespace-nowrap"
                 >
                   Auto No

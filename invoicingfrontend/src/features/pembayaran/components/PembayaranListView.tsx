@@ -1,5 +1,6 @@
 import React from 'react';
 import { FilePlus, Edit, Trash2 } from 'lucide-react';
+import { getPembayaranAutoNo } from '../../transactionsApi';
 
 interface PembayaranListViewProps {
   dataList: any[];
@@ -75,8 +76,9 @@ export const PembayaranListView: React.FC<PembayaranListViewProps> = ({
           </div>
         </div>
         <button 
-          onClick={() => {
-            setForm({ ...emptyForm, no_bukti: `BM/00${Math.floor(Math.random()*100)}/${new Date().getMonth()+1}/${new Date().getFullYear()}` });
+          onClick={async () => {
+            const autoNo = await getPembayaranAutoNo();
+            setForm({ ...emptyForm, no_bukti: autoNo });
             setViewMode('form');
           }}
           className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"

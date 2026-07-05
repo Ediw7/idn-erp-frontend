@@ -1,4 +1,5 @@
 import React from 'react';
+import { getPembayaranAutoNo } from '../../transactionsApi';
 
 interface PembayaranFormUmumProps {
   form: any;
@@ -29,7 +30,7 @@ export const PembayaranFormUmum: React.FC<PembayaranFormUmumProps> = ({
                 onChange={e => setForm({ ...form, no_bukti: e.target.value })}
               />
               <button 
-                onClick={() => setForm({ ...form, no_bukti: `BM/00${Math.floor(Math.random()*100)}/${new Date().getMonth()+1}/${new Date().getFullYear()}` })}
+                onClick={async () => { const autoNo = await getPembayaranAutoNo(); setForm({ ...form, no_bukti: autoNo }) }}
                 className="px-3 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold text-slate-700 hover:bg-slate-200 whitespace-nowrap transition-colors"
               >
                 Auto No

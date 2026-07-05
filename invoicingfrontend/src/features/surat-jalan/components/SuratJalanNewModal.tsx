@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Save } from 'lucide-react';
+import { getSjAutoNo } from '../../transactionsApi';
 
 interface SuratJalanNewModalProps {
   modalForm: any;
@@ -40,9 +41,10 @@ export const SuratJalanNewModal: React.FC<SuratJalanNewModalProps> = ({
                   <input type="text" className={`${inputClass} flex-1`} value={modalForm.no_sj || ''} onChange={e => setModalForm({ ...modalForm, no_sj: e.target.value })} />
                   <button
                     className="px-3 py-1.5 text-xs font-bold border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm shadow-sm"
-                    onClick={() => {
+                    onClick={async () => {
                       const defGudangId = gudangs.find(g => g.is_default)?.id || '';
-                      setModalForm({ ...modalForm, gudang_id: String(defGudangId), no_sj: `SJ/00${Math.floor(Math.random() * 100)}/06/2026` });
+                      const autoNo = await getSjAutoNo();
+                      setModalForm({ ...modalForm, gudang_id: String(defGudangId), no_sj: autoNo });
                     }}
                   >
                     Auto No
