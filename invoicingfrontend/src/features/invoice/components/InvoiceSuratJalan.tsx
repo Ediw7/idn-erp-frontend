@@ -78,6 +78,7 @@ export const InvoiceSuratJalan: React.FC<InvoiceSuratJalanProps> = ({ form, setF
     setForm((prev: any) => ({
       ...prev,
       lines: newLines,
+      gudang_id: prev.gudang_id || targetSJ.gudang_id || '',
       surat_jalans: [
         ...(prev.surat_jalans || []),
         { no_sj: targetSJ.no_sj, tanggal: targetSJ.tanggal, keterangan: targetSJ.keterangan || '' }

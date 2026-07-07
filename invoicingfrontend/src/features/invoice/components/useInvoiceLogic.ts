@@ -197,7 +197,9 @@ export const useInvoiceLogic = (locationSearch: string) => {
           salesman_id: targetSO?.salesman_id ? String(targetSO.salesman_id) : prev.salesman_id,
           cara_pembayaran: targetSO?.pembayaran_id ? String(targetSO.pembayaran_id) : prev.cara_pembayaran,
           proyek: targetSO?.proyek ? String(targetSO.proyek) : prev.proyek,
-          no_po: targetSO?.no_po || prev.no_po
+          no_po: targetSO?.no_po || prev.no_po,
+          tgl_po: targetSO?.tgl_po || prev.tgl_po,
+          gudang_id: targetSJ.gudang_id || prev.gudang_id
         }));
       }
     } else if (so && (!sj) && salesOrders.length > 0 && (!form.lines || form.lines.length === 0)) {
@@ -221,7 +223,8 @@ export const useInvoiceLogic = (locationSearch: string) => {
           salesman_id: targetSO.salesman_id ? String(targetSO.salesman_id) : prev.salesman_id,
           cara_pembayaran: targetSO.pembayaran_id ? String(targetSO.pembayaran_id) : prev.cara_pembayaran,
           proyek: targetSO.proyek ? String(targetSO.proyek) : prev.proyek,
-          no_po: targetSO.no_po || prev.no_po
+          no_po: targetSO.no_po || prev.no_po,
+          tgl_po: targetSO.tgl_po || prev.tgl_po
         }));
       }
     }
@@ -238,7 +241,8 @@ export const useInvoiceLogic = (locationSearch: string) => {
           salesman_id: prev.salesman_id || (targetSO.salesman_id ? String(targetSO.salesman_id) : ''),
           cara_pembayaran: prev.cara_pembayaran || (targetSO.pembayaran_id ? String(targetSO.pembayaran_id) : ''),
           proyek: prev.proyek || (targetSO.proyek ? String(targetSO.proyek) : ''),
-          no_po: prev.no_po || targetSO.no_po || ''
+          no_po: prev.no_po || targetSO.no_po || '',
+          tgl_po: prev.tgl_po || targetSO.tgl_po || ''
         }));
       }
     }
