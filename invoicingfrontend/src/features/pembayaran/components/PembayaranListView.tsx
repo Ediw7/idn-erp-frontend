@@ -9,14 +9,11 @@ interface PembayaranListViewProps {
   emptyForm: any;
   handleDelete: (id: number) => void;
   pelanggans: any[];
-  setShowNewModal: (val: boolean) => void;
-  setModalForm: (form: any) => void;
-  emptyModalForm: any;
 }
 
 export const PembayaranListView: React.FC<PembayaranListViewProps> = ({
   dataList, setViewMode, setForm, emptyForm, handleDelete, pelanggans,
-  setShowNewModal, setModalForm, emptyModalForm
+
 }) => {
   const [periode, setPeriode] = React.useState(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
   const [searchPelanggan, setSearchPelanggan] = React.useState('');
@@ -82,8 +79,8 @@ export const PembayaranListView: React.FC<PembayaranListViewProps> = ({
         <button 
           onClick={async () => {
             const autoNo = await getPembayaranAutoNo();
-            setModalForm({ ...emptyModalForm, no_bukti: autoNo });
-            setShowNewModal(true);
+            setForm({ ...emptyForm, no_bukti: autoNo });
+            setViewMode('form');
           }}
           className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
         >

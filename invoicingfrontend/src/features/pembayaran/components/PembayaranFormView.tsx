@@ -14,17 +14,13 @@ interface PembayaranFormViewProps {
   removeLine: (idx: number) => void;
   handleSaveAll: () => void;
   setViewMode: (mode: 'list' | 'form') => void;
-  setShowNewModal: (show: boolean) => void;
-  setModalForm: (form: any) => void;
-  emptyModalForm: any;
   handleDelete?: (id: number) => void;
 }
 
 export const PembayaranFormView: React.FC<PembayaranFormViewProps> = ({
   form, setForm, pelanggans, handlePembeliChange,
   handleOpenAddLine, handleOpenEditLine, removeLine,
-  handleSaveAll, setViewMode, setShowNewModal,
-  setModalForm, emptyModalForm, handleDelete
+  handleSaveAll, setViewMode, handleDelete
 }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'umum' | 'detail'>('umum');
@@ -49,8 +45,7 @@ export const PembayaranFormView: React.FC<PembayaranFormViewProps> = ({
             onClick={async () => {
               const { getPembayaranAutoNo } = await import('../../transactionsApi');
               const autoNo = await getPembayaranAutoNo();
-              setModalForm({ ...emptyModalForm, no_bukti: autoNo });
-              setShowNewModal(true);
+              setForm({ no_bukti: autoNo, tanggal: new Date().toISOString().split('T')[0], pelanggan_id: '', alamat: '', metode_pembayaran: 'Transfer', no_cek_giro: '', tanggal_cair: '', perkiraan_kas_bank: '', mata_uang: 'IDR', jumlah_penerimaan: 0, kurs_pembayaran: 1, keterangan: '', lines: [] });
             }} 
             className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
           >

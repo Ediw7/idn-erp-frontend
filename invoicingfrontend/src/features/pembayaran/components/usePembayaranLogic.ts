@@ -25,11 +25,7 @@ export const emptyForm = {
   write_uid_name: ''
 };
 
-export const emptyModalForm = {
-  no_bukti: '',
-  tanggal: new Date().toISOString().split('T')[0],
-  pelanggan_id: ''
-};
+
 
 export const usePembayaranLogic = () => {
   const { user } = useAuth();
@@ -46,8 +42,7 @@ export const usePembayaranLogic = () => {
     no_invoice: '', no_faktur_pajak: '', tgl_jt: '', ccy: 'IDR', saldo_piutang: 0, pembayaran: 0, potongan: 0, keterangan: ''
   });
 
-  const [showNewModal, setShowNewModal] = useState(false);
-  const [modalForm, setModalForm] = useState<any>(emptyModalForm);
+
 
   const [pelanggans, setPelanggans] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -75,40 +70,17 @@ export const usePembayaranLogic = () => {
     fetchData();
   }, []);
 
-  const handlePembeliChange = (id: number | '', isModal: boolean = false) => {
+  const handlePembeliChange = (id: number | '') => {
     const p = pelanggans.find(x => x.id === id);
-    if (isModal) {
-      setModalForm({
-        ...modalForm,
-        pelanggan_id: id,
-        alamat: p?.alamat_wp || p?.alamat || ''
-      });
-    } else {
-      setForm({
-        ...form,
-        pelanggan_id: id,
-        alamat: p?.alamat_wp || p?.alamat || '',
-        lines: [] // Reset lines when customer changes
-      });
-    }
+    setForm({
+      ...form,
+      pelanggan_id: id,
+      alamat: p?.alamat_wp || p?.alamat || '',
+      lines: []
+    });
   };
 
-  const handleCreateHeader = () => {
-    if (!modalForm.no_bukti) {
-      toast.error('Harap isi No. Bukti terlebih dahulu!');
-      return;
-    }
-    if (!modalForm.pelanggan_id) {
-      toast.error('Nama Pembeli harus dipilih!');
-      return;
-    }
-    setForm({
-      ...emptyForm,
-      ...modalForm
-    });
-    setShowNewModal(false);
-    setViewMode('form');
-  };
+
 
   const handleOpenAddLine = () => {
     if (!form.pelanggan_id) {
@@ -202,12 +174,10 @@ export const usePembayaranLogic = () => {
     viewMode, setViewMode,
     dataList, setDataList,
     showLineModal, setShowLineModal,
-    showNewModal, setShowNewModal,
-    modalForm, setModalForm,
     editLineIndex, lineForm, setLineForm,
     pelanggans, invoices, availableInvoices,
     loadingData,
-    handlePembeliChange, handleCreateHeader, handleOpenAddLine, handleOpenEditLine, handleSaveLine, removeLine,
+    handlePembeliChange, handleOpenAddLine, handleOpenEditLine, handleSaveLine, removeLine,
     handleSaveAll, handleDelete,
     user, confirm
   };
