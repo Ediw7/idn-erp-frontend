@@ -61,17 +61,17 @@ const OutstandingInvoice: React.FC = () => {
           tanggal: inv.tgl_invoice,
           no_invoice: inv.no_invoice,
           nama_pelanggan: inv.pelanggan_nama,
-          alamat: '',
-          no_telp: '',
-          tgl_jt: '',
-          mata_uang: 'IDR',
+          alamat: inv.alamat || '',
+          no_telp: inv.no_telp || '',
+          tgl_jt: inv.tgl_jt || '',
+          mata_uang: inv.mata_uang || 'IDR',
           jumlah: inv.total_tagihan,
           saldo: inv.saldo_piutang,
-          sales: '',
-          proyek: '',
-          no_so: '',
-          no_po: '',
-          catatan: ''
+          sales: inv.sales || '',
+          proyek: inv.proyek || '',
+          no_so: inv.no_so || '',
+          no_po: inv.no_po || '',
+          catatan: inv.catatan || ''
         }));
         
         setDataList(mapped);
