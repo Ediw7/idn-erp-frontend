@@ -140,14 +140,6 @@ export const PembayaranFormUmum: React.FC<PembayaranFormUmumProps> = ({
               onChange={e => setForm({ ...form, kurs_pembayaran: parseFloat(e.target.value) || 1 })}
             />
           </div>
-          <div className="flex items-start mt-2">
-            <label className={labelClass}>Keterangan</label>
-            <textarea 
-              className={`${inputClass} h-32 resize-none`} 
-              value={form.keterangan || ''}
-              onChange={e => setForm({ ...form, keterangan: e.target.value })}
-            />
-          </div>
         </div>
       </div>
     </div>

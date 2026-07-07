@@ -44,6 +44,7 @@ const Pembayaran: React.FC = () => {
           setShowNewModal={logic.setShowNewModal}
           setModalForm={logic.setModalForm}
           emptyModalForm={emptyModalForm}
+          handleDelete={logic.handleDelete}
         />
       )}
 
