@@ -20,7 +20,7 @@ export const useSuratJalanLogic = () => {
   const [items, setItems] = useState<ItemData[]>([]);
   const [salesOrders, setSalesOrders] = useState<SalesOrderData[]>([]);
 
-  const [periode, setPeriode] = useState('2026-06');
+  const [periode, setPeriode] = useState(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
 
   const [showNewSjModal, setShowNewSjModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);

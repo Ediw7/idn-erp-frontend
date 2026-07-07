@@ -23,7 +23,7 @@ export const useSalesOrderLogic = () => {
   const [wajibPpnbm, setWajibPpnbm] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
 
-  const [periode, setPeriode] = useState('2026-06');
+  const [periode, setPeriode] = useState(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
   const [activeTab, setActiveTab] = useState<'umum' | 'detail' | 'surat_jalan' | 'outstanding'>('umum');
 
   const [showSjModal, setShowSjModal] = useState(false);

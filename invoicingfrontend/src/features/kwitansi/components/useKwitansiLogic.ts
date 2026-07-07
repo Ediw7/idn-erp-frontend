@@ -43,7 +43,7 @@ export const useKwitansiLogic = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
 
   const [filter, setFilter] = useState({
-    periode: '2026-06',
+    periode: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
     pelanggan_id: '',
     jenis: '',
     mata_uang: '',
@@ -220,7 +220,7 @@ export const useKwitansiLogic = () => {
 
   const handleResetFilter = () => {
     setFilter({
-      periode: '2026-06',
+      periode: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
       pelanggan_id: '',
       jenis: '',
       mata_uang: '',

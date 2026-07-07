@@ -14,7 +14,7 @@ interface PembayaranListViewProps {
 export const PembayaranListView: React.FC<PembayaranListViewProps> = ({
   dataList, setViewMode, setForm, emptyForm, handleDelete, pelanggans
 }) => {
-  const [periode, setPeriode] = React.useState('2026-06');
+  const [periode, setPeriode] = React.useState(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
   const [searchPelanggan, setSearchPelanggan] = React.useState('');
 
   const filteredData = dataList.filter(item => {

@@ -33,9 +33,12 @@ const OutstandingInvoice: React.FC = () => {
   const [salesmen, setSalesmen] = useState<SalesmanData[]>([]);
 
   // Filter State
+  const today = new Date();
+  const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+  
   const initialFilter = {
     pelanggan_nama: '',
-    periode: '2026-06',
+    periode: currentMonth,
   };
   const [filter, setFilter] = useState(initialFilter);
 
@@ -89,7 +92,7 @@ const OutstandingInvoice: React.FC = () => {
   const handleResetFilter = () => {
     setFilter({
       pelanggan_nama: '',
-      periode: '2026-06',
+      periode: currentMonth,
     });
   };
 
