@@ -81,6 +81,7 @@ const Invoice: React.FC = () => {
           setShowNewInvoiceModal={logic.setShowNewInvoiceModal} 
           handleCreateInvoiceHeader={logic.handleCreateInvoiceHeader} 
           pelanggans={logic.pelanggans} 
+          salesOrders={logic.salesOrders} 
           loadingData={logic.loadingData} 
           handlePembeliChange={logic.handlePembeliChange} 
         />

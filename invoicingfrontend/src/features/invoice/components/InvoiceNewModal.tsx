@@ -8,13 +8,14 @@ interface InvoiceNewModalProps {
   setShowNewInvoiceModal: (show: boolean) => void;
   handleCreateInvoiceHeader: () => void;
   pelanggans: any[];
+  salesOrders: any[];
   loadingData: boolean;
   handlePembeliChange: (id: number | '', isModal: boolean) => void;
 }
 
 export const InvoiceNewModal: React.FC<InvoiceNewModalProps> = ({
   modalForm, setModalForm, setShowNewInvoiceModal, handleCreateInvoiceHeader,
-  pelanggans, loadingData, handlePembeliChange
+  pelanggans, salesOrders, loadingData, handlePembeliChange
 }) => {
   const inputClass = "w-full px-3 py-1.5 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 bg-white disabled:bg-slate-100 disabled:text-slate-500";
   const labelClass = "text-sm font-semibold text-slate-700 w-28 shrink-0 pt-1";
@@ -49,6 +50,34 @@ export const InvoiceNewModal: React.FC<InvoiceNewModalProps> = ({
               <select className={`${inputClass} flex-1`} value={modalForm.pembeli_id || ''} onChange={e => handlePembeliChange(e.target.value ? Number(e.target.value) : '', true)}>
                 <option value="">{loadingData ? 'Loading data...' : '-- Pilih Pembeli --'}</option>
                 {pelanggans.map(p => <option key={p.id} value={p.id}>{p.nama} - {p.alamat}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>No. Sales Order</label>
+            <div className="flex gap-3">
+              <select 
+                className={`${inputClass} flex-1`} 
+                value={modalForm.no_so || ''} 
+                onChange={e => {
+                  const no_so = e.target.value;
+                  const so = salesOrders.find(s => s.no_so === no_so);
+                  if (so && so.pelanggan_id) {
+                    const p = pelanggans.find(x => x.id === so.pelanggan_id);
+                    setModalForm({
+                      ...modalForm, 
+                      no_so,
+                      pembeli_id: so.pelanggan_id,
+                      alamat: p?.alamat_wp || p?.alamat || '',
+                      npwp: p?.npwp || ''
+                    });
+                  } else {
+                    setModalForm({...modalForm, no_so});
+                  }
+                }}
+              >
+                <option value="">-- Kosong / Opsional --</option>
+                {salesOrders.map(so => <option key={so.id} value={so.no_so}>{so.no_so} - {so.pelanggan_nama}</option>)}
               </select>
             </div>
           </div>
