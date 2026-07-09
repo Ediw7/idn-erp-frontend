@@ -65,6 +65,8 @@ const Pembayaran: React.FC = () => {
           setShowNewModal={logic.setShowNewModal}
           handleCreateHeader={logic.handleCreateHeader}
           pelanggans={logic.pelanggans}
+          loadingData={logic.loadingData}
+          handlePembeliChange={logic.handlePembeliChange}
         />
       )}
     </>
