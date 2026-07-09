@@ -78,14 +78,23 @@ export const usePembayaranLogic = () => {
     fetchData();
   }, []);
 
-  const handlePembeliChange = (id: number | '') => {
+  const handlePembeliChange = (id: number | '', isModal?: boolean) => {
     const p = pelanggans.find(x => x.id === id);
-    setForm({
-      ...form,
-      pelanggan_id: id,
-      alamat: p?.alamat_wp || p?.alamat || '',
-      lines: []
-    });
+    if (isModal) {
+      setModalForm({
+        ...modalForm,
+        pelanggan_id: id,
+        alamat: p?.alamat_wp || p?.alamat || ''
+      });
+    } else {
+      setForm({
+        ...form,
+        pelanggan_id: id,
+        alamat: p?.alamat_wp || p?.alamat || '',
+        alamat: p?.alamat_wp || p?.alamat || '',
+        lines: []
+      });
+    }
   };
 
 
