@@ -1,8 +1,9 @@
 import React from 'react';
-import { usePembayaranLogic, emptyForm } from './usePembayaranLogic';
+import { usePembayaranLogic, emptyForm, emptyModalForm } from './usePembayaranLogic';
 import { PembayaranListView } from './PembayaranListView';
 import { PembayaranFormView } from './PembayaranFormView';
 import { PembayaranLineModal } from './PembayaranLineModal';
+import { PembayaranNewModal } from './PembayaranNewModal';
 
 const Pembayaran: React.FC = () => {
   const logic = usePembayaranLogic();
@@ -38,6 +39,9 @@ const Pembayaran: React.FC = () => {
           handleSaveAll={logic.handleSaveAll}
           setViewMode={logic.setViewMode}
           handleDelete={logic.handleDelete}
+          setShowNewModal={logic.setShowNewModal}
+          setModalForm={logic.setModalForm}
+          emptyModalForm={emptyModalForm}
         />
       )}
 
@@ -53,6 +57,16 @@ const Pembayaran: React.FC = () => {
       )}
 
       
+    
+      {logic.showNewModal && (
+        <PembayaranNewModal
+          modalForm={logic.modalForm}
+          setModalForm={logic.setModalForm}
+          setShowNewModal={logic.setShowNewModal}
+          handleCreateHeader={logic.handleCreateHeader}
+          pelanggans={logic.pelanggans}
+        />
+      )}
     </>
   );
 };

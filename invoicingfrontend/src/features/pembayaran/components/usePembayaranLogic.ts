@@ -5,6 +5,12 @@ import { useConfirm } from '../../../contexts/ConfirmContext';
 import { setupApi } from '../../setup/api';
 import { getPembayaran, savePembayaran, getOutstanding, deletePembayaran } from '../../transactionsApi';
 
+export const emptyModalForm = {
+  no_bukti: '',
+  tanggal: new Date().toISOString().split('T')[0],
+  pelanggan_id: ''
+};
+
 export const emptyForm = {
   no_bukti: '',
   tanggal: new Date().toISOString().split('T')[0],
@@ -36,6 +42,8 @@ export const usePembayaranLogic = () => {
   
   const [form, setForm] = useState<any>(emptyForm);
 
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [modalForm, setModalForm] = useState<any>(emptyModalForm);
   const [showLineModal, setShowLineModal] = useState(false);
   const [editLineIndex, setEditLineIndex] = useState<number | null>(null);
   const [lineForm, setLineForm] = useState<any>({
@@ -114,6 +122,23 @@ export const usePembayaranLogic = () => {
     setForm({ ...form, lines: newLines });
   };
 
+  const handleCreateHeader = () => {
+    if (!modalForm.no_bukti) {
+      toast.error('Harap isi No. Bukti terlebih dahulu!');
+      return;
+    }
+    if (!modalForm.pelanggan_id) {
+      toast.error('Nama Pembeli harus dipilih!');
+      return;
+    }
+    setForm({
+      ...emptyForm,
+      ...modalForm
+    });
+    setShowNewModal(false);
+    setViewMode('form');
+  };
+
   const handleSaveAll = async () => {
     if (!form.no_bukti) {
       toast.error('Harap isi No. Bukti terlebih dahulu!');
@@ -133,6 +158,8 @@ export const usePembayaranLogic = () => {
         lines: (form.lines || []).map((l: any) => {
           const inv = invoices.find(i => i.no_invoice === l.no_invoice);
           return {
+    showNewModal, setShowNewModal,
+    modalForm, setModalForm, handleCreateHeader,
             invoice_id: inv ? inv.id : null,
             pembayaran: Number(l.pembayaran),
             potongan: Number(l.potongan),
@@ -170,6 +197,8 @@ export const usePembayaranLogic = () => {
   const availableInvoices = invoices.filter(inv => inv.pembeli_id === form.pelanggan_id && inv.saldo > 0);
 
   return {
+    showNewModal, setShowNewModal,
+    modalForm, setModalForm, handleCreateHeader,
     form, setForm,
     viewMode, setViewMode,
     dataList, setDataList,
