@@ -27,7 +27,7 @@ export const PembayaranLineModal: React.FC<PembayaranLineModalProps> = ({
         ...lineForm,
         no_invoice: inv.no_invoice,
         no_faktur_pajak: inv.no_faktur_pajak || '',
-        tgl_jt: inv.jatuh_tempo || inv.tanggal || '',
+        tgl_jt: inv.tgl_jt || inv.tgl_invoice || '',
         ccy: 'IDR',
         saldo_piutang: totalInvoice,
         pembayaran: totalInvoice, // Auto-fill with full amount by default
