@@ -3,6 +3,7 @@ import { Save, Printer, FilePlus, ArrowLeft, Trash2 } from 'lucide-react';
 import { PembayaranFormUmum } from './PembayaranFormUmum';
 import { PembayaranDetail } from './PembayaranDetail';
 import { useNavigate } from 'react-router-dom';
+import { getPembayaranAutoNo } from '../../transactionsApi';
 
 interface PembayaranFormViewProps {
   form: any;
@@ -43,10 +44,13 @@ export const PembayaranFormView: React.FC<PembayaranFormViewProps> = ({
         <div className="flex items-center gap-2">
           <button 
             onClick={async () => {
-              const { getPembayaranAutoNo } = await import('../../transactionsApi');
-              const autoNo = await getPembayaranAutoNo();
-              setForm({ no_bukti: autoNo, tanggal: new Date().toISOString().split('T')[0], pelanggan_id: '', alamat: '', metode_pembayaran: 'Transfer', no_cek_giro: '', tanggal_cair: '', perkiraan_kas_bank: '', mata_uang: 'IDR', jumlah_penerimaan: 0, kurs_pembayaran: 1, keterangan: '', lines: [] });
-            }} 
+              try {
+                const autoNo = await getPembayaranAutoNo();
+                setForm({ no_bukti: autoNo, tanggal: new Date().toISOString().split('T')[0], pelanggan_id: '', alamat: '', metode_pembayaran: 'Transfer', no_cek_giro: '', tanggal_cair: '', perkiraan_kas_bank: '', mata_uang: 'IDR', jumlah_penerimaan: 0, kurs_pembayaran: 1, keterangan: '', lines: [] });
+              } catch (e) {
+                console.error(e);
+              }
+            }}
             className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
           >
              <FilePlus size={14} /> + BUAT BARU
