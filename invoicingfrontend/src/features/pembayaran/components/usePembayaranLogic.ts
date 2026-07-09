@@ -170,8 +170,6 @@ export const usePembayaranLogic = () => {
         lines: (form.lines || []).map((l: any) => {
           const inv = invoices.find(i => i.no_invoice === l.no_invoice);
           return {
-    showNewModal, setShowNewModal,
-    modalForm, setModalForm, handleCreateHeader,
             invoice_id: inv ? inv.id : null,
             pembayaran: Number(l.pembayaran),
             potongan: Number(l.potongan),
