@@ -9,6 +9,7 @@ interface PembayaranFormViewProps {
   form: any;
   setForm: (form: any) => void;
   pelanggans: any[];
+  perkiraans: any[];
   handlePembeliChange: (id: number | '') => void;
   handleOpenAddLine: () => void;
   handleOpenEditLine: (idx: number) => void;
@@ -22,7 +23,7 @@ interface PembayaranFormViewProps {
 }
 
 export const PembayaranFormView: React.FC<PembayaranFormViewProps> = ({
-  form, setForm, pelanggans, handlePembeliChange,
+  form, setForm, pelanggans, perkiraans, handlePembeliChange,
   handleOpenAddLine, handleOpenEditLine, removeLine,
   handleSaveAll, setViewMode, handleDelete,
   setShowNewModal, setModalForm, emptyModalForm
@@ -114,7 +115,7 @@ export const PembayaranFormView: React.FC<PembayaranFormViewProps> = ({
           <div className="overflow-x-auto min-h-[350px]">
             {activeTab === 'umum' && (
               <PembayaranFormUmum 
-                form={form} setForm={setForm} pelanggans={pelanggans} handlePembeliChange={handlePembeliChange}
+                form={form} setForm={setForm} pelanggans={pelanggans} perkiraans={perkiraans} handlePembeliChange={handlePembeliChange}
               />
             )}
             

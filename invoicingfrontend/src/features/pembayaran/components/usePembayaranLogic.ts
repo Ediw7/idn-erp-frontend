@@ -54,19 +54,22 @@ export const usePembayaranLogic = () => {
 
   const [pelanggans, setPelanggans] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
+  const [perkiraans, setPerkiraans] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   const fetchData = async () => {
     setLoadingData(true);
     try {
-        const [pelRes, outRes, pemRes] = await Promise.all([
+        const [pelRes, outRes, pemRes, perkRes] = await Promise.all([
           setupApi.getPelanggan().catch(() => []),
           getOutstanding().catch(() => []),
-          getPembayaran().catch(() => [])
+          getPembayaran().catch(() => []),
+          setupApi.getPerkiraan().catch(() => [])
         ]);
         setPelanggans(pelRes);
         setInvoices(outRes);
         setDataList(pemRes);
+        setPerkiraans(perkRes);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -213,7 +216,7 @@ export const usePembayaranLogic = () => {
     dataList, setDataList,
     showLineModal, setShowLineModal,
     editLineIndex, lineForm, setLineForm,
-    pelanggans, invoices, availableInvoices,
+    pelanggans, invoices, availableInvoices, perkiraans,
     loadingData,
     handlePembeliChange, handleOpenAddLine, handleOpenEditLine, handleSaveLine, removeLine,
     handleSaveAll, handleDelete,

@@ -5,11 +5,12 @@ interface PembayaranFormUmumProps {
   form: any;
   setForm: (form: any) => void;
   pelanggans: any[];
+  perkiraans: any[];
   handlePembeliChange: (id: number | '') => void;
 }
 
 export const PembayaranFormUmum: React.FC<PembayaranFormUmumProps> = ({
-  form, setForm, pelanggans, handlePembeliChange
+  form, setForm, pelanggans, perkiraans, handlePembeliChange
 }) => {
   const inputClass = "w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white";
   const readOnlyClass = "w-full px-3 py-2 border border-slate-200 rounded-sm text-sm bg-slate-50 text-slate-500 cursor-not-allowed";
@@ -106,9 +107,9 @@ export const PembayaranFormUmum: React.FC<PembayaranFormUmumProps> = ({
               onChange={e => setForm({ ...form, perkiraan_kas_bank: e.target.value })}
             >
               <option value="">- Pilih Perkiraan -</option>
-              <option value="1101">1101 - Kas Besar</option>
-              <option value="1102001">1102001 - Bank BCA</option>
-              <option value="1102002">1102002 - Bank Mandiri</option>
+              {perkiraans.map(p => (
+                <option key={p.id} value={p.id}>{p.no_perkiraan} - {p.nama_perkiraan}</option>
+              ))}
             </select>
           </div>
           <div className="flex items-center">
