@@ -38,6 +38,16 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
           </button>
           <h2 className="text-lg font-semibold text-white">Kwitansi: {form.no_kwitansi || 'Baru'}</h2>
         </div>
+        <div className="flex items-center gap-2">
+          {form.no_kwitansi && (
+            <button 
+              onClick={() => onPrint(form.no_kwitansi)} 
+              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
+            >
+              <Printer size={14} /> CETAK
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-auto p-6">
@@ -186,7 +196,6 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
                   </div>
                 )}
               </div>
-              </div>
             </div>
           </div>
         </div>
@@ -194,20 +203,12 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
         {/* Footer Actions */}
         <div className="mt-8 pt-4 border-t border-slate-200 flex justify-end gap-3">
           {form.no_kwitansi && (
-            <>
-              <button 
-                onClick={() => onPrint(form.no_kwitansi)} 
-                className={`${btnClass} bg-white text-slate-700 hover:bg-slate-50 border border-slate-300`}
-              >
-                <Printer size={16} /> Cetak
-              </button>
-              <button 
-                onClick={() => handleDelete(form.no_kwitansi)} 
-                className={`${btnClass} bg-white text-red-600 hover:bg-red-50 border border-red-200`}
-              >
-                <Trash2 size={16} /> Hapus
-              </button>
-            </>
+            <button 
+              onClick={() => handleDelete(form.no_kwitansi)} 
+              className={`${btnClass} bg-white text-red-600 hover:bg-red-50 border border-red-200`}
+            >
+              <Trash2 size={16} /> Hapus
+            </button>
           )}
           <button 
             onClick={handleSave} 
@@ -217,5 +218,6 @@ export const KwitansiFormView: React.FC<KwitansiFormViewProps> = ({
           </button>
         </div>
       </div>
+    </div>
   );
 };
