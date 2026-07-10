@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Printer } from 'lucide-react';
 import { setupApi } from '../../setup/api';
 import { salesOrderApi } from '../../sales-order/api';
-import { getSuratJalan, getInvoices } from '../../transactionsApi';
+import { getSuratJalan, getInvoices, getPembayaran as getPembayaranTrx } from '../../transactionsApi';
 import { useAuth } from '../../auth/contexts/AuthContext';
 
 interface CompanyProfile {
@@ -35,10 +35,11 @@ const PreviewLaporan: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const type = params.get('reportType') || '';
-    const targetNo = params.get('no_sj') || params.get('no_so') || params.get('no_invoice') || '';
+    const targetNo = params.get('no_sj') || params.get('no_so') || params.get('no_invoice') || params.get('no_pembayaran') || '';
 
     let title = 'LAPORAN';
     let targetFormulir = '';
+    if (type.startsWith('bpk')) { title = 'BUKTI PENERIMAAN KAS'; targetFormulir = 'Pembayaran'; }
     if (type.startsWith('sj')) { title = 'SURAT JALAN'; targetFormulir = 'Surat Jalan'; }
     if (type.startsWith('so')) { title = 'SALES ORDER'; targetFormulir = 'Sales Order'; }
     if (type.startsWith('inv')) { title = 'INVOICE'; targetFormulir = 'Invoice'; }
@@ -48,17 +49,18 @@ const PreviewLaporan: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const [perusahaan, preferensi, soData, sjData, invData, pelanggans, items, tandaTanganData, pembayarans, salesmans] = await Promise.all([
-          setupApi.getPerusahaan(),
-          setupApi.getPreferensi(),
-          salesOrderApi.getAll(),
+        const [perusahaan, preferensi, soData, sjData, invData, pelanggans, items, tandaTanganData, pembayarans, salesmans, pembayaranTrxData] = await Promise.all([
+          setupApi.getPerusahaan().catch(() => ({})),
+          setupApi.getPreferensi().catch(() => ({})),
+          salesOrderApi.getAll().catch(() => []),
           getSuratJalan().catch(() => []),
           getInvoices().catch(() => []),
-          setupApi.getPelanggan(),
-          setupApi.getItem(),
-          setupApi.getTandaTangan(),
+          setupApi.getPelanggan().catch(() => []),
+          setupApi.getItem().catch(() => []),
+          setupApi.getTandaTangan().catch(() => []),
           setupApi.getPembayaran().catch(() => []),
-          setupApi.getSalesman().catch(() => [])
+          setupApi.getSalesman().catch(() => []),
+          getPembayaranTrx().catch(() => [])
         ]);
 
         setCompany({
@@ -144,6 +146,31 @@ const PreviewLaporan: React.FC = () => {
             mappedLines = (inv.lines || []).map((l:any) => {
               const item = items.find((i:any) => String(i.id) === String(l.item_id));
               return { kode: item?.kode || l.kode || '-', nama: item?.nama || l.nama || '-', kuantum: l.kuantum || 1, satuan: item?.satuan || l.satuan || 'Pcs', harga_satuan: l.harga_satuan || 0, disc_persen: l.disc_persen || 0, disc_harga: l.disc_harga || 0, keterangan: l.keterangan || '-' };
+            });
+          }
+        }
+        else if (targetFormulir === 'Pembayaran') {
+          const pem = pembayaranTrxData.find((i:any) => i.no_bukti === targetNo);
+          if (pem) {
+            setDocDate(pem.tgl_pembayaran || pem.tanggal);
+            p = pelanggans.find((x:any) => String(x.id) === String(pem.pelanggan_id));
+            setMeta({
+              keterangan: pem.keterangan || '',
+              jumlah_penerimaan: pem.jumlah_penerimaan || 0,
+              total_potongan: pem.total_potongan || 0,
+              mata_uang: pem.mata_uang || 'IDR'
+            });
+            mappedLines = (pem.lines || []).map((l:any) => {
+              return { 
+                kode: l.no_invoice || '-', 
+                nama: `Pembayaran untuk Invoice ${l.no_invoice || '-'}`, 
+                kuantum: 1, 
+                satuan: 'Doc', 
+                harga_satuan: l.jumlah_bayar || 0, 
+                disc_persen: 0, 
+                disc_harga: l.potongan || 0, 
+                keterangan: l.keterangan || '-' 
+              };
             });
           }
         }

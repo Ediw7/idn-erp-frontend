@@ -387,7 +387,8 @@ const Laporan: React.FC = () => {
                     reportType: selectedReport,
                     ...(filter.dari_no_sj ? { no_sj: filter.dari_no_sj } : {}),
                     ...(filter.dari_no_so ? { no_so: filter.dari_no_so } : {}),
-                    ...(filter.dari_no_invoice ? { no_invoice: filter.dari_no_invoice } : {})
+                    ...(filter.dari_no_invoice ? { no_invoice: filter.dari_no_invoice } : {}),
+                    ...(filter.dari_no_pembayaran ? { no_pembayaran: filter.dari_no_pembayaran } : {})
                   });
                   window.open(`/preview-laporan?${queryParams.toString()}`, '_blank');
                 }}
