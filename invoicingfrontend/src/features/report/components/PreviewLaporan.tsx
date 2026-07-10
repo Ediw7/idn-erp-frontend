@@ -50,17 +50,17 @@ const PreviewLaporan: React.FC = () => {
     const fetchData = async () => {
       try {
         const [perusahaan, preferensi, soData, sjData, invData, pelanggans, items, tandaTanganData, pembayarans, salesmans, pembayaranTrxData] = await Promise.all([
-          setupApi.getPerusahaan().catch(() => ({})),
-          setupApi.getPreferensi().catch(() => ({})),
-          salesOrderApi.getAll().catch(() => []),
-          getSuratJalan().catch(() => []),
-          getInvoices().catch(() => []),
-          setupApi.getPelanggan().catch(() => []),
-          setupApi.getItem().catch(() => []),
-          setupApi.getTandaTangan().catch(() => []),
-          setupApi.getPembayaran().catch(() => []),
-          setupApi.getSalesman().catch(() => []),
-          getPembayaranTrx().catch(() => [])
+          setupApi.getPerusahaan().catch(() => ({}) as any),
+          setupApi.getPreferensi().catch(() => ({}) as any),
+          salesOrderApi.getAll().catch(() => [] as any[]),
+          getSuratJalan().catch(() => [] as any[]),
+          getInvoices().catch(() => [] as any[]),
+          setupApi.getPelanggan().catch(() => [] as any[]),
+          setupApi.getItem().catch(() => [] as any[]),
+          setupApi.getTandaTangan().catch(() => [] as any[]),
+          setupApi.getPembayaran().catch(() => [] as any[]),
+          setupApi.getSalesman().catch(() => [] as any[]),
+          getPembayaranTrx().catch(() => [] as any[])
         ]);
 
         setCompany({
@@ -158,20 +158,48 @@ const PreviewLaporan: React.FC = () => {
               keterangan: pem.keterangan || '',
               jumlah_penerimaan: pem.jumlah_penerimaan || 0,
               total_potongan: pem.total_potongan || 0,
-              mata_uang: pem.mata_uang || 'IDR'
+              mata_uang: pem.mata_uang || 'IDR',
+              perkiraan_kas_id: pem.perkiraan_kas_id || ''
             });
-            mappedLines = (pem.lines || []).map((l:any) => {
-              return { 
+            
+            let tempLines: any[] = [];
+            (pem.lines || []).forEach((l:any) => {
+              const inv = invData.find((i:any) => i.no_invoice === l.no_invoice);
+              
+              tempLines.push({ 
                 kode: l.no_invoice || '-', 
-                nama: `Pembayaran untuk Invoice ${l.no_invoice || '-'}`, 
+                nama: `--- RINCIAN INVOICE: ${l.no_invoice || '-'} ${inv?.no_so ? `(SO: ${inv.no_so})` : ''} ---`, 
+                kuantum: '', satuan: '', harga_satuan: 0, disc_persen: 0, disc_harga: 0, keterangan: 'HEADER' 
+              });
+
+              if (inv && inv.lines) {
+                inv.lines.forEach((invL:any) => {
+                  const item = items.find((i:any) => String(i.id) === String(invL.item_id));
+                  tempLines.push({ 
+                    kode: item?.kode || invL.kode || '-', 
+                    nama: item?.nama || invL.nama || '-', 
+                    kuantum: invL.kuantum || 1, 
+                    satuan: item?.satuan || invL.satuan || 'Pcs', 
+                    harga_satuan: invL.harga_satuan || 0, 
+                    disc_persen: invL.disc_persen || 0, 
+                    disc_harga: invL.disc_harga || 0, 
+                    keterangan: invL.keterangan || '-' 
+                  });
+                });
+              }
+
+              tempLines.push({ 
+                kode: 'PAY', 
+                nama: `>> NOMINAL DIBAYAR UNTUK ${l.no_invoice}`, 
                 kuantum: 1, 
                 satuan: 'Doc', 
                 harga_satuan: l.jumlah_bayar || 0, 
                 disc_persen: 0, 
                 disc_harga: l.potongan || 0, 
-                keterangan: l.keterangan || '-' 
-              };
+                keterangan: 'PAYMENT' 
+              });
             });
+            mappedLines = tempLines;
           }
         }
 
@@ -210,7 +238,7 @@ const PreviewLaporan: React.FC = () => {
     return <div className="w-full h-screen flex items-center justify-center text-slate-500 font-semibold bg-slate-100">Memuat Dokumen...</div>;
   }
 
-  const isFinancial = reportType === 'Sales Order' || reportType === 'Invoice';
+  const isFinancial = reportType === 'Sales Order' || reportType === 'Invoice' || reportType === 'Pembayaran';
 
   return (
     <div className="w-full min-h-screen bg-slate-200 flex flex-col font-sans text-slate-800">
@@ -307,9 +335,21 @@ const PreviewLaporan: React.FC = () => {
                       <td className="py-3 px-3 text-center font-bold text-slate-800 bg-slate-50/50 group-hover:bg-transparent">{l.kuantum}</td>
                       {isFinancial && (
                         <>
-                          <td className="py-3 px-3 text-right font-mono text-slate-700 text-xs">{fmt(l.harga_satuan)}</td>
-                          <td className="py-3 px-3 text-right text-slate-500 text-xs">{l.disc_persen > 0 ? `${l.disc_persen}%` : l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
-                          <td className="py-3 px-3 text-right font-mono font-semibold text-slate-800 text-xs">{fmt(jumlah)}</td>
+                          {l.keterangan === 'HEADER' ? (
+                            <td colSpan={3} className="py-3 px-3 text-right font-mono font-semibold text-slate-500 text-xs">-</td>
+                          ) : l.keterangan === 'PAYMENT' ? (
+                            <>
+                              <td className="py-3 px-3 text-right font-mono text-emerald-700 text-xs">{fmt(l.harga_satuan)}</td>
+                              <td className="py-3 px-3 text-right text-emerald-600 text-xs">{l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
+                              <td className="py-3 px-3 text-right font-mono font-bold text-emerald-800 text-xs bg-emerald-50/50">{fmt(jumlah)}</td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="py-3 px-3 text-right font-mono text-slate-700 text-xs">{fmt(l.harga_satuan)}</td>
+                              <td className="py-3 px-3 text-right text-slate-500 text-xs">{l.disc_persen > 0 ? `${l.disc_persen}%` : l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
+                              <td className="py-3 px-3 text-right font-mono font-semibold text-slate-800 text-xs">{fmt(jumlah)}</td>
+                            </>
+                          )}
                         </>
                       )}
                       {!isFinancial && (
@@ -329,48 +369,69 @@ const PreviewLaporan: React.FC = () => {
             {isFinancial && lines.length > 0 && (
               <div className="mt-6 flex justify-end">
                 <div className="w-[320px] bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col gap-2 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600 font-medium">Sub Total</span>
-                    <span className="font-mono font-semibold text-slate-800">{fmt(subtotal)}</span>
-                  </div>
-                  {meta.potongan_harga > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium">Potongan Harga</span>
-                      <span className="font-mono text-red-600">-{fmt(meta.potongan_harga)}</span>
-                    </div>
+                  {reportType === 'Pembayaran' ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600 font-medium">Total Diterima</span>
+                        <span className="font-mono font-semibold text-emerald-700">{fmt(meta.jumlah_penerimaan)}</span>
+                      </div>
+                      {meta.total_potongan > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-600 font-medium">Total Potongan</span>
+                          <span className="font-mono text-red-600">-{fmt(meta.total_potongan)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center border-t-2 border-slate-800 pt-3 mt-2">
+                        <span className="font-black text-slate-900 tracking-wider">NET DITERIMA</span>
+                        <span className="font-mono font-black text-blue-900 text-lg">{fmt((meta.jumlah_penerimaan || 0) - (meta.total_potongan || 0))}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-600 font-medium">Sub Total</span>
+                        <span className="font-mono font-semibold text-slate-800">{fmt(subtotal)}</span>
+                      </div>
+                      {meta.potongan_harga > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-600 font-medium">Potongan Harga</span>
+                          <span className="font-mono text-red-600">-{fmt(meta.potongan_harga)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-1">
+                        <span className="text-slate-700 font-bold">Dasar Pengenaan Pajak (DPP)</span>
+                        <span className="font-mono font-bold text-slate-800">{fmt(dpp)}</span>
+                      </div>
+                      {meta.ppn_persen > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-600 font-medium">PPN ({meta.ppn_persen}%)</span>
+                          <span className="font-mono text-slate-700">{fmt(ppnAmount)}</span>
+                        </div>
+                      )}
+                      {meta.pph_persen > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-600 font-medium">PPh 22 ({meta.pph_persen}%)</span>
+                          <span className="font-mono text-slate-700">{fmt(pphAmount)}</span>
+                        </div>
+                      )}
+                      {meta.ppnbm_persen > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-600 font-medium">PPnBM ({meta.ppnbm_persen}%)</span>
+                          <span className="font-mono text-slate-700">{fmt(ppnbmAmount)}</span>
+                        </div>
+                      )}
+                      {meta.ongkos_angkut > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-600 font-medium">Ongkos Angkut</span>
+                          <span className="font-mono text-slate-700">{fmt(meta.ongkos_angkut)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center border-t-2 border-slate-800 pt-3 mt-2">
+                        <span className="font-black text-slate-900 tracking-wider">TOTAL TAGIHAN</span>
+                        <span className="font-mono font-black text-blue-900 text-lg">{fmt(totalAkhir)}</span>
+                      </div>
+                    </>
                   )}
-                  <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-1">
-                    <span className="text-slate-700 font-bold">Dasar Pengenaan Pajak (DPP)</span>
-                    <span className="font-mono font-bold text-slate-800">{fmt(dpp)}</span>
-                  </div>
-                  {meta.ppn_persen > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium">PPN ({meta.ppn_persen}%)</span>
-                      <span className="font-mono text-slate-700">{fmt(ppnAmount)}</span>
-                    </div>
-                  )}
-                  {meta.pph_persen > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium">PPh 22 ({meta.pph_persen}%)</span>
-                      <span className="font-mono text-slate-700">{fmt(pphAmount)}</span>
-                    </div>
-                  )}
-                  {meta.ppnbm_persen > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium">PPnBM ({meta.ppnbm_persen}%)</span>
-                      <span className="font-mono text-slate-700">{fmt(ppnbmAmount)}</span>
-                    </div>
-                  )}
-                  {meta.ongkos_angkut > 0 && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-600 font-medium">Ongkos Angkut</span>
-                      <span className="font-mono text-slate-700">{fmt(meta.ongkos_angkut)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center border-t-2 border-slate-800 pt-3 mt-2">
-                    <span className="font-black text-slate-900 tracking-wider">TOTAL TAGIHAN</span>
-                    <span className="font-mono font-black text-blue-900 text-lg">{fmt(totalAkhir)}</span>
-                  </div>
                 </div>
               </div>
             )}
