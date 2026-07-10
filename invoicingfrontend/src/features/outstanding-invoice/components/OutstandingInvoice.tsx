@@ -39,6 +39,9 @@ const OutstandingInvoice: React.FC = () => {
   const initialFilter = {
     pelanggan_nama: '',
     periode: currentMonth,
+    mata_uang: '',
+    proyek: '',
+    sales: ''
   };
   const [filter, setFilter] = useState(initialFilter);
 
@@ -91,7 +94,7 @@ const OutstandingInvoice: React.FC = () => {
 
   const handleResetFilter = () => {
     setFilter({
-      pelanggan_nama: '',
+      ...initialFilter,
       periode: currentMonth,
     });
   };
@@ -105,6 +108,9 @@ const OutstandingInvoice: React.FC = () => {
     return dataList.filter(item => {
       if (filter.pelanggan_nama && item.nama_pelanggan !== filter.pelanggan_nama) return false;
       if (filter.periode && !item.tanggal.startsWith(filter.periode)) return false;
+      if (filter.mata_uang && item.mata_uang !== filter.mata_uang) return false;
+      if (filter.proyek && item.proyek !== filter.proyek) return false;
+      if (filter.sales && item.sales !== filter.sales) return false;
       return true;
     });
   }, [dataList, filter]);
@@ -163,11 +169,55 @@ const OutstandingInvoice: React.FC = () => {
               <select 
                 value={filter.pelanggan_nama} 
                 onChange={e => setFilter({...filter, pelanggan_nama: e.target.value})}
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-48"
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-40"
               >
                 <option value="">-- Semua Pelanggan --</option>
                 {pelanggans.map(p => (
                   <option key={p.id} value={p.nama}>{p.nama}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="h-4 w-px bg-slate-600"></div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-300 font-medium">Mata Uang:</span>
+              <select 
+                value={filter.mata_uang} 
+                onChange={e => setFilter({...filter, mata_uang: e.target.value})}
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
+              >
+                <option value="">-- Semua --</option>
+                <option value="IDR">IDR</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
+
+            <div className="h-4 w-px bg-slate-600"></div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-300 font-medium">Proyek:</span>
+              <select 
+                value={filter.proyek} 
+                onChange={e => setFilter({...filter, proyek: e.target.value})}
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-32"
+              >
+                <option value="">-- Semua Proyek --</option>
+                {proyeks.map(p => (
+                  <option key={p.id} value={p.nama}>{p.nama}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="h-4 w-px bg-slate-600"></div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-300 font-medium">Sales:</span>
+              <select 
+                value={filter.sales} 
+                onChange={e => setFilter({...filter, sales: e.target.value})}
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-32"
+              >
+                <option value="">-- Semua Sales --</option>
+                {salesmen.map(s => (
+                  <option key={s.id} value={s.nama}>{s.nama}</option>
                 ))}
               </select>
             </div>
