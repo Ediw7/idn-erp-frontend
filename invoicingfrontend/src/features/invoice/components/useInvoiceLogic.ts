@@ -342,6 +342,10 @@ export const useInvoiceLogic = (locationSearch: string) => {
       toast.error('Harap isi header Invoice terlebih dahulu!');
       return;
     }
+    if ((form.potongan_harga || 0) < 0 || (form.ongkos_angkut || 0) < 0) {
+      toast.error('Potongan harga dan ongkos angkut tidak boleh negatif');
+      return;
+    }
     
     try {
       let soId = null;

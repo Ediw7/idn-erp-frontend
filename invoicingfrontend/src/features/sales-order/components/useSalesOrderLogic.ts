@@ -188,6 +188,10 @@ export const useSalesOrderLogic = () => {
 
   const handleSave = async () => {
     if (isSaving) return;
+    if ((form.potongan_harga || 0) < 0 || (form.ongkos_angkut || 0) < 0) {
+      toast.error('Potongan harga dan ongkos angkut tidak boleh negatif');
+      return;
+    }
     setIsSaving(true);
     try {
       await salesOrderApi.save(form as SalesOrderData);

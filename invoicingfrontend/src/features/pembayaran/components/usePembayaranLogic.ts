@@ -160,6 +160,10 @@ export const usePembayaranLogic = () => {
       toast.error('Nama Pembeli harus dipilih!');
       return;
     }
+    if ((form.jumlah_penerimaan || 0) < 0 || (form.total_potongan || 0) < 0) {
+      toast.error('Jumlah penerimaan dan potongan tidak boleh negatif');
+      return;
+    }
 
     try {
       const payload = {

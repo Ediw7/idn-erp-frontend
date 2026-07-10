@@ -1,5 +1,6 @@
 import React from 'react';
 import { RefreshCcw } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface InvoiceFormUmumProps {
   form: any;
@@ -154,7 +155,19 @@ export const InvoiceFormUmum: React.FC<InvoiceFormUmumProps> = ({
         <div className="w-[250px] flex flex-col gap-4">
           <div className="flex gap-4 items-center bg-slate-50 p-3 border border-slate-200 rounded-sm">
             <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
-              <input type="checkbox" checked={form.is_void || false} onChange={e => setForm({...form, is_void: e.target.checked})} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" /> Void ?
+              <input 
+                type="checkbox" 
+                checked={form.is_void || false} 
+                disabled={form.is_lunas}
+                onChange={e => {
+                  if (form.is_lunas) {
+                    toast.error('Invoice lunas tidak bisa di-void!');
+                    return;
+                  }
+                  setForm({...form, is_void: e.target.checked})
+                }} 
+                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" 
+              /> Void ?
             </label>
             <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer">
               <input type="checkbox" checked={form.is_lunas || false} disabled className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 opacity-60 cursor-not-allowed" /> Closed (Lunas) ?
