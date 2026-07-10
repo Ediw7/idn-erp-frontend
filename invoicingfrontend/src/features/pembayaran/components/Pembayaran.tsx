@@ -32,6 +32,7 @@ const Pembayaran: React.FC = () => {
           form={logic.form}
           setForm={logic.setForm}
           pelanggans={logic.pelanggans}
+          perkiraans={logic.perkiraans}
           handlePembeliChange={logic.handlePembeliChange}
           handleOpenAddLine={logic.handleOpenAddLine}
           handleOpenEditLine={logic.handleOpenEditLine}
