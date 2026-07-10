@@ -23,6 +23,7 @@ const REPORT_TYPES = [
   { id: 'kwi_1', title: 'Kwitansi (1/2 Kwarto)', type: 'item' },
   { id: 'nk_1', title: 'Nota Kredit (1/2 Kwarto)', type: 'item' },
   { id: 'lbl_1', title: 'Label Amplop', type: 'item' },
+  { id: 'bpk_1', title: 'Bukti Penerimaan Kas/Bank (1/2 Kwarto)', type: 'item' },
 
   { id: 'h_fp', title: 'Faktur Pajak', type: 'header' },
   { id: 'fp_1', title: 'Faktur Pajak Hal 1 & 2 (A4)', type: 'item' },
@@ -66,6 +67,7 @@ const Laporan: React.FC = () => {
     dari_no_faktur_pajak: '', sampai_no_faktur_pajak: '',
     dari_no_nk: '', sampai_no_nk: '',
     dari_no_po: '', sampai_no_po: '',
+    dari_no_pembayaran: '', sampai_no_pembayaran: '',
     no_retur_penjualan: '',
     no_retur_pembelian: '',
     dari_tanggal: '', sampai_tanggal: '',
@@ -87,6 +89,8 @@ const Laporan: React.FC = () => {
     const sjNumberParam = params.get('sj_number');
     const soNumberParam = params.get('so_number');
     const invoiceNumberParam = params.get('invoice_number');
+    const pembayaranNumberParam = params.get('pembayaran_number');
+    const kwitansiNumberParam = params.get('kwitansi_number');
 
     if (reportNameParam) {
       const foundReport = REPORT_TYPES.find(r => r.title === reportNameParam);
@@ -95,7 +99,7 @@ const Laporan: React.FC = () => {
       }
     }
 
-    if (sjNumberParam || soNumberParam || invoiceNumberParam) {
+    if (sjNumberParam || soNumberParam || invoiceNumberParam || pembayaranNumberParam || kwitansiNumberParam) {
       setFilter(prev => ({
         ...prev,
         dari_no_sj: sjNumberParam || prev.dari_no_sj,
@@ -103,7 +107,11 @@ const Laporan: React.FC = () => {
         dari_no_so: soNumberParam || prev.dari_no_so,
         sampai_no_so: soNumberParam || prev.sampai_no_so,
         dari_no_invoice: invoiceNumberParam || prev.dari_no_invoice,
-        sampai_no_invoice: invoiceNumberParam || prev.sampai_no_invoice
+        sampai_no_invoice: invoiceNumberParam || prev.sampai_no_invoice,
+        dari_no_pembayaran: pembayaranNumberParam || prev.dari_no_pembayaran,
+        sampai_no_pembayaran: pembayaranNumberParam || prev.sampai_no_pembayaran,
+        dari_no_kwitansi: kwitansiNumberParam || prev.dari_no_kwitansi,
+        sampai_no_kwitansi: kwitansiNumberParam || prev.sampai_no_kwitansi
       }));
     }
   }, [location.search]);
@@ -138,6 +146,8 @@ const Laporan: React.FC = () => {
   const isSoActive = selectedReport.startsWith('so_');
   const isSjActive = selectedReport.startsWith('sj_');
   const isInvActive = selectedReport.startsWith('inv_');
+  const isPembayaranActive = selectedReport.startsWith('bpk_');
+  const isKwitansiActive = selectedReport.startsWith('kwi_');
 
   const rowClass = "grid grid-cols-12 gap-4 items-center mb-3";
   const labelClass = "col-span-4 text-sm font-medium text-gray-700";
@@ -249,11 +259,20 @@ const Laporan: React.FC = () => {
             </div>
 
             <div className={rowClass}>
-              <label className={`${labelClass} text-gray-400`}>Dari No. Kwitansi</label>
+              <label className={`${labelClass} ${!isPembayaranActive && 'text-gray-400'}`}>Dari No. Pembayaran</label>
               <div className={inputWrapperClass}>
-                <select className={inputClass} disabled></select>
+                <input type="text" className={inputClass} disabled={!isPembayaranActive} value={filter.dari_no_pembayaran} onChange={e => handleFilterChange('dari_no_pembayaran', e.target.value)} />
                 <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
-                <select className={inputClass} disabled></select>
+                <input type="text" className={inputClass} disabled={!isPembayaranActive} value={filter.sampai_no_pembayaran} onChange={e => handleFilterChange('sampai_no_pembayaran', e.target.value)} />
+              </div>
+            </div>
+
+            <div className={rowClass}>
+              <label className={`${labelClass} ${!isKwitansiActive && 'text-gray-400'}`}>Dari No. Kwitansi</label>
+              <div className={inputWrapperClass}>
+                <input type="text" className={inputClass} disabled={!isKwitansiActive} value={filter.dari_no_kwitansi} onChange={e => handleFilterChange('dari_no_kwitansi', e.target.value)} />
+                <span className="text-sm font-semibold text-gray-500 whitespace-nowrap px-2">s/d</span>
+                <input type="text" className={inputClass} disabled={!isKwitansiActive} value={filter.sampai_no_kwitansi} onChange={e => handleFilterChange('sampai_no_kwitansi', e.target.value)} />
               </div>
             </div>
 

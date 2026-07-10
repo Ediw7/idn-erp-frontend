@@ -61,7 +61,7 @@ export const PembayaranFormView: React.FC<PembayaranFormViewProps> = ({
           >
              <FilePlus size={14} /> + BUAT BARU
           </button>
-          <button onClick={() => navigate('/laporan?reportName=Kwitansi')} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors ml-2 rounded-sm shadow-sm">
+          <button onClick={() => navigate(form.no_bukti ? `/laporan?pembayaran_number=${encodeURIComponent(form.no_bukti)}&reportName=${encodeURIComponent('Bukti Penerimaan Kas/Bank (1/2 Kwarto)')}` : '/laporan?reportName=' + encodeURIComponent('Bukti Penerimaan Kas/Bank (1/2 Kwarto)'))} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors ml-2 rounded-sm shadow-sm">
              <Printer size={14} /> CETAK
           </button>
         </div>
