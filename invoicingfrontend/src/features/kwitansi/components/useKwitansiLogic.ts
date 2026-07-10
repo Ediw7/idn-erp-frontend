@@ -77,7 +77,7 @@ export const useKwitansiLogic = () => {
       setLoadingData(true);
       try {
         const [pelRes, kwRes, invRes] = await Promise.all([
-           setupApi.getPelanggan(),
+           setupApi.getPelanggan().catch(() => []),
            getKwitansi().catch(() => []),
            getInvoices().catch(() => [])
         ]);
