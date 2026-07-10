@@ -24,8 +24,8 @@ export const emptyForm = {
   tgl_jt: '',
   tgl_po: '',
   gudang_id: '',
-  is_jasa: false,
-  is_paid: false,
+  is_void: false,
+  is_lunas: false,
   catatan: '',
   keterangan: '',
   penandatangan: 'Admin',
@@ -334,6 +334,10 @@ export const useInvoiceLogic = (locationSearch: string) => {
   };
 
   const handleSaveAll = async () => {
+    if (form.is_lunas || form.is_void) {
+      toast.error('Invoice sudah Lunas atau Void sehingga tidak bisa disimpan / diubah!');
+      return;
+    }
     if (!form.no_invoice) {
       toast.error('Harap isi header Invoice terlebih dahulu!');
       return;

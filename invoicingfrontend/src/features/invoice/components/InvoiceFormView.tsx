@@ -98,6 +98,8 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
   const pphAmount = form.pph_persen ? dpp * (form.pph_persen / 100) : 0;
   const totalAkhir = dpp + ppnAmount + pphAmount + (form.ongkos_angkut || 0);
 
+  const isLocked = form.is_void || form.is_lunas;
+
   return (
     <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
@@ -291,9 +293,11 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
         <button className={`${btnClass} bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 px-6 py-2 text-sm`}>
            BATAL
         </button>
-        <button onClick={handleSaveAll} className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 px-8 py-2 text-sm shadow-sm`}>
-          <Save size={16} /> SIMPAN INVOICE
-        </button>
+        {!isLocked && (
+          <button onClick={handleSaveAll} className={`${btnClass} bg-blue-600 text-white hover:bg-blue-700 px-8 py-2 text-sm shadow-sm`}>
+            <Save size={16} /> SIMPAN INVOICE
+          </button>
+        )}
       </div>
     </div>
   );
