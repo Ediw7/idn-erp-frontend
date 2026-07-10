@@ -321,43 +321,66 @@ const PreviewLaporan: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {lines.length > 0 ? lines.map((l, i) => {
-                  const base = (l.kuantum || 0) * (l.harga_satuan || 0);
-                  const disc = (base * (l.disc_persen || 0) / 100) + (l.disc_harga || 0);
-                  const jumlah = base - disc;
+                {lines.length > 0 ? (() => {
+                  let itemIndex = 0;
+                  return lines.map((l, i) => {
+                    const base = (l.kuantum || 0) * (l.harga_satuan || 0);
+                    const disc = (base * (l.disc_persen || 0) / 100) + (l.disc_harga || 0);
+                    const jumlah = base - disc;
 
-                  return (
-                    <tr key={i} className="group">
-                      <td className="py-3 px-3 text-slate-500">{i+1}</td>
-                      <td className="py-3 px-3 font-mono text-slate-600 text-xs">{l.kode}</td>
-                      <td className="py-3 px-3 font-semibold text-slate-800">{l.nama}</td>
-                      <td className="py-3 px-3 text-center text-slate-600 text-xs">{l.satuan}</td>
-                      <td className="py-3 px-3 text-center font-bold text-slate-800 bg-slate-50/50 group-hover:bg-transparent">{l.kuantum}</td>
-                      {isFinancial && (
-                        <>
-                          {l.keterangan === 'HEADER' ? (
-                            <td colSpan={3} className="py-3 px-3 text-right font-mono font-semibold text-slate-500 text-xs">-</td>
-                          ) : l.keterangan === 'PAYMENT' ? (
+                    if (l.keterangan === 'HEADER') {
+                      return (
+                        <tr key={i} className="bg-slate-100 border-y-2 border-slate-200">
+                          <td colSpan={isFinancial ? 8 : 6} className="py-2.5 px-3 font-bold text-slate-800 text-xs uppercase tracking-wide">
+                            {l.nama}
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    if (l.keterangan === 'PAYMENT') {
+                      return (
+                        <tr key={i} className="bg-emerald-50/50 border-b-2 border-emerald-100 group">
+                          <td colSpan={5} className="py-3 px-3 text-right font-bold text-emerald-800 text-xs uppercase tracking-wide">
+                            {l.nama}
+                          </td>
+                          {isFinancial && (
                             <>
-                              <td className="py-3 px-3 text-right font-mono text-emerald-700 text-xs">{fmt(l.harga_satuan)}</td>
+                              <td className="py-3 px-3 text-right font-mono text-emerald-700 text-xs font-semibold">{fmt(l.harga_satuan)}</td>
                               <td className="py-3 px-3 text-right text-emerald-600 text-xs">{l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
-                              <td className="py-3 px-3 text-right font-mono font-bold text-emerald-800 text-xs bg-emerald-50/50">{fmt(jumlah)}</td>
-                            </>
-                          ) : (
-                            <>
-                              <td className="py-3 px-3 text-right font-mono text-slate-700 text-xs">{fmt(l.harga_satuan)}</td>
-                              <td className="py-3 px-3 text-right text-slate-500 text-xs">{l.disc_persen > 0 ? `${l.disc_persen}%` : l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
-                              <td className="py-3 px-3 text-right font-mono font-semibold text-slate-800 text-xs">{fmt(jumlah)}</td>
+                              <td className="py-3 px-3 text-right font-mono font-bold text-emerald-900 text-xs bg-emerald-100/50">{fmt(jumlah)}</td>
                             </>
                           )}
-                        </>
-                      )}
-                      {!isFinancial && (
-                        <td className="py-3 px-3 text-slate-600 text-xs">{l.keterangan}</td>
-                      )}
-                    </tr>
-                  );
-                }) : (
+                          {!isFinancial && (
+                            <td className="py-3 px-3 text-emerald-600 text-xs">{l.keterangan}</td>
+                          )}
+                        </tr>
+                      );
+                    }
+
+                    itemIndex++;
+
+                    return (
+                      <tr key={i} className="group">
+                        <td className="py-3 px-3 text-slate-500">{itemIndex}</td>
+                        <td className="py-3 px-3 font-mono text-slate-600 text-xs">{l.kode}</td>
+                        <td className="py-3 px-3 font-semibold text-slate-800">{l.nama}</td>
+                        <td className="py-3 px-3 text-center text-slate-600 text-xs">{l.satuan}</td>
+                        <td className="py-3 px-3 text-center font-bold text-slate-800 bg-slate-50/50 group-hover:bg-transparent">{l.kuantum}</td>
+                        {isFinancial && (
+                          <>
+                            <td className="py-3 px-3 text-right font-mono text-slate-700 text-xs">{fmt(l.harga_satuan)}</td>
+                            <td className="py-3 px-3 text-right text-slate-500 text-xs">{l.disc_persen > 0 ? `${l.disc_persen}%` : l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
+                            <td className="py-3 px-3 text-right font-mono font-semibold text-slate-800 text-xs">{fmt(jumlah)}</td>
+                          </>
+                        )}
+                        {!isFinancial && (
+                          <td className="py-3 px-3 text-slate-600 text-xs">{l.keterangan}</td>
+                        )}
+                      </tr>
+                    );
+                  });
+                })() : (
                   <tr>
                     <td colSpan={isFinancial ? 8 : 6} className="py-12 text-center text-slate-400 italic">Tidak ada rincian barang.</td>
                   </tr>
