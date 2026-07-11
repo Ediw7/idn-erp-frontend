@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
-import { UserProfile } from '../api';
+import React, { createContext, useContext, useState } from "react";
+import { UserProfile } from "../api";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -10,13 +10,15 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem('edi_user') !== null;
+    return localStorage.getItem("edi_user") !== null;
   });
-  
+
   const [user, setUser] = useState<UserProfile | null>(() => {
-    const storedUser = localStorage.getItem('edi_user');
+    const storedUser = localStorage.getItem("edi_user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
@@ -25,13 +27,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = (userData: UserProfile) => {
     setIsAuthenticated(true);
     setUser(userData);
-    localStorage.setItem('edi_user', JSON.stringify(userData));
+    localStorage.setItem("edi_user", JSON.stringify(userData));
   };
 
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('edi_user');
+    localStorage.removeItem("edi_user");
   };
 
   return (
@@ -44,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

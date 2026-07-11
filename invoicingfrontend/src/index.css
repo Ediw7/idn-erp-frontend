@@ -4,7 +4,7 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   background-color: #f4f6f8;
 }
 
@@ -31,11 +31,14 @@ body {
     padding: 0 !important;
   }
   /* Hide sidebar and other app chrome */
-  nav, aside, .print\\:hidden {
+  nav,
+  aside,
+  .print\\:hidden {
     display: none !important;
   }
   /* Ensure clean paper output */
-  .shadow-lg, .shadow-md {
+  .shadow-lg,
+  .shadow-md {
     box-shadow: none !important;
   }
   @page {

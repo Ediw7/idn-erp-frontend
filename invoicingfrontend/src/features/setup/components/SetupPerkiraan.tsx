@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Edit2, Save, X, Search } from 'lucide-react';
-import Pagination from '../../../components/ui/Pagination';
-import { setupApi, PerkiraanData } from '../api';
-import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
+import React, { useState } from "react";
+import { Plus, Trash2, Edit2, Save, X, Search } from "lucide-react";
+import Pagination from "../../../components/ui/Pagination";
+import { setupApi, PerkiraanData } from "../api";
+import { useMasterDataCRUD } from "../../../hooks/useMasterDataCRUD";
 
 const SetupPerkiraan: React.FC = () => {
-  const [filterNo, setFilterNo] = useState('');
-  const [filterNama, setFilterNama] = useState('');
+  const [filterNo, setFilterNo] = useState("");
+  const [filterNama, setFilterNama] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 20;
@@ -16,23 +16,39 @@ const SetupPerkiraan: React.FC = () => {
   };
 
   const {
-    list, isLoading, isModalOpen, setIsModalOpen,
-    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+    list,
+    isLoading,
+    isModalOpen,
+    setIsModalOpen,
+    editForm,
+    setEditForm,
+    handleAddNew,
+    handleEdit,
+    handleSave,
+    handleDelete,
   } = useMasterDataCRUD<PerkiraanData>({
     fetchApi: fetchPerkiraan,
     saveApi: setupApi.savePerkiraan,
     deleteApi: setupApi.deletePerkiraan,
-    initialForm: { no_perkiraan: '', nama_perkiraan: '', kas_bank: false },
-    validate: (form) => (!form.no_perkiraan || !form.nama_perkiraan) ? 'No Perkiraan dan Nama Perkiraan harus diisi!' : null
+    initialForm: { no_perkiraan: "", nama_perkiraan: "", kas_bank: false },
+    validate: (form) =>
+      !form.no_perkiraan || !form.nama_perkiraan
+        ? "No Perkiraan dan Nama Perkiraan harus diisi!"
+        : null,
   });
 
   const filteredData = list.filter((item) => {
-    const matchesNo = item.no_perkiraan?.toLowerCase().includes(filterNo.toLowerCase());
-    const matchesNama = item.nama_perkiraan?.toLowerCase().includes(filterNama.toLowerCase());
+    const matchesNo = item.no_perkiraan
+      ?.toLowerCase()
+      .includes(filterNo.toLowerCase());
+    const matchesNama = item.nama_perkiraan
+      ?.toLowerCase()
+      .includes(filterNama.toLowerCase());
     return matchesNo && matchesNama;
   });
 
-  const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
+  const inputClass =
+    "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
   return (
     <div className="bg-white shadow-sm border border-slate-300 max-w-5xl mx-auto mt-8">
@@ -40,7 +56,9 @@ const SetupPerkiraan: React.FC = () => {
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold text-white">Setup Perkiraan</h2>
-          <p className="text-xs text-slate-300 mt-1">Daftar akun perkiraan (Chart of Accounts) perusahaan.</p>
+          <p className="text-xs text-slate-300 mt-1">
+            Daftar akun perkiraan (Chart of Accounts) perusahaan.
+          </p>
         </div>
         <button
           onClick={handleAddNew}
@@ -54,7 +72,9 @@ const SetupPerkiraan: React.FC = () => {
       {/* Filter Bar */}
       <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center gap-6">
         <div className="flex-1 max-w-sm flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700">No Perkiraan:</label>
+          <label className="text-xs font-semibold text-slate-700">
+            No Perkiraan:
+          </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
               <Search size={14} />
@@ -72,7 +92,9 @@ const SetupPerkiraan: React.FC = () => {
           </div>
         </div>
         <div className="flex-1 max-w-md flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700">Nama Perkiraan:</label>
+          <label className="text-xs font-semibold text-slate-700">
+            Nama Perkiraan:
+          </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
               <Search size={14} />
@@ -92,7 +114,6 @@ const SetupPerkiraan: React.FC = () => {
       </div>
 
       <div className="p-6">
-
         {isLoading ? (
           <div className="flex justify-center items-center h-32">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-700"></div>
@@ -110,28 +131,56 @@ const SetupPerkiraan: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
-                {filteredData.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((item, index) => (
-                  <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 text-center text-slate-500">{(currentPage - 1) * rowsPerPage + index + 1}</td>
-                    <td className="px-4 py-3 font-medium">{item.no_perkiraan}</td>
-                    <td className="px-4 py-3">{item.nama_perkiraan}</td>
-                    <td className="px-4 py-3 text-center">
-                      <input type="checkbox" checked={item.kas_bank} readOnly className="w-4 h-4 text-slate-400 border-slate-300 rounded opacity-70 cursor-not-allowed" />
-                    </td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="UBAH">
-                        <Edit2 size={14} />
-                      </button>
-                      <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {filteredData
+                  .slice(
+                    (currentPage - 1) * rowsPerPage,
+                    currentPage * rowsPerPage,
+                  )
+                  .map((item, index) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="px-4 py-3 text-center text-slate-500">
+                        {(currentPage - 1) * rowsPerPage + index + 1}
+                      </td>
+                      <td className="px-4 py-3 font-medium">
+                        {item.no_perkiraan}
+                      </td>
+                      <td className="px-4 py-3">{item.nama_perkiraan}</td>
+                      <td className="px-4 py-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={item.kas_bank}
+                          readOnly
+                          className="w-4 h-4 text-slate-400 border-slate-300 rounded opacity-70 cursor-not-allowed"
+                        />
+                      </td>
+                      <td className="px-4 py-3 flex justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                          title="UBAH"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id!)}
+                          className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors"
+                          title="Hapus"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
 
                 {filteredData.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-slate-500 text-sm">
+                    <td
+                      colSpan={5}
+                      className="px-4 py-8 text-center text-slate-500 text-sm"
+                    >
                       Belum ada data perkiraan yang ditemukan.
                     </td>
                   </tr>
@@ -155,31 +204,45 @@ const SetupPerkiraan: React.FC = () => {
           <div className="bg-white rounded shadow-xl max-w-md w-full flex flex-col">
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
               <h3 className="font-bold text-slate-800">
-                {editForm.id ? 'UBAH Perkiraan' : 'Tambah Perkiraan'}
+                {editForm.id ? "UBAH Perkiraan" : "Tambah Perkiraan"}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
                 <X size={20} />
               </button>
             </div>
             <div className="p-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">No Perkiraan</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    No Perkiraan
+                  </label>
                   <input
                     type="text"
                     value={editForm.no_perkiraan}
-                    onChange={e => setEditForm({ ...editForm, no_perkiraan: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, no_perkiraan: e.target.value })
+                    }
                     className={inputClass}
                     placeholder="Contoh: 1101001"
                     autoFocus
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Perkiraan</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Nama Perkiraan
+                  </label>
                   <input
                     type="text"
                     value={editForm.nama_perkiraan}
-                    onChange={e => setEditForm({ ...editForm, nama_perkiraan: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        nama_perkiraan: e.target.value,
+                      })
+                    }
                     className={inputClass}
                     placeholder="Contoh: Kas Kecil"
                   />
@@ -188,11 +251,18 @@ const SetupPerkiraan: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={editForm.kas_bank}
-                    onChange={e => setEditForm({ ...editForm, kas_bank: e.target.checked })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, kas_bank: e.target.checked })
+                    }
                     className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
                     id="kas_bank"
                   />
-                  <label htmlFor="kas_bank" className="text-sm font-semibold text-slate-700 cursor-pointer">Kas / Bank</label>
+                  <label
+                    htmlFor="kas_bank"
+                    className="text-sm font-semibold text-slate-700 cursor-pointer"
+                  >
+                    Kas / Bank
+                  </label>
                 </div>
               </div>
             </div>

@@ -1,9 +1,13 @@
-import React from 'react';
-import { usePembayaranLogic, emptyForm, emptyModalForm } from './usePembayaranLogic';
-import { PembayaranListView } from './PembayaranListView';
-import { PembayaranFormView } from './PembayaranFormView';
-import { PembayaranLineModal } from './PembayaranLineModal';
-import { PembayaranNewModal } from './PembayaranNewModal';
+import React from "react";
+import {
+  usePembayaranLogic,
+  emptyForm,
+  emptyModalForm,
+} from "./usePembayaranLogic";
+import { PembayaranListView } from "./PembayaranListView";
+import { PembayaranFormView } from "./PembayaranFormView";
+import { PembayaranLineModal } from "./PembayaranLineModal";
+import { PembayaranNewModal } from "./PembayaranNewModal";
 
 const Pembayaran: React.FC = () => {
   const logic = usePembayaranLogic();
@@ -18,8 +22,8 @@ const Pembayaran: React.FC = () => {
 
   return (
     <>
-      {logic.viewMode === 'list' ? (
-        <PembayaranListView 
+      {logic.viewMode === "list" ? (
+        <PembayaranListView
           dataList={logic.dataList}
           setViewMode={logic.setViewMode}
           setForm={logic.setForm}
@@ -28,7 +32,7 @@ const Pembayaran: React.FC = () => {
           pelanggans={logic.pelanggans}
         />
       ) : (
-        <PembayaranFormView 
+        <PembayaranFormView
           form={logic.form}
           setForm={logic.setForm}
           pelanggans={logic.pelanggans}
@@ -47,7 +51,7 @@ const Pembayaran: React.FC = () => {
       )}
 
       {logic.showLineModal && (
-        <PembayaranLineModal 
+        <PembayaranLineModal
           editLineIndex={logic.editLineIndex}
           lineForm={logic.lineForm}
           setLineForm={logic.setLineForm}
@@ -57,8 +61,6 @@ const Pembayaran: React.FC = () => {
         />
       )}
 
-      
-    
       {logic.showNewModal && (
         <PembayaranNewModal
           modalForm={logic.modalForm}

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { authApi, UserData } from '../../auth/api';
-import { Users, Shield, UserX, UserCheck } from 'lucide-react';
-import { useConfirm } from '../../../contexts/ConfirmContext';
-import toast from 'react-hot-toast';
+import React, { useEffect, useState } from "react";
+import { authApi, UserData } from "../../auth/api";
+import { Users, Shield, UserX, UserCheck } from "lucide-react";
+import { useConfirm } from "../../../contexts/ConfirmContext";
+import toast from "react-hot-toast";
 
 const UserManagement: React.FC = () => {
   const confirm = useConfirm();
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -20,27 +20,33 @@ const UserManagement: React.FC = () => {
       const data = await authApi.getUsers();
       setUsers(data);
     } catch (err: any) {
-      setError(err.message || 'Gagal memuat data pengguna');
+      setError(err.message || "Gagal memuat data pengguna");
     } finally {
       setLoading(false);
     }
   };
 
   const handleToggle = async (userId: number, currentStatus: boolean) => {
-    const isConfirmed = await confirm(`Apakah Anda yakin ingin ${currentStatus ? 'menonaktifkan' : 'mengaktifkan'} pengguna ini?`);
+    const isConfirmed = await confirm(
+      `Apakah Anda yakin ingin ${currentStatus ? "menonaktifkan" : "mengaktifkan"} pengguna ini?`,
+    );
     if (isConfirmed) {
       try {
         const response = await authApi.toggleUser(userId);
         if (response.error) throw new Error(response.error);
         await fetchUsers(); // Refresh data
       } catch (err: any) {
-        toast.error(err.message || 'Gagal mengubah status pengguna');
+        toast.error(err.message || "Gagal mengubah status pengguna");
       }
     }
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-slate-500">Memuat data pengguna...</div>;
+    return (
+      <div className="p-8 text-center text-slate-500">
+        Memuat data pengguna...
+      </div>
+    );
   }
 
   if (error) {
@@ -61,8 +67,12 @@ const UserManagement: React.FC = () => {
           <Users size={24} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Manajemen Pengguna</h1>
-          <p className="text-sm text-slate-500">Kelola akses dan akun pengguna sistem</p>
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+            Manajemen Pengguna
+          </h1>
+          <p className="text-sm text-slate-500">
+            Kelola akses dan akun pengguna sistem
+          </p>
         </div>
       </div>
 
@@ -81,8 +91,13 @@ const UserManagement: React.FC = () => {
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-slate-900">{user.id}</td>
+                <tr
+                  key={user.id}
+                  className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                >
+                  <td className="px-6 py-4 font-medium text-slate-900">
+                    {user.id}
+                  </td>
                   <td className="px-6 py-4">{user.name}</td>
                   <td className="px-6 py-4 text-slate-600">{user.login}</td>
                   <td className="px-6 py-4">
@@ -109,13 +124,15 @@ const UserManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-center">
                     {!user.is_admin && (
-                      <button 
+                      <button
                         onClick={() => handleToggle(user.id, user.is_active)}
                         className={`px-3 py-1 text-xs font-semibold rounded-sm text-white transition-colors ${
-                          user.is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
+                          user.is_active
+                            ? "bg-red-600 hover:bg-red-700"
+                            : "bg-green-600 hover:bg-green-700"
                         }`}
                       >
-                        {user.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                        {user.is_active ? "Nonaktifkan" : "Aktifkan"}
                       </button>
                     )}
                   </td>
@@ -123,7 +140,10 @@ const UserManagement: React.FC = () => {
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-8 text-center text-slate-500"
+                  >
                     Tidak ada data pengguna ditemukan.
                   </td>
                 </tr>

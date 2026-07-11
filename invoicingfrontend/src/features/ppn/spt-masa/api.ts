@@ -1,4 +1,4 @@
-import axiosClient from '../../../lib/axiosClient';
+import axiosClient from "../../../lib/axiosClient";
 
 export interface SptMasa1111Data {
   id?: number;
@@ -46,17 +46,26 @@ export interface SptMasa1111Data {
 
 export const sptMasaApi = {
   getAll: async () => {
-    const response = await axiosClient.post('/api/spt-masa/get', { jsonrpc: '2.0', params: {} });
+    const response = await axiosClient.post("/api/spt-masa/get", {
+      jsonrpc: "2.0",
+      params: {},
+    });
     return (response.data.result?.data || []) as SptMasa1111Data[];
   },
-  
+
   save: async (data: SptMasa1111Data) => {
-    const response = await axiosClient.post('/api/spt-masa/create', { jsonrpc: '2.0', params: data });
+    const response = await axiosClient.post("/api/spt-masa/create", {
+      jsonrpc: "2.0",
+      params: data,
+    });
     return response.data.result;
   },
-  
+
   delete: async (id: number) => {
-    const response = await axiosClient.post('/api/spt-masa/delete', { jsonrpc: '2.0', params: { id } });
+    const response = await axiosClient.post("/api/spt-masa/delete", {
+      jsonrpc: "2.0",
+      params: { id },
+    });
     return response.data.result;
-  }
+  },
 };

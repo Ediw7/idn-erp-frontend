@@ -1,45 +1,48 @@
-import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
-import { useAuth } from '../../auth/contexts/AuthContext';
-import { useConfirm } from '../../../contexts/ConfirmContext';
-import { setupApi } from '../../setup/api';
-import { getPembayaran, savePembayaran, getOutstanding, deletePembayaran } from '../../transactionsApi';
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { useAuth } from "../../auth/contexts/AuthContext";
+import { useConfirm } from "../../../contexts/ConfirmContext";
+import { setupApi } from "../../setup/api";
+import {
+  getPembayaran,
+  savePembayaran,
+  getOutstanding,
+  deletePembayaran,
+} from "../../transactionsApi";
 
 export const emptyModalForm = {
-  no_bukti: '',
-  tanggal: new Date().toISOString().split('T')[0],
-  pelanggan_id: ''
+  no_bukti: "",
+  tanggal: new Date().toISOString().split("T")[0],
+  pelanggan_id: "",
 };
 
 export const emptyForm = {
-  no_bukti: '',
-  tanggal: new Date().toISOString().split('T')[0],
-  pelanggan_id: '',
-  alamat: '',
-  metode_pembayaran: 'Transfer',
-  no_cek_giro: '',
-  tanggal_cair: '',
-  perkiraan_kas_bank: '',
-  mata_uang: 'IDR',
+  no_bukti: "",
+  tanggal: new Date().toISOString().split("T")[0],
+  pelanggan_id: "",
+  alamat: "",
+  metode_pembayaran: "Transfer",
+  no_cek_giro: "",
+  tanggal_cair: "",
+  perkiraan_kas_bank: "",
+  mata_uang: "IDR",
   jumlah_penerimaan: 0,
   kurs_pembayaran: 1,
-  keterangan: '',
+  keterangan: "",
   lines: [],
-  create_date: '',
-  create_uid_name: '',
-  write_date: '',
-  write_uid_name: ''
+  create_date: "",
+  create_uid_name: "",
+  write_date: "",
+  write_uid_name: "",
 };
-
-
 
 export const usePembayaranLogic = () => {
   const { user } = useAuth();
   const confirm = useConfirm();
 
-  const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
+  const [viewMode, setViewMode] = useState<"list" | "form">("list");
   const [dataList, setDataList] = useState<any[]>([]);
-  
+
   const [form, setForm] = useState<any>(emptyForm);
 
   const [showNewModal, setShowNewModal] = useState(false);
@@ -47,10 +50,15 @@ export const usePembayaranLogic = () => {
   const [showLineModal, setShowLineModal] = useState(false);
   const [editLineIndex, setEditLineIndex] = useState<number | null>(null);
   const [lineForm, setLineForm] = useState<any>({
-    no_invoice: '', no_faktur_pajak: '', tgl_jt: '', ccy: 'IDR', saldo_piutang: 0, pembayaran: 0, potongan: 0, keterangan: ''
+    no_invoice: "",
+    no_faktur_pajak: "",
+    tgl_jt: "",
+    ccy: "IDR",
+    saldo_piutang: 0,
+    pembayaran: 0,
+    potongan: 0,
+    keterangan: "",
   });
-
-
 
   const [pelanggans, setPelanggans] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -60,55 +68,62 @@ export const usePembayaranLogic = () => {
   const fetchData = async () => {
     setLoadingData(true);
     try {
-        const [pelRes, outRes, pemRes, perkRes] = await Promise.all([
-          setupApi.getPelanggan().catch(() => []),
-          getOutstanding().catch(() => []),
-          getPembayaran().catch(() => []),
-          setupApi.getPerkiraan().catch(() => [])
-        ]);
-        setPelanggans(pelRes);
-        setInvoices(outRes);
-        setDataList(pemRes);
-        setPerkiraans(perkRes);
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
-      } finally {
-        setLoadingData(false);
-      }
+      const [pelRes, outRes, pemRes, perkRes] = await Promise.all([
+        setupApi.getPelanggan().catch(() => []),
+        getOutstanding().catch(() => []),
+        getPembayaran().catch(() => []),
+        setupApi.getPerkiraan().catch(() => []),
+      ]);
+      setPelanggans(pelRes);
+      setInvoices(outRes);
+      setDataList(pemRes);
+      setPerkiraans(perkRes);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    } finally {
+      setLoadingData(false);
+    }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const handlePembeliChange = (id: number | '', isModal?: boolean) => {
-    const p = pelanggans.find(x => x.id === id);
+  const handlePembeliChange = (id: number | "", isModal?: boolean) => {
+    const p = pelanggans.find((x) => x.id === id);
     if (isModal) {
       setModalForm({
         ...modalForm,
         pelanggan_id: id,
-        alamat: p?.alamat_wp || p?.alamat || ''
+        alamat: p?.alamat_wp || p?.alamat || "",
       });
     } else {
       setForm({
         ...form,
         pelanggan_id: id,
-        alamat: p?.alamat_wp || p?.alamat || '',
-        alamat: p?.alamat_wp || p?.alamat || '',
-        lines: []
+        alamat: p?.alamat_wp || p?.alamat || "",
+        alamat: p?.alamat_wp || p?.alamat || "",
+        lines: [],
       });
     }
   };
 
-
-
   const handleOpenAddLine = () => {
     if (!form.pelanggan_id) {
-      toast.error('Pilih Nama Pembeli terlebih dahulu!');
+      toast.error("Pilih Nama Pembeli terlebih dahulu!");
       return;
     }
     setEditLineIndex(null);
-    setLineForm({ no_invoice: '', no_faktur_pajak: '', tgl_jt: '', ccy: 'IDR', saldo_piutang: 0, pembayaran: 0, potongan: 0, keterangan: '' });
+    setLineForm({
+      no_invoice: "",
+      no_faktur_pajak: "",
+      tgl_jt: "",
+      ccy: "IDR",
+      saldo_piutang: 0,
+      pembayaran: 0,
+      potongan: 0,
+      keterangan: "",
+    });
     setShowLineModal(true);
   };
 
@@ -136,32 +151,32 @@ export const usePembayaranLogic = () => {
 
   const handleCreateHeader = () => {
     if (!modalForm.no_bukti) {
-      toast.error('Harap isi No. Bukti terlebih dahulu!');
+      toast.error("Harap isi No. Bukti terlebih dahulu!");
       return;
     }
     if (!modalForm.pelanggan_id) {
-      toast.error('Nama Pembeli harus dipilih!');
+      toast.error("Nama Pembeli harus dipilih!");
       return;
     }
     setForm({
       ...emptyForm,
-      ...modalForm
+      ...modalForm,
     });
     setShowNewModal(false);
-    setViewMode('form');
+    setViewMode("form");
   };
 
   const handleSaveAll = async () => {
     if (!form.no_bukti) {
-      toast.error('Harap isi No. Bukti terlebih dahulu!');
+      toast.error("Harap isi No. Bukti terlebih dahulu!");
       return;
     }
     if (!form.pelanggan_id) {
-      toast.error('Nama Pembeli harus dipilih!');
+      toast.error("Nama Pembeli harus dipilih!");
       return;
     }
     if ((form.jumlah_penerimaan || 0) < 0 || (form.total_potongan || 0) < 0) {
-      toast.error('Jumlah penerimaan dan potongan tidak boleh negatif');
+      toast.error("Jumlah penerimaan dan potongan tidak boleh negatif");
       return;
     }
 
@@ -170,58 +185,82 @@ export const usePembayaranLogic = () => {
         ...form,
         tgl_pembayaran: form.tanggal,
         pelanggan_id: Number(form.pelanggan_id),
-        perkiraan_kas_id: form.perkiraan_kas_bank ? Number(form.perkiraan_kas_bank) : null,
+        perkiraan_kas_id: form.perkiraan_kas_bank
+          ? Number(form.perkiraan_kas_bank)
+          : null,
         lines: (form.lines || []).map((l: any) => {
-          const inv = invoices.find(i => i.no_invoice === l.no_invoice);
+          const inv = invoices.find((i) => i.no_invoice === l.no_invoice);
           return {
             invoice_id: inv ? inv.id : null,
             pembayaran: Number(l.pembayaran),
             potongan: Number(l.potongan),
-            keterangan: l.keterangan || ''
+            keterangan: l.keterangan || "",
           };
-        })
+        }),
       };
-      
+
       await savePembayaran(payload);
-      
+
       // Refresh list
       const pemRes = await getPembayaran();
       setDataList(pemRes || []);
-      
-      toast.success('Bukti Pembayaran berhasil disimpan');
-      setViewMode('list');
+
+      toast.success("Bukti Pembayaran berhasil disimpan");
+      setViewMode("list");
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Gagal menyimpan Pembayaran');
+      toast.error(
+        error?.response?.data?.message || "Gagal menyimpan Pembayaran",
+      );
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (await confirm('Yakin ingin menghapus data Pembayaran ini?')) {
+    if (await confirm("Yakin ingin menghapus data Pembayaran ini?")) {
       try {
         await deletePembayaran(id);
         const pemRes = await getPembayaran();
         setDataList(pemRes || []);
-        toast.success('Pembayaran berhasil dihapus');
+        toast.success("Pembayaran berhasil dihapus");
       } catch (e: any) {
-        toast.error(e?.response?.data?.message || 'Gagal menghapus Pembayaran');
+        toast.error(e?.response?.data?.message || "Gagal menghapus Pembayaran");
       }
     }
   };
 
-  const availableInvoices = invoices.filter(inv => inv.pembeli_id === form.pelanggan_id && inv.saldo > 0);
+  const availableInvoices = invoices.filter(
+    (inv) => inv.pembeli_id === form.pelanggan_id && inv.saldo > 0,
+  );
 
   return {
-    showNewModal, setShowNewModal,
-    modalForm, setModalForm, handleCreateHeader,
-    form, setForm,
-    viewMode, setViewMode,
-    dataList, setDataList,
-    showLineModal, setShowLineModal,
-    editLineIndex, lineForm, setLineForm,
-    pelanggans, invoices, availableInvoices, perkiraans,
+    showNewModal,
+    setShowNewModal,
+    modalForm,
+    setModalForm,
+    handleCreateHeader,
+    form,
+    setForm,
+    viewMode,
+    setViewMode,
+    dataList,
+    setDataList,
+    showLineModal,
+    setShowLineModal,
+    editLineIndex,
+    lineForm,
+    setLineForm,
+    pelanggans,
+    invoices,
+    availableInvoices,
+    perkiraans,
     loadingData,
-    handlePembeliChange, handleOpenAddLine, handleOpenEditLine, handleSaveLine, removeLine,
-    handleSaveAll, handleDelete,
-    user, confirm
+    handlePembeliChange,
+    handleOpenAddLine,
+    handleOpenEditLine,
+    handleSaveLine,
+    removeLine,
+    handleSaveAll,
+    handleDelete,
+    user,
+    confirm,
   };
 };

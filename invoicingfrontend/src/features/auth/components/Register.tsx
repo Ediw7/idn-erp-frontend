@@ -1,35 +1,46 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { authApi } from '../api';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { authApi } from "../api";
 
-import { UserPlus } from 'lucide-react';
+import { UserPlus } from "lucide-react";
 
 const Register: React.FC = () => {
-  const [name, setName] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [name, setName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [login, setLogin] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (password !== confirmPassword) {
-      setError('Password dan Konfirmasi Password tidak sama.');
+      setError("Password dan Konfirmasi Password tidak sama.");
       return;
     }
 
     setLoading(true);
 
     try {
-      await authApi.register({ name, company_name: companyName, login, password });
-      navigate('/login', { state: { message: 'Registrasi berhasil! Silakan login.' } });
+      await authApi.register({
+        name,
+        company_name: companyName,
+        login,
+        password,
+      });
+      navigate("/login", {
+        state: { message: "Registrasi berhasil! Silakan login." },
+      });
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Terjadi kesalahan saat registrasi.');
+      setError(
+        err.response?.data?.error ||
+          err.message ||
+          "Terjadi kesalahan saat registrasi.",
+      );
     } finally {
       setLoading(false);
     }
@@ -39,19 +50,25 @@ const Register: React.FC = () => {
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="bg-white max-w-md w-full shadow-2xl rounded-sm overflow-hidden border border-slate-300">
         <div className="bg-slate-800 px-8 py-6 text-center border-b-4 border-slate-600">
-          <h1 className="text-2xl font-bold text-white tracking-wider">EDI Accounting</h1>
-          <p className="text-slate-400 text-sm mt-2">Daftar akun baru ke sistem</p>
+          <h1 className="text-2xl font-bold text-white tracking-wider">
+            EDI Accounting
+          </h1>
+          <p className="text-slate-400 text-sm mt-2">
+            Daftar akun baru ke sistem
+          </p>
         </div>
-        
+
         <form onSubmit={handleRegister} className="p-8">
           {error && (
             <div className="bg-red-50 text-red-700 p-3 rounded-sm text-sm mb-6 border border-red-200">
               {error}
             </div>
           )}
-          
+
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">
+              Nama Lengkap
+            </label>
             <input
               type="text"
               value={name}
@@ -63,7 +80,9 @@ const Register: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Nama Perusahaan</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">
+              Nama Perusahaan
+            </label>
             <input
               type="text"
               value={companyName}
@@ -75,7 +94,9 @@ const Register: React.FC = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Username / Email</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">
+              Username / Email
+            </label>
             <input
               type="text"
               value={login}
@@ -84,9 +105,11 @@ const Register: React.FC = () => {
               required
             />
           </div>
-          
+
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">
+              Password
+            </label>
             <input
               type="password"
               value={password}
@@ -97,7 +120,9 @@ const Register: React.FC = () => {
           </div>
 
           <div className="mb-8">
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Konfirmasi Password</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">
+              Konfirmasi Password
+            </label>
             <input
               type="password"
               value={confirmPassword}
@@ -106,9 +131,9 @@ const Register: React.FC = () => {
               required
             />
           </div>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             disabled={loading}
             className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2.5 rounded transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
@@ -124,10 +149,13 @@ const Register: React.FC = () => {
               </>
             )}
           </button>
-          
+
           <div className="mt-4 text-center">
             <span className="text-sm text-slate-600">Sudah punya akun? </span>
-            <Link to="/login" className="text-sm text-blue-600 font-semibold hover:underline">
+            <Link
+              to="/login"
+              className="text-sm text-blue-600 font-semibold hover:underline"
+            >
               Kembali ke Login
             </Link>
           </div>

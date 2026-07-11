@@ -1,4 +1,4 @@
-import axiosClient from '../../../lib/axiosClient';
+import axiosClient from "../../../lib/axiosClient";
 
 export interface NotaReturLine {
   id?: number;
@@ -38,22 +38,34 @@ export interface NotaReturData {
 
 export const notaReturApi = {
   getAll: async () => {
-    const response = await axiosClient.post('/api/nota-retur/get', { jsonrpc: '2.0', params: {} });
+    const response = await axiosClient.post("/api/nota-retur/get", {
+      jsonrpc: "2.0",
+      params: {},
+    });
     return (response.data.result?.data || []) as NotaReturData[];
   },
-  
+
   save: async (data: NotaReturData) => {
-    const response = await axiosClient.post('/api/nota-retur/create', { jsonrpc: '2.0', params: data });
+    const response = await axiosClient.post("/api/nota-retur/create", {
+      jsonrpc: "2.0",
+      params: data,
+    });
     return response.data.result;
   },
-  
+
   delete: async (id: number) => {
-    const response = await axiosClient.post('/api/nota-retur/delete', { jsonrpc: '2.0', params: { id } });
+    const response = await axiosClient.post("/api/nota-retur/delete", {
+      jsonrpc: "2.0",
+      params: { id },
+    });
     return response.data.result;
   },
 
   autoNo: async () => {
-    const response = await axiosClient.post('/api/nota-retur/autono', { jsonrpc: '2.0', params: {} });
+    const response = await axiosClient.post("/api/nota-retur/autono", {
+      jsonrpc: "2.0",
+      params: {},
+    });
     return response.data.result;
-  }
+  },
 };

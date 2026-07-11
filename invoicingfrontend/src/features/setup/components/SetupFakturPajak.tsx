@@ -1,41 +1,69 @@
-import React from 'react';
-import { Plus, Trash2, Edit2, Save, X } from 'lucide-react';
-import { setupApi, FakturPajakData } from '../api';
-import { format, parseISO } from 'date-fns';
-import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
+import React from "react";
+import { Plus, Trash2, Edit2, Save, X } from "lucide-react";
+import { setupApi, FakturPajakData } from "../api";
+import { format, parseISO } from "date-fns";
+import { useMasterDataCRUD } from "../../../hooks/useMasterDataCRUD";
 
 const SetupFakturPajak: React.FC = () => {
   const {
-    list, isLoading, isModalOpen, setIsModalOpen,
-    editForm, setEditForm, handleAddNew, handleEdit, handleSave, handleDelete
+    list,
+    isLoading,
+    isModalOpen,
+    setIsModalOpen,
+    editForm,
+    setEditForm,
+    handleAddNew,
+    handleEdit,
+    handleSave,
+    handleDelete,
   } = useMasterDataCRUD<FakturPajakData>({
     fetchApi: setupApi.getFakturPajak,
     saveApi: setupApi.saveFakturPajak,
     deleteApi: setupApi.deleteFakturPajak,
-    initialForm: { no_surat: '', tgl_surat: '', tgl_awal: '', tgl_akhir: '', no_seri_awal: '', no_seri_akhir: '' },
-    validate: (form) => (!form.no_surat || !form.tgl_surat || !form.tgl_awal || !form.tgl_akhir || !form.no_seri_awal || !form.no_seri_akhir) ? 'Semua kolom wajib diisi!' : null
+    initialForm: {
+      no_surat: "",
+      tgl_surat: "",
+      tgl_awal: "",
+      tgl_akhir: "",
+      no_seri_awal: "",
+      no_seri_akhir: "",
+    },
+    validate: (form) =>
+      !form.no_surat ||
+      !form.tgl_surat ||
+      !form.tgl_awal ||
+      !form.tgl_akhir ||
+      !form.no_seri_awal ||
+      !form.no_seri_akhir
+        ? "Semua kolom wajib diisi!"
+        : null,
   });
 
   const formatDateDisplay = (dateString: string) => {
-    if (!dateString) return '-';
+    if (!dateString) return "-";
     try {
-      return format(parseISO(dateString), 'dd/MM/yyyy');
+      return format(parseISO(dateString), "dd/MM/yyyy");
     } catch {
       return dateString;
     }
   };
 
-  const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
+  const inputClass =
+    "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
   return (
     <div className="bg-white shadow-sm border border-slate-300 mx-auto mt-8 w-[95%]">
       {/* Header Form */}
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-semibold text-white">Penjatahan No Seri Faktur Pajak</h2>
-          <p className="text-xs text-slate-300 mt-1">Konfigurasi jatah nomor seri faktur pajak yang diberikan oleh KPP.</p>
+          <h2 className="text-lg font-semibold text-white">
+            Penjatahan No Seri Faktur Pajak
+          </h2>
+          <p className="text-xs text-slate-300 mt-1">
+            Konfigurasi jatah nomor seri faktur pajak yang diberikan oleh KPP.
+          </p>
         </div>
-        <button 
+        <button
           onClick={handleAddNew}
           className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
         >
@@ -45,7 +73,6 @@ const SetupFakturPajak: React.FC = () => {
       </div>
 
       <div className="p-6">
-
         {isLoading ? (
           <div className="flex justify-center items-center h-32">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-700"></div>
@@ -67,29 +94,54 @@ const SetupFakturPajak: React.FC = () => {
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
                 {list.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 text-center text-slate-500">{index + 1}</td>
+                  <tr
+                    key={item.id}
+                    className="hover:bg-slate-50 transition-colors"
+                  >
+                    <td className="px-4 py-3 text-center text-slate-500">
+                      {index + 1}
+                    </td>
                     <td className="px-4 py-3 font-medium">{item.no_surat}</td>
-                    <td className="px-4 py-3">{formatDateDisplay(item.tgl_surat)}</td>
-                    <td className="px-4 py-3">{formatDateDisplay(item.tgl_awal)}</td>
-                    <td className="px-4 py-3">{formatDateDisplay(item.tgl_akhir)}</td>
+                    <td className="px-4 py-3">
+                      {formatDateDisplay(item.tgl_surat)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {formatDateDisplay(item.tgl_awal)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {formatDateDisplay(item.tgl_akhir)}
+                    </td>
                     <td className="px-4 py-3 font-mono">{item.no_seri_awal}</td>
-                    <td className="px-4 py-3 font-mono">{item.no_seri_akhir}</td>
+                    <td className="px-4 py-3 font-mono">
+                      {item.no_seri_akhir}
+                    </td>
                     <td className="px-4 py-3 flex justify-center gap-2">
-                      <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="UBAH">
+                      <button
+                        onClick={() => handleEdit(item)}
+                        className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                        title="UBAH"
+                      >
                         <Edit2 size={14} />
                       </button>
-                      <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
+                      <button
+                        onClick={() => handleDelete(item.id!)}
+                        className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors"
+                        title="Hapus"
+                      >
                         <Trash2 size={14} />
                       </button>
                     </td>
                   </tr>
                 ))}
-                
+
                 {list.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-slate-500 text-sm">
-                      Belum ada data jatah nomor seri faktur pajak. Klik "Tambah Baru".
+                    <td
+                      colSpan={8}
+                      className="px-4 py-8 text-center text-slate-500 text-sm"
+                    >
+                      Belum ada data jatah nomor seri faktur pajak. Klik "Tambah
+                      Baru".
                     </td>
                   </tr>
                 )}
@@ -104,69 +156,102 @@ const SetupFakturPajak: React.FC = () => {
           <div className="bg-white rounded shadow-xl max-w-xl w-full flex flex-col">
             <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
               <h3 className="font-bold text-slate-800">
-                {editForm.id ? 'UBAH Faktur Pajak' : 'Tambah Faktur Pajak'}
+                {editForm.id ? "UBAH Faktur Pajak" : "Tambah Faktur Pajak"}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
                 <X size={20} />
               </button>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Nomor Surat dari KPP</label>
-                  <input 
-                    type="text" 
-                    value={editForm.no_surat} 
-                    onChange={e => setEditForm({...editForm, no_surat: e.target.value.toUpperCase()})} 
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Nomor Surat dari KPP
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.no_surat}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        no_surat: e.target.value.toUpperCase(),
+                      })
+                    }
                     className={inputClass}
                     placeholder="Contoh: S-260/..."
                     autoFocus
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Tgl Surat</label>
-                  <input 
-                    type="date" 
-                    value={editForm.tgl_surat} 
-                    onChange={e => setEditForm({...editForm, tgl_surat: e.target.value})} 
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Tgl Surat
+                  </label>
+                  <input
+                    type="date"
+                    value={editForm.tgl_surat}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, tgl_surat: e.target.value })
+                    }
                     className={inputClass}
                   />
                 </div>
                 <div></div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Tgl FP Awal</label>
-                  <input 
-                    type="date" 
-                    value={editForm.tgl_awal} 
-                    onChange={e => setEditForm({...editForm, tgl_awal: e.target.value})} 
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Tgl FP Awal
+                  </label>
+                  <input
+                    type="date"
+                    value={editForm.tgl_awal}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, tgl_awal: e.target.value })
+                    }
                     className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Tgl FP Akhir</label>
-                  <input 
-                    type="date" 
-                    value={editForm.tgl_akhir} 
-                    onChange={e => setEditForm({...editForm, tgl_akhir: e.target.value})} 
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Tgl FP Akhir
+                  </label>
+                  <input
+                    type="date"
+                    value={editForm.tgl_akhir}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, tgl_akhir: e.target.value })
+                    }
                     className={inputClass}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">No Seri FP Awal</label>
-                  <input 
-                    type="text" 
-                    value={editForm.no_seri_awal} 
-                    onChange={e => setEditForm({...editForm, no_seri_awal: e.target.value})} 
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    No Seri FP Awal
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.no_seri_awal}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, no_seri_awal: e.target.value })
+                    }
                     className={inputClass}
                     placeholder="Contoh: 000-20.00000001"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">No Seri FP Akhir</label>
-                  <input 
-                    type="text" 
-                    value={editForm.no_seri_akhir} 
-                    onChange={e => setEditForm({...editForm, no_seri_akhir: e.target.value})} 
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    No Seri FP Akhir
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.no_seri_akhir}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        no_seri_akhir: e.target.value,
+                      })
+                    }
                     className={inputClass}
                     placeholder="Contoh: 000-20.00099999"
                   />
@@ -174,13 +259,13 @@ const SetupFakturPajak: React.FC = () => {
               </div>
             </div>
             <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 rounded-b">
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 rounded-sm transition-colors"
               >
                 Batal
               </button>
-              <button 
+              <button
                 onClick={handleSave}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-sm transition-colors flex items-center gap-2"
               >

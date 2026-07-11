@@ -1,5 +1,10 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import React from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -9,12 +14,12 @@ interface PaginationProps {
   itemsPerPage: number;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ 
-  currentPage, 
-  totalPages, 
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
   onPageChange,
   totalItems,
-  itemsPerPage
+  itemsPerPage,
 }) => {
   if (totalPages <= 1 && totalItems === 0) return null;
 
@@ -42,12 +47,19 @@ const Pagination: React.FC<PaginationProps> = ({
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-slate-700">
-            Menampilkan <span className="font-medium">{totalItems === 0 ? 0 : startItem}</span> hingga <span className="font-medium">{endItem}</span> dari{' '}
+            Menampilkan{" "}
+            <span className="font-medium">
+              {totalItems === 0 ? 0 : startItem}
+            </span>{" "}
+            hingga <span className="font-medium">{endItem}</span> dari{" "}
             <span className="font-medium">{totalItems}</span> data
           </p>
         </div>
         <div>
-          <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+          <nav
+            className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+            aria-label="Pagination"
+          >
             <button
               onClick={() => onPageChange(1)}
               disabled={currentPage === 1}
@@ -64,7 +76,7 @@ const Pagination: React.FC<PaginationProps> = ({
               <span className="sr-only">Previous</span>
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </button>
-            
+
             <div className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-inset ring-slate-300">
               Halaman {currentPage} dari {totalPages || 1}
             </div>

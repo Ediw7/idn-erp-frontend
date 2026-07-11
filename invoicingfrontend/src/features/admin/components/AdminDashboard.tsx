@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Users, ShieldAlert, Activity } from 'lucide-react';
-import { authApi } from '../../auth/api';
+import React, { useEffect, useState } from "react";
+import { Users, ShieldAlert, Activity } from "lucide-react";
+import { authApi } from "../../auth/api";
 
 const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState({ total: 0, active: 0, admins: 0 });
@@ -12,21 +12,23 @@ const AdminDashboard: React.FC = () => {
         const users = await authApi.getUsers();
         setStats({
           total: users.length,
-          active: users.filter(u => u.is_active).length,
-          admins: users.filter(u => u.is_admin).length
+          active: users.filter((u) => u.is_active).length,
+          admins: users.filter((u) => u.is_admin).length,
         });
       } catch (err) {
-        console.error('Failed to fetch user stats', err);
+        console.error("Failed to fetch user stats", err);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchStats();
   }, []);
 
   if (loading) {
-    return <div className="p-8 text-center text-slate-500">Memuat dashboard...</div>;
+    return (
+      <div className="p-8 text-center text-slate-500">Memuat dashboard...</div>
+    );
   }
 
   return (
@@ -67,10 +69,14 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="bg-white p-8 rounded-sm border border-slate-200 shadow-sm text-center">
-        <h3 className="text-lg font-bold text-slate-700 mb-2">Selamat Datang di Portal Admin</h3>
-        <p className="text-slate-500">Gunakan menu di sebelah kiri untuk mengelola pengguna dan sistem.</p>
+        <h3 className="text-lg font-bold text-slate-700 mb-2">
+          Selamat Datang di Portal Admin
+        </h3>
+        <p className="text-slate-500">
+          Gunakan menu di sebelah kiri untuk mengelola pengguna dan sistem.
+        </p>
       </div>
     </div>
   );

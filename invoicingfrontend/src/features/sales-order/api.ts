@@ -1,4 +1,4 @@
-import axiosClient from '../../lib/axiosClient';
+import axiosClient from "../../lib/axiosClient";
 
 export interface SalesOrderLine {
   id?: number;
@@ -55,47 +55,61 @@ export interface SalesOrderData {
 }
 
 export const salesOrderApi = {
-  getAll: async (filters?: { no_so?: string; pelanggan_id?: number; periode?: string }): Promise<SalesOrderData[]> => {
-    const response = await axiosClient.post('/api/sales-order/get', {
-      jsonrpc: '2.0',
-      params: filters || {}
+  getAll: async (filters?: {
+    no_so?: string;
+    pelanggan_id?: number;
+    periode?: string;
+  }): Promise<SalesOrderData[]> => {
+    const response = await axiosClient.post("/api/sales-order/get", {
+      jsonrpc: "2.0",
+      params: filters || {},
     });
-    if (response.data.result && response.data.result.status === 'success') {
+    if (response.data.result && response.data.result.status === "success") {
       return response.data.result.data;
     }
-    throw new Error(response.data.result?.message || 'Failed to fetch sales orders');
+    throw new Error(
+      response.data.result?.message || "Failed to fetch sales orders",
+    );
   },
 
-  save: async (data: SalesOrderData): Promise<{ message: string; id: number }> => {
-    const response = await axiosClient.post('/api/sales-order/save', {
-      jsonrpc: '2.0',
-      params: data
+  save: async (
+    data: SalesOrderData,
+  ): Promise<{ message: string; id: number }> => {
+    const response = await axiosClient.post("/api/sales-order/save", {
+      jsonrpc: "2.0",
+      params: data,
     });
-    if (response.data.result && response.data.result.status === 'success') {
+    if (response.data.result && response.data.result.status === "success") {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to save sales order');
+    throw new Error(
+      response.data.result?.message || "Failed to save sales order",
+    );
   },
 
   delete: async (id: number): Promise<{ message: string }> => {
-    const response = await axiosClient.post('/api/sales-order/delete', {
-      jsonrpc: '2.0',
-      params: { id }
+    const response = await axiosClient.post("/api/sales-order/delete", {
+      jsonrpc: "2.0",
+      params: { id },
     });
-    if (response.data.result && response.data.result.status === 'success') {
+    if (response.data.result && response.data.result.status === "success") {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to delete sales order');
+    throw new Error(
+      response.data.result?.message || "Failed to delete sales order",
+    );
   },
 
   autoNo: async (): Promise<{ no_so: string }> => {
-    const response = await axiosClient.post('/api/sales-order/auto-no', {
-      jsonrpc: '2.0',
-      params: {}
+    const response = await axiosClient.post("/api/sales-order/auto-no", {
+      jsonrpc: "2.0",
+      params: {},
     });
-    if (response.data.result && response.data.result.status === 'success') {
+    if (response.data.result && response.data.result.status === "success") {
       return response.data.result;
     }
-    throw new Error(response.data.result?.message || 'Failed to generate auto number');
-  }
+    throw new Error(
+      response.data.result?.message || "Failed to generate auto number",
+    );
+  },
 };

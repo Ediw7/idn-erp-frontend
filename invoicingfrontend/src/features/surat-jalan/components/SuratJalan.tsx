@@ -1,26 +1,58 @@
-import React from 'react';
-import { useSuratJalanLogic } from './useSuratJalanLogic';
-import { SuratJalanListView } from './SuratJalanListView';
-import { SuratJalanFormView } from './SuratJalanFormView';
-import { SuratJalanNewModal } from './SuratJalanNewModal';
-import { SuratJalanInvoiceModal } from './SuratJalanInvoiceModal';
-import { SuratJalanLineModal } from './SuratJalanLineModal';
+import React from "react";
+import { useSuratJalanLogic } from "./useSuratJalanLogic";
+import { SuratJalanListView } from "./SuratJalanListView";
+import { SuratJalanFormView } from "./SuratJalanFormView";
+import { SuratJalanNewModal } from "./SuratJalanNewModal";
+import { SuratJalanInvoiceModal } from "./SuratJalanInvoiceModal";
+import { SuratJalanLineModal } from "./SuratJalanLineModal";
 
 const SuratJalan: React.FC = () => {
   const {
-    navigate, user, pelanggans, gudangs, items, salesOrders, periode, setPeriode,
-    showNewSjModal, setShowNewSjModal, showInvoiceModal, setShowInvoiceModal,
-    activeTab, setActiveTab, isLineModalOpen, setIsLineModalOpen, editLineIndex, setEditLineIndex,
-    lineForm, setLineForm, viewMode, setViewMode, dataList, setDataList,
-    emptyForm, form, setForm, modalForm, setModalForm,
-    handlePelangganChange, handleSOChange, handleCreateSJ, handleSaveAll,
-    calculateTotalQty, handleOpenAddLine, handleOpenEditLine, handleSaveLine, removeLine, handleDeleteSJ,
-    isSaving
+    navigate,
+    user,
+    pelanggans,
+    gudangs,
+    items,
+    salesOrders,
+    periode,
+    setPeriode,
+    showNewSjModal,
+    setShowNewSjModal,
+    showInvoiceModal,
+    setShowInvoiceModal,
+    activeTab,
+    setActiveTab,
+    isLineModalOpen,
+    setIsLineModalOpen,
+    editLineIndex,
+    setEditLineIndex,
+    lineForm,
+    setLineForm,
+    viewMode,
+    setViewMode,
+    dataList,
+    setDataList,
+    emptyForm,
+    form,
+    setForm,
+    modalForm,
+    setModalForm,
+    handlePelangganChange,
+    handleSOChange,
+    handleCreateSJ,
+    handleSaveAll,
+    calculateTotalQty,
+    handleOpenAddLine,
+    handleOpenEditLine,
+    handleSaveLine,
+    removeLine,
+    handleDeleteSJ,
+    isSaving,
   } = useSuratJalanLogic();
 
   return (
     <>
-      {viewMode === 'list' && (
+      {viewMode === "list" && (
         <SuratJalanListView
           dataList={dataList}
           pelanggans={pelanggans}
@@ -29,17 +61,17 @@ const SuratJalan: React.FC = () => {
           setPeriode={setPeriode}
           onOpenForm={() => {
             setForm(emptyForm);
-            setViewMode('form');
+            setViewMode("form");
           }}
           onEdit={(item) => {
             setForm(item);
-            setViewMode('form');
+            setViewMode("form");
           }}
           onDelete={handleDeleteSJ}
         />
       )}
 
-      {viewMode === 'form' && (
+      {viewMode === "form" && (
         <SuratJalanFormView
           form={form}
           setForm={setForm}

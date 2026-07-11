@@ -1,4 +1,4 @@
-import axiosClient from '../../lib/axiosClient';
+import axiosClient from "../../lib/axiosClient";
 
 export interface HistoryHargaJualData {
   id: number;
@@ -15,11 +15,16 @@ export interface HistoryHargaJualData {
 }
 
 export const historyHargaJualApi = {
-  getHistory: async (filters: { kode_barang?: string; nama_barang?: string; nama_pelanggan?: string; limit?: number }) => {
-    const response = await axiosClient.post('/api/history-harga-jual/get', {
-      jsonrpc: '2.0',
-      params: filters
+  getHistory: async (filters: {
+    kode_barang?: string;
+    nama_barang?: string;
+    nama_pelanggan?: string;
+    limit?: number;
+  }) => {
+    const response = await axiosClient.post("/api/history-harga-jual/get", {
+      jsonrpc: "2.0",
+      params: filters,
     });
     return (response.data.result?.data || []) as HistoryHargaJualData[];
-  }
+  },
 };

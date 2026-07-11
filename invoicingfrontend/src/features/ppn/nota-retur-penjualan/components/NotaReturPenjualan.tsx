@@ -1,14 +1,14 @@
-import React from 'react';
-import { useNotaReturPenjualanLogic } from './useNotaReturPenjualanLogic';
-import { NotaReturPenjualanListView } from './NotaReturPenjualanListView';
-import { NotaReturPenjualanFormView } from './NotaReturPenjualanFormView';
+import React from "react";
+import { useNotaReturPenjualanLogic } from "./useNotaReturPenjualanLogic";
+import { NotaReturPenjualanListView } from "./NotaReturPenjualanListView";
+import { NotaReturPenjualanFormView } from "./NotaReturPenjualanFormView";
 
 const NotaReturPenjualan: React.FC = () => {
   const logic = useNotaReturPenjualanLogic();
 
   return (
     <>
-      {logic.viewMode === 'list' ? (
+      {logic.viewMode === "list" ? (
         <NotaReturPenjualanListView
           dataList={logic.dataList}
           loadingData={logic.loadingList}
@@ -32,9 +32,9 @@ const NotaReturPenjualan: React.FC = () => {
           ppnAmount={logic.ppnAmount}
           onSave={logic.handleSave}
           onDelete={() => {
-             if (logic.form.id) logic.handleDeleteById(logic.form.id);
+            if (logic.form.id) logic.handleDeleteById(logic.form.id);
           }}
-          onClose={() => logic.setViewMode('list')}
+          onClose={() => logic.setViewMode("list")}
           onNew={logic.handleNewClick}
           handlePelangganChange={logic.handlePelangganChange}
           addLine={logic.addLine}

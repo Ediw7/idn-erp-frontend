@@ -1,14 +1,14 @@
-import React from 'react';
-import { useSptMasaLogic } from './useSptMasaLogic';
-import { SptMasaListView } from './SptMasaListView';
-import { SptMasaFormView } from './SptMasaFormView';
+import React from "react";
+import { useSptMasaLogic } from "./useSptMasaLogic";
+import { SptMasaListView } from "./SptMasaListView";
+import { SptMasaFormView } from "./SptMasaFormView";
 
 const SptMasa1111: React.FC = () => {
   const logic = useSptMasaLogic();
 
   return (
     <>
-      {logic.viewMode === 'list' ? (
+      {logic.viewMode === "list" ? (
         <SptMasaListView
           dataList={logic.dataList}
           loadingData={logic.loadingList}
@@ -24,9 +24,9 @@ const SptMasa1111: React.FC = () => {
           calculated={logic.calculated}
           onSave={logic.handleSave}
           onDelete={() => {
-             if (logic.form.id) logic.handleDeleteById(logic.form.id);
+            if (logic.form.id) logic.handleDeleteById(logic.form.id);
           }}
-          onClose={() => logic.setViewMode('list')}
+          onClose={() => logic.setViewMode("list")}
         />
       )}
     </>

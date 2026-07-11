@@ -1,62 +1,96 @@
-import React from 'react';
-import { Plus, Trash2, Save, X, Settings2 } from 'lucide-react';
-import { setupApi, FormatBuktiData } from '../api';
-import { useMasterDataCRUD } from '../../../hooks/useMasterDataCRUD';
-import toast from 'react-hot-toast';
+import React from "react";
+import { Plus, Trash2, Save, X, Settings2 } from "lucide-react";
+import { setupApi, FormatBuktiData } from "../api";
+import { useMasterDataCRUD } from "../../../hooks/useMasterDataCRUD";
+import toast from "react-hot-toast";
 
 const TRANSACTIONS = [
-  { id: 'inv_vat', label: 'Invoice VAT' },
-  { id: 'inv_non_vat', label: 'Invoice Non-VAT' },
-  { id: 'kwi_vat', label: 'Kwitansi VAT' },
-  { id: 'kwi_non_vat', label: 'Kwitansi Non-VAT' },
-  { id: 'pem_inv', label: 'Pembayaran Invoice' },
-  { id: 'nota_kredit', label: 'Nota Kredit' },
-  { id: 'so', label: 'Sales Order' },
-  { id: 'sj', label: 'Surat Jalan' },
-  { id: 'retur_jual', label: 'Retur Penjualan' },
-  { id: 'retur_beli', label: 'Retur Pembelian Barang' },
-  { id: 'terima_brg', label: 'Penerimaan Barang' },
-  { id: 'adj_inv', label: 'Adjustment Inventory' },
-  { id: 'tf_brg', label: 'Transfer Barang' }
+  { id: "inv_vat", label: "Invoice VAT" },
+  { id: "inv_non_vat", label: "Invoice Non-VAT" },
+  { id: "kwi_vat", label: "Kwitansi VAT" },
+  { id: "kwi_non_vat", label: "Kwitansi Non-VAT" },
+  { id: "pem_inv", label: "Pembayaran Invoice" },
+  { id: "nota_kredit", label: "Nota Kredit" },
+  { id: "so", label: "Sales Order" },
+  { id: "sj", label: "Surat Jalan" },
+  { id: "retur_jual", label: "Retur Penjualan" },
+  { id: "retur_beli", label: "Retur Pembelian Barang" },
+  { id: "terima_brg", label: "Penerimaan Barang" },
+  { id: "adj_inv", label: "Adjustment Inventory" },
+  { id: "tf_brg", label: "Transfer Barang" },
 ];
 
 const emptyForm: FormatBuktiData = {
-  periode: '',
-  inv_vat_prefiks: 'FT/', inv_vat_digit: '3', inv_vat_sufiks: '',
-  inv_non_vat_prefiks: 'FN/', inv_non_vat_digit: '3', inv_non_vat_sufiks: '',
-  kwi_vat_prefiks: 'KT/', kwi_vat_digit: '3', kwi_vat_sufiks: '',
-  kwi_non_vat_prefiks: 'KN/', kwi_non_vat_digit: '3', kwi_non_vat_sufiks: '',
-  pem_inv_prefiks: 'BM/', pem_inv_digit: '3', pem_inv_sufiks: '',
-  nota_kredit_prefiks: 'NK/', nota_kredit_digit: '3', nota_kredit_sufiks: '',
-  so_prefiks: 'SO/', so_digit: '3', so_sufiks: '',
-  sj_prefiks: 'SJ/', sj_digit: '3', sj_sufiks: '',
-  retur_jual_prefiks: 'RJ/', retur_jual_digit: '3', retur_jual_sufiks: '',
-  retur_beli_prefiks: 'RB/', retur_beli_digit: '3', retur_beli_sufiks: '',
-  terima_brg_prefiks: 'BTB/', terima_brg_digit: '3', terima_brg_sufiks: '',
-  adj_inv_prefiks: 'ADJ/', adj_inv_digit: '3', adj_inv_sufiks: '',
-  tf_brg_prefiks: 'TF/', tf_brg_digit: '3', tf_brg_sufiks: ''
+  periode: "",
+  inv_vat_prefiks: "FT/",
+  inv_vat_digit: "3",
+  inv_vat_sufiks: "",
+  inv_non_vat_prefiks: "FN/",
+  inv_non_vat_digit: "3",
+  inv_non_vat_sufiks: "",
+  kwi_vat_prefiks: "KT/",
+  kwi_vat_digit: "3",
+  kwi_vat_sufiks: "",
+  kwi_non_vat_prefiks: "KN/",
+  kwi_non_vat_digit: "3",
+  kwi_non_vat_sufiks: "",
+  pem_inv_prefiks: "BM/",
+  pem_inv_digit: "3",
+  pem_inv_sufiks: "",
+  nota_kredit_prefiks: "NK/",
+  nota_kredit_digit: "3",
+  nota_kredit_sufiks: "",
+  so_prefiks: "SO/",
+  so_digit: "3",
+  so_sufiks: "",
+  sj_prefiks: "SJ/",
+  sj_digit: "3",
+  sj_sufiks: "",
+  retur_jual_prefiks: "RJ/",
+  retur_jual_digit: "3",
+  retur_jual_sufiks: "",
+  retur_beli_prefiks: "RB/",
+  retur_beli_digit: "3",
+  retur_beli_sufiks: "",
+  terima_brg_prefiks: "BTB/",
+  terima_brg_digit: "3",
+  terima_brg_sufiks: "",
+  adj_inv_prefiks: "ADJ/",
+  adj_inv_digit: "3",
+  adj_inv_sufiks: "",
+  tf_brg_prefiks: "TF/",
+  tf_brg_digit: "3",
+  tf_brg_sufiks: "",
 };
 
 const SetupFormatBukti: React.FC = () => {
   const {
-    list, isLoading, isModalOpen, setIsModalOpen,
-    editForm, setEditForm, handleEdit, handleSave, handleDelete
+    list,
+    isLoading,
+    isModalOpen,
+    setIsModalOpen,
+    editForm,
+    setEditForm,
+    handleEdit,
+    handleSave,
+    handleDelete,
   } = useMasterDataCRUD<FormatBuktiData>({
     fetchApi: setupApi.getFormatBukti,
     saveApi: setupApi.saveFormatBukti,
     deleteApi: setupApi.deleteFormatBukti,
     initialForm: emptyForm,
-    validate: (form) => !form.periode ? 'Periode (yyyymm) harus diisi!' : null
+    validate: (form) =>
+      !form.periode ? "Periode (yyyymm) harus diisi!" : null,
   });
 
   const handleAddNew = () => {
     const today = new Date();
-    const currentPeriode = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}`;
-    const sufiks = `/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-    
+    const currentPeriode = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}`;
+    const sufiks = `/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
+
     // Auto populate sufiks based on current period
     const newForm = { ...emptyForm, periode: currentPeriode };
-    TRANSACTIONS.forEach(t => {
+    TRANSACTIONS.forEach((t) => {
       (newForm as any)[`${t.id}_sufiks`] = sufiks;
     });
 
@@ -64,31 +98,37 @@ const SetupFormatBukti: React.FC = () => {
     setIsModalOpen(true);
   };
 
-
-
   const handleApplySufiksToAll = () => {
     const sufiksRef = editForm.inv_vat_sufiks;
     if (!sufiksRef) {
-      toast.error("Isi Sufiks pada Invoice VAT terlebih dahulu untuk di-copy ke semua baris.");
+      toast.error(
+        "Isi Sufiks pada Invoice VAT terlebih dahulu untuk di-copy ke semua baris.",
+      );
       return;
     }
     const newForm = { ...editForm };
-    TRANSACTIONS.forEach(t => {
+    TRANSACTIONS.forEach((t) => {
       (newForm as any)[`${t.id}_sufiks`] = sufiksRef;
     });
     setEditForm(newForm);
   };
 
-  const inputClass = "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
+  const inputClass =
+    "w-full px-2 py-1 bg-white border border-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-500 text-sm transition-colors";
 
   return (
     <div className="bg-white shadow-sm border border-slate-300 max-w-7xl mx-auto mt-4 h-full flex flex-col">
       <div className="bg-slate-800 px-6 py-4 flex justify-between items-center shrink-0">
         <div>
-          <h2 className="text-lg font-semibold text-white">Setup Format No Bukti</h2>
-          <p className="text-xs text-slate-300 mt-1">Konfigurasi penomoran dokumen per bulan/periode (Invoice, Kwitansi, SO, dll).</p>
+          <h2 className="text-lg font-semibold text-white">
+            Setup Format No Bukti
+          </h2>
+          <p className="text-xs text-slate-300 mt-1">
+            Konfigurasi penomoran dokumen per bulan/periode (Invoice, Kwitansi,
+            SO, dll).
+          </p>
         </div>
-        <button 
+        <button
           onClick={handleAddNew}
           className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors"
         >
@@ -98,7 +138,6 @@ const SetupFormatBukti: React.FC = () => {
       </div>
 
       <div className="p-4 flex-1 flex flex-col min-h-0">
-
         {isLoading ? (
           <div className="flex justify-center items-center h-32 flex-1">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-700"></div>
@@ -118,38 +157,79 @@ const SetupFormatBukti: React.FC = () => {
               </thead>
               <tbody className="text-sm text-slate-700 divide-y divide-slate-100">
                 {list.map((item, index) => {
-                  const getSample = (prefix: string | undefined, digit: string | undefined, suffix: string | undefined) => {
-                    const d = parseInt(digit || '3', 10);
-                    const num = '1'.padStart(d, '0');
-                    return `${prefix || ''}${num}${suffix || ''}`;
+                  const getSample = (
+                    prefix: string | undefined,
+                    digit: string | undefined,
+                    suffix: string | undefined,
+                  ) => {
+                    const d = parseInt(digit || "3", 10);
+                    const num = "1".padStart(d, "0");
+                    return `${prefix || ""}${num}${suffix || ""}`;
                   };
 
-                  const inv_sample = getSample(item.inv_vat_prefiks, item.inv_vat_digit, item.inv_vat_sufiks);
-                  const so_sample = getSample(item.so_prefiks, item.so_digit, item.so_sufiks);
-                  const sj_sample = getSample(item.sj_prefiks, item.sj_digit, item.sj_sufiks);
+                  const inv_sample = getSample(
+                    item.inv_vat_prefiks,
+                    item.inv_vat_digit,
+                    item.inv_vat_sufiks,
+                  );
+                  const so_sample = getSample(
+                    item.so_prefiks,
+                    item.so_digit,
+                    item.so_sufiks,
+                  );
+                  const sj_sample = getSample(
+                    item.sj_prefiks,
+                    item.sj_digit,
+                    item.sj_sufiks,
+                  );
                   return (
-                    <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3 text-center text-slate-500">{index + 1}</td>
-                      <td className="px-4 py-3 font-bold text-slate-900">{item.periode}</td>
-                      <td className="px-4 py-3 font-mono text-xs">{inv_sample}</td>
-                      <td className="px-4 py-3 font-mono text-xs">{so_sample}</td>
-                      <td className="px-4 py-3 font-mono text-xs">{sj_sample}</td>
+                    <tr
+                      key={item.id}
+                      className="hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="px-4 py-3 text-center text-slate-500">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 py-3 font-bold text-slate-900">
+                        {item.periode}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs">
+                        {inv_sample}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs">
+                        {so_sample}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs">
+                        {sj_sample}
+                      </td>
                       <td className="px-4 py-3 flex justify-center gap-2">
-                        <button onClick={() => handleEdit(item)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="UBAH Detail">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                          title="UBAH Detail"
+                        >
                           <Settings2 size={16} />
                         </button>
-                        <button onClick={() => handleDelete(item.id!)} className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors" title="Hapus">
+                        <button
+                          onClick={() => handleDelete(item.id!)}
+                          className="p-1.5 text-red-600 hover:bg-red-100 rounded transition-colors"
+                          title="Hapus"
+                        >
                           <Trash2 size={16} />
                         </button>
                       </td>
                     </tr>
-                  )
+                  );
                 })}
-                
+
                 {list.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-12 text-center text-slate-500 text-sm bg-slate-50">
-                      Belum ada konfigurasi format nomor bukti. Klik "Tambah Periode Baru".
+                    <td
+                      colSpan={6}
+                      className="px-4 py-12 text-center text-slate-500 text-sm bg-slate-50"
+                    >
+                      Belum ada konfigurasi format nomor bukti. Klik "Tambah
+                      Periode Baru".
                     </td>
                   </tr>
                 )}
@@ -164,24 +244,33 @@ const SetupFormatBukti: React.FC = () => {
           <div className="bg-white shadow-2xl w-full max-w-6xl flex flex-col h-[90vh] border border-slate-300">
             <div className="px-6 py-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
               <h3 className="font-semibold text-base tracking-wide">
-                {editForm.id ? `UBAH Format Bukti - Periode ${editForm.periode}` : 'Tambah Format Bukti Baru'}
+                {editForm.id
+                  ? `UBAH Format Bukti - Periode ${editForm.periode}`
+                  : "Tambah Format Bukti Baru"}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-300 hover:text-white transition-colors">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-300 hover:text-white transition-colors"
+              >
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto flex-1 flex flex-col text-sm bg-slate-50">
               <div className="mb-6 flex items-center gap-4 bg-blue-50 p-4 border border-blue-100 rounded-sm">
-                <label className="font-semibold text-slate-800">Periode Aktif (yyyymm):</label>
-                <input 
-                  type="text" 
-                  value={editForm.periode} 
-                  onChange={e => setEditForm({...editForm, periode: e.target.value})}
+                <label className="font-semibold text-slate-800">
+                  Periode Aktif (yyyymm):
+                </label>
+                <input
+                  type="text"
+                  value={editForm.periode}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, periode: e.target.value })
+                  }
                   className="px-3 py-1.5 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono text-center w-32"
                   placeholder="Contoh: 202605"
                 />
-                <button 
+                <button
                   onClick={handleApplySufiksToAll}
                   className="ml-auto px-4 py-1.5 text-xs font-semibold bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 transition-colors rounded-sm"
                   title="Salin isi sufiks baris pertama ke seluruh baris di bawahnya"
@@ -194,30 +283,50 @@ const SetupFormatBukti: React.FC = () => {
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-slate-800 text-white text-xs font-semibold">
                     <tr>
-                      <th className="px-4 py-3 border-r border-slate-600 w-1/4">Jenis Dokumen</th>
-                      <th className="px-4 py-3 border-r border-slate-600 w-1/4">Prefiks (Awalan)</th>
-                      <th className="px-4 py-3 border-r border-slate-600 w-1/4">Jumlah Digit (Auto-Number)</th>
+                      <th className="px-4 py-3 border-r border-slate-600 w-1/4">
+                        Jenis Dokumen
+                      </th>
+                      <th className="px-4 py-3 border-r border-slate-600 w-1/4">
+                        Prefiks (Awalan)
+                      </th>
+                      <th className="px-4 py-3 border-r border-slate-600 w-1/4">
+                        Jumlah Digit (Auto-Number)
+                      </th>
                       <th className="px-4 py-3 w-1/4">Sufiks (Akhiran)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
-                    {TRANSACTIONS.map(tx => (
-                      <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
+                    {TRANSACTIONS.map((tx) => (
+                      <tr
+                        key={tx.id}
+                        className="hover:bg-slate-50 transition-colors"
+                      >
                         <td className="px-4 py-2 font-medium text-slate-700 border-r border-slate-200 bg-slate-50">
                           {tx.label}
                         </td>
                         <td className="px-4 py-2 border-r border-slate-200">
-                          <input 
-                            type="text" 
-                            value={(editForm as any)[`${tx.id}_prefiks`] || ''} 
-                            onChange={e => setEditForm({...editForm, [`${tx.id}_prefiks`]: e.target.value.toUpperCase()})}
+                          <input
+                            type="text"
+                            value={(editForm as any)[`${tx.id}_prefiks`] || ""}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                [`${tx.id}_prefiks`]:
+                                  e.target.value.toUpperCase(),
+                              })
+                            }
                             className={inputClass}
                           />
                         </td>
                         <td className="px-4 py-2 border-r border-slate-200">
                           <select
-                            value={(editForm as any)[`${tx.id}_digit`] || '3'} 
-                            onChange={e => setEditForm({...editForm, [`${tx.id}_digit`]: e.target.value})}
+                            value={(editForm as any)[`${tx.id}_digit`] || "3"}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                [`${tx.id}_digit`]: e.target.value,
+                              })
+                            }
                             className={inputClass}
                           >
                             <option value="3">3 Digit (001)</option>
@@ -227,10 +336,16 @@ const SetupFormatBukti: React.FC = () => {
                           </select>
                         </td>
                         <td className="px-4 py-2">
-                          <input 
-                            type="text" 
-                            value={(editForm as any)[`${tx.id}_sufiks`] || ''} 
-                            onChange={e => setEditForm({...editForm, [`${tx.id}_sufiks`]: e.target.value.toUpperCase()})}
+                          <input
+                            type="text"
+                            value={(editForm as any)[`${tx.id}_sufiks`] || ""}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                [`${tx.id}_sufiks`]:
+                                  e.target.value.toUpperCase(),
+                              })
+                            }
                             className={inputClass}
                           />
                         </td>
@@ -240,15 +355,15 @@ const SetupFormatBukti: React.FC = () => {
                 </table>
               </div>
             </div>
-            
+
             <div className="px-6 py-4 border-t border-slate-200 bg-white flex justify-end gap-3 shrink-0">
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="px-6 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors rounded-sm"
               >
                 Batal
               </button>
-              <button 
+              <button
                 onClick={handleSave}
                 className="px-6 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 transition-colors flex items-center gap-2 rounded-sm"
               >

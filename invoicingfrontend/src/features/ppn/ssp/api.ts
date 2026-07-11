@@ -1,4 +1,4 @@
-import axiosClient from '../../../lib/axiosClient';
+import axiosClient from "../../../lib/axiosClient";
 
 export interface SuratSetoranPajakData {
   id?: number;
@@ -25,17 +25,26 @@ export interface SuratSetoranPajakData {
 
 export const sspApi = {
   getAll: async () => {
-    const response = await axiosClient.post('/api/ssp/get', { jsonrpc: '2.0', params: {} });
+    const response = await axiosClient.post("/api/ssp/get", {
+      jsonrpc: "2.0",
+      params: {},
+    });
     return (response.data.result?.data || []) as SuratSetoranPajakData[];
   },
-  
+
   save: async (data: SuratSetoranPajakData) => {
-    const response = await axiosClient.post('/api/ssp/create', { jsonrpc: '2.0', params: data });
+    const response = await axiosClient.post("/api/ssp/create", {
+      jsonrpc: "2.0",
+      params: data,
+    });
     return response.data.result;
   },
-  
+
   delete: async (id: number) => {
-    const response = await axiosClient.post('/api/ssp/delete', { jsonrpc: '2.0', params: { id } });
+    const response = await axiosClient.post("/api/ssp/delete", {
+      jsonrpc: "2.0",
+      params: { id },
+    });
     return response.data.result;
-  }
+  },
 };

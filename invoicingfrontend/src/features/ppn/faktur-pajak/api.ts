@@ -1,4 +1,4 @@
-import axiosClient from '../../../lib/axiosClient';
+import axiosClient from "../../../lib/axiosClient";
 
 export interface FakturPajakLine {
   id?: number;
@@ -32,10 +32,10 @@ export interface FakturPajakData {
   penandatangan: string;
   jabatan: string;
   ket_tambahan: string;
-  
+
   potongan: number;
   uang_muka: number;
-  
+
   dpp?: number;
   dpp_rp?: number;
   ppn_rp?: number;
@@ -50,16 +50,19 @@ export interface FakturPajakData {
 
 export const fakturPajakApi = {
   getAll: async (params?: any): Promise<FakturPajakData[]> => {
-    const response = await axiosClient.post('/api/faktur_pajak/get', params || {});
+    const response = await axiosClient.post(
+      "/api/faktur_pajak/get",
+      params || {},
+    );
     return response.data?.data || [];
   },
 
   save: async (data: FakturPajakData): Promise<{ id: number }> => {
-    const response = await axiosClient.post('/api/faktur_pajak/save', data);
+    const response = await axiosClient.post("/api/faktur_pajak/save", data);
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axiosClient.post('/api/faktur_pajak/delete', { id });
-  }
+    await axiosClient.post("/api/faktur_pajak/delete", { id });
+  },
 };

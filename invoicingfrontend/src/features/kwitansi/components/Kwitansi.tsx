@@ -1,24 +1,38 @@
-import React from 'react';
-import { useKwitansiLogic } from './useKwitansiLogic';
-import { KwitansiListView } from './KwitansiListView';
-import { KwitansiFormView } from './KwitansiFormView';
+import React from "react";
+import { useKwitansiLogic } from "./useKwitansiLogic";
+import { KwitansiListView } from "./KwitansiListView";
+import { KwitansiFormView } from "./KwitansiFormView";
 
 const Kwitansi: React.FC = () => {
   const {
-    navigate, confirm,
-    pelanggans, loadingData,
-    viewMode, setViewMode,
-    dataList, filteredData,
-    filter, setFilter, handleResetFilter,
-    emptyForm, form, setForm,
-    showNewModal, setShowNewModal,
-    signatureData, invoices,
-    handleJumlahChange, handlePembeliChange, handleInvoiceChange, handleSave, handleDelete
+    navigate,
+    confirm,
+    pelanggans,
+    loadingData,
+    viewMode,
+    setViewMode,
+    dataList,
+    filteredData,
+    filter,
+    setFilter,
+    handleResetFilter,
+    emptyForm,
+    form,
+    setForm,
+    showNewModal,
+    setShowNewModal,
+    signatureData,
+    invoices,
+    handleJumlahChange,
+    handlePembeliChange,
+    handleInvoiceChange,
+    handleSave,
+    handleDelete,
   } = useKwitansiLogic();
 
-  if (viewMode === 'list') {
+  if (viewMode === "list") {
     return (
-      <KwitansiListView 
+      <KwitansiListView
         dataList={dataList}
         filteredData={filteredData}
         pelanggans={pelanggans}
@@ -27,13 +41,13 @@ const Kwitansi: React.FC = () => {
         handleResetFilter={handleResetFilter}
         onOpenForm={() => {
           setForm(emptyForm);
-          setViewMode('form');
+          setViewMode("form");
         }}
         onEdit={(no_kwitansi) => {
-          const k = dataList.find(x => x.no_kwitansi === no_kwitansi);
+          const k = dataList.find((x) => x.no_kwitansi === no_kwitansi);
           if (k) {
             setForm(k);
-            setViewMode('form');
+            setViewMode("form");
           }
         }}
         onDelete={handleDelete}
@@ -42,7 +56,7 @@ const Kwitansi: React.FC = () => {
   }
 
   return (
-    <KwitansiFormView 
+    <KwitansiFormView
       form={form}
       setForm={setForm}
       pelanggans={pelanggans}
@@ -54,9 +68,11 @@ const Kwitansi: React.FC = () => {
       handleInvoiceChange={handleInvoiceChange}
       handleSave={handleSave}
       handleDelete={handleDelete}
-      onBack={() => setViewMode('list')}
+      onBack={() => setViewMode("list")}
       onPrint={(no_kwitansi) => {
-        navigate(`/laporan?kwitansi_number=${encodeURIComponent(no_kwitansi)}&reportName=${encodeURIComponent('Kwitansi (1/2 Kwarto)')}`);
+        navigate(
+          `/laporan?kwitansi_number=${encodeURIComponent(no_kwitansi)}&reportName=${encodeURIComponent("Kwitansi (1/2 Kwarto)")}`,
+        );
       }}
     />
   );

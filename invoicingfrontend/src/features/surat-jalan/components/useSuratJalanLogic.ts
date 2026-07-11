@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { useAuth } from '../../auth/contexts/AuthContext';
-import { useConfirm } from '../../../contexts/ConfirmContext';
-import { setupApi, PelangganData, GudangData, ItemData } from '../../setup/api';
-import { salesOrderApi, SalesOrderData } from '../../sales-order/api';
-import { useSignatureAutoFill } from '../../../hooks/useSignatureAutoFill';
-import { getSuratJalan, saveSuratJalan, deleteSuratJalan, getSjAutoNo } from '../../transactionsApi';
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuth } from "../../auth/contexts/AuthContext";
+import { useConfirm } from "../../../contexts/ConfirmContext";
+import { setupApi, PelangganData, GudangData, ItemData } from "../../setup/api";
+import { salesOrderApi, SalesOrderData } from "../../sales-order/api";
+import { useSignatureAutoFill } from "../../../hooks/useSignatureAutoFill";
+import {
+  getSuratJalan,
+  saveSuratJalan,
+  deleteSuratJalan,
+  getSjAutoNo,
+} from "../../transactionsApi";
 
 export const useSuratJalanLogic = () => {
   const navigate = useNavigate();
@@ -20,32 +25,54 @@ export const useSuratJalanLogic = () => {
   const [items, setItems] = useState<ItemData[]>([]);
   const [salesOrders, setSalesOrders] = useState<SalesOrderData[]>([]);
 
-  const [periode, setPeriode] = useState(`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`);
+  const [periode, setPeriode] = useState(
+    `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`,
+  );
 
   const [showNewSjModal, setShowNewSjModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'info' | 'detail'>('info');
+  const [activeTab, setActiveTab] = useState<"info" | "detail">("info");
   const [isSaving, setIsSaving] = useState(false);
   const [isLineModalOpen, setIsLineModalOpen] = useState(false);
   const [editLineIndex, setEditLineIndex] = useState<number | null>(null);
-  const [lineForm, setLineForm] = useState<any>({ item_id: null, kode: '', nama: '', satuan: '', kuantum: 1, keterangan: '' });
+  const [lineForm, setLineForm] = useState<any>({
+    item_id: null,
+    kode: "",
+    nama: "",
+    satuan: "",
+    kuantum: 1,
+    keterangan: "",
+  });
 
-  const [viewMode, setViewMode] = useState<'list' | 'form'>('list');
+  const [viewMode, setViewMode] = useState<"list" | "form">("list");
   const [dataList, setDataList] = useState<any[]>([]);
 
   const emptyForm = {
-    id: '', no_sj: '', tanggal: new Date().toISOString().split('T')[0],
-    pelanggan_id: '', alamat_kirim: '', gudang_id: '', no_so: '', no_po: '',
-    no_kendaraan: '', no_invoice: '', keterangan: '',
-    penandatangan: 'Admin', jabatan: 'Logistik', lines: [],
-    create_date: '', create_uid_name: '', write_date: '', write_uid_name: ''
+    id: "",
+    no_sj: "",
+    tanggal: new Date().toISOString().split("T")[0],
+    pelanggan_id: "",
+    alamat_kirim: "",
+    gudang_id: "",
+    no_so: "",
+    no_po: "",
+    no_kendaraan: "",
+    no_invoice: "",
+    keterangan: "",
+    penandatangan: "Admin",
+    jabatan: "Logistik",
+    lines: [],
+    create_date: "",
+    create_uid_name: "",
+    write_date: "",
+    write_uid_name: "",
   };
 
   const [form, setForm] = useState<any>(emptyForm);
   const [modalForm, setModalForm] = useState<any>(emptyForm);
 
-  const { signatureData } = useSignatureAutoFill('Surat Jalan');
+  const { signatureData } = useSignatureAutoFill("Surat Jalan");
 
   useEffect(() => {
     fetchInitialData();
@@ -56,7 +83,7 @@ export const useSuratJalanLogic = () => {
       setForm((prev: any) => ({
         ...prev,
         penandatangan: signatureData.nama || prev.penandatangan,
-        jabatan: signatureData.jabatan || prev.jabatan
+        jabatan: signatureData.jabatan || prev.jabatan,
       }));
     }
   }, [signatureData]);
@@ -64,22 +91,22 @@ export const useSuratJalanLogic = () => {
   useEffect(() => {
     // Parse query params if navigating from Sales Order
     const params = new URLSearchParams(location.search);
-    const so = params.get('so');
-    const pelanggan = params.get('pelanggan');
-    const gudang = params.get('gudang');
-    const tgl = params.get('tgl');
+    const so = params.get("so");
+    const pelanggan = params.get("pelanggan");
+    const gudang = params.get("gudang");
+    const tgl = params.get("tgl");
 
     if (so) {
-      setViewMode('form');
+      setViewMode("form");
     }
 
     if (so && salesOrders.length > 0 && items.length > 0) {
-      const selectedSO = salesOrders.find(s => s.no_so === so);
+      const selectedSO = salesOrders.find((s) => s.no_so === so);
       let soLines: any[] = [];
       if (selectedSO && selectedSO.lines) {
         soLines = selectedSO.lines.reduce((acc: any[], line: any) => {
           let previouslyShipped = 0;
-          dataList.forEach(sj => {
+          dataList.forEach((sj) => {
             if (sj.no_so === selectedSO.no_so && !sj.is_void) {
               sj.lines?.forEach((l: any) => {
                 if (String(l.item_id) === String(line.item_id)) {
@@ -88,18 +115,20 @@ export const useSuratJalanLogic = () => {
               });
             }
           });
-          
+
           const sisaKuantum = Number(line.kuantum) - previouslyShipped;
-          
+
           if (sisaKuantum > 0) {
-            const itemInfo = items.find(i => String(i.id) === String(line.item_id));
+            const itemInfo = items.find(
+              (i) => String(i.id) === String(line.item_id),
+            );
             acc.push({
               item_id: line.item_id,
-              kode: itemInfo?.kode || line.kode || '',
-              nama: itemInfo?.nama || line.nama || '',
-              satuan: itemInfo?.satuan || line.satuan || '',
+              kode: itemInfo?.kode || line.kode || "",
+              nama: itemInfo?.nama || line.nama || "",
+              satuan: itemInfo?.satuan || line.satuan || "",
               kuantum: sisaKuantum,
-              keterangan: line.keterangan || ''
+              keterangan: line.keterangan || "",
             });
           }
           return acc;
@@ -112,15 +141,17 @@ export const useSuratJalanLogic = () => {
           ...prev,
           no_sj: prev.no_sj || generatedSj,
           no_so: so,
-          pelanggan_id: pelanggan || (selectedSO?.pelanggan_id ? String(selectedSO.pelanggan_id) : ''),
-          alamat_kirim: selectedSO?.alamat_kirim || prev.alamat_kirim || '',
-          no_po: selectedSO?.no_po || prev.no_po || '',
-          gudang_id: gudang || prev.gudang_id || '',
+          pelanggan_id:
+            pelanggan ||
+            (selectedSO?.pelanggan_id ? String(selectedSO.pelanggan_id) : ""),
+          alamat_kirim: selectedSO?.alamat_kirim || prev.alamat_kirim || "",
+          no_po: selectedSO?.no_po || prev.no_po || "",
+          gudang_id: gudang || prev.gudang_id || "",
           tanggal: tgl || prev.tanggal,
-          lines: soLines.length > 0 ? soLines : prev.lines
+          lines: soLines.length > 0 ? soLines : prev.lines,
         }));
       };
-      
+
       fetchAutoNo();
     }
   }, [location.search, salesOrders, items, dataList]);
@@ -132,36 +163,48 @@ export const useSuratJalanLogic = () => {
         setupApi.getGudang(),
         setupApi.getItem(),
         salesOrderApi.getAll(),
-        getSuratJalan()
+        getSuratJalan(),
       ]);
       setPelanggans(p || []);
       setGudangs(g || []);
       setItems(i || []);
       setSalesOrders(so || []);
       setDataList(sjData || []);
-      
+
       const defGudang = (g || []).find((x: any) => x.is_default);
       if (defGudang && !form.gudang_id && !form.no_so) {
         setForm((prev: any) => ({ ...prev, gudang_id: String(defGudang.id) }));
       }
     } catch (e) {
-      toast.error('Gagal mengambil data referensi');
+      toast.error("Gagal mengambil data referensi");
     }
   };
 
-  const handlePelangganChange = (targetForm: any, setTargetForm: any, val: string) => {
-    const p = pelanggans.find(x => String(x.id) === val);
-    setTargetForm({ ...targetForm, pelanggan_id: val, alamat_kirim: p?.alamat_kirim || p?.alamat || '' });
+  const handlePelangganChange = (
+    targetForm: any,
+    setTargetForm: any,
+    val: string,
+  ) => {
+    const p = pelanggans.find((x) => String(x.id) === val);
+    setTargetForm({
+      ...targetForm,
+      pelanggan_id: val,
+      alamat_kirim: p?.alamat_kirim || p?.alamat || "",
+    });
   };
 
-  const handleSOChange = async (targetForm: any, setTargetForm: any, val: string) => {
-    const so = salesOrders.find(x => x.no_so === val);
+  const handleSOChange = async (
+    targetForm: any,
+    setTargetForm: any,
+    val: string,
+  ) => {
+    const so = salesOrders.find((x) => x.no_so === val);
     if (so) {
       let soLines: any[] = [];
       if (so.lines) {
         soLines = so.lines.reduce((acc: any[], line: any) => {
           let previouslyShipped = 0;
-          dataList.forEach(sj => {
+          dataList.forEach((sj) => {
             if (sj.no_so === so.no_so && !sj.is_void) {
               sj.lines?.forEach((l: any) => {
                 if (String(l.item_id) === String(line.item_id)) {
@@ -170,18 +213,20 @@ export const useSuratJalanLogic = () => {
               });
             }
           });
-          
+
           const sisaKuantum = Number(line.kuantum) - previouslyShipped;
-          
+
           if (sisaKuantum > 0) {
-            const itemInfo = items.find(i => String(i.id) === String(line.item_id));
+            const itemInfo = items.find(
+              (i) => String(i.id) === String(line.item_id),
+            );
             acc.push({
               item_id: line.item_id,
-              kode: itemInfo?.kode || line.kode || '',
-              nama: itemInfo?.nama || line.nama || '',
-              satuan: itemInfo?.satuan || line.satuan || '',
+              kode: itemInfo?.kode || line.kode || "",
+              nama: itemInfo?.nama || line.nama || "",
+              satuan: itemInfo?.satuan || line.satuan || "",
               kuantum: sisaKuantum,
-              keterangan: line.keterangan || ''
+              keterangan: line.keterangan || "",
             });
           }
           return acc;
@@ -193,10 +238,10 @@ export const useSuratJalanLogic = () => {
         ...targetForm,
         no_so: val,
         no_sj: targetForm.no_sj || generatedSj,
-        pelanggan_id: String(so.pelanggan_id || ''),
-        alamat_kirim: so.alamat_kirim || '',
-        no_po: so.no_po || '',
-        lines: soLines.length > 0 ? soLines : targetForm.lines
+        pelanggan_id: String(so.pelanggan_id || ""),
+        alamat_kirim: so.alamat_kirim || "",
+        no_po: so.no_po || "",
+        lines: soLines.length > 0 ? soLines : targetForm.lines,
       });
     } else {
       setTargetForm({ ...targetForm, no_so: val });
@@ -205,21 +250,21 @@ export const useSuratJalanLogic = () => {
 
   const handleCreateSJ = () => {
     if (!modalForm.no_sj) {
-      toast.error('No. Surat Jalan harus diisi!');
+      toast.error("No. Surat Jalan harus diisi!");
       return;
     }
     if (!modalForm.pelanggan_id) {
-      toast.error('Pelanggan harus dipilih!');
+      toast.error("Pelanggan harus dipilih!");
       return;
     }
 
     let initialLines: any[] = [];
     if (modalForm.no_so) {
-      const selectedSO = salesOrders.find(so => so.no_so === modalForm.no_so);
+      const selectedSO = salesOrders.find((so) => so.no_so === modalForm.no_so);
       if (selectedSO && selectedSO.lines) {
         initialLines = selectedSO.lines.reduce((acc: any[], line: any) => {
           let previouslyShipped = 0;
-          dataList.forEach(sj => {
+          dataList.forEach((sj) => {
             if (sj.no_so === selectedSO.no_so && !sj.is_void) {
               sj.lines?.forEach((l: any) => {
                 if (String(l.item_id) === String(line.item_id)) {
@@ -228,18 +273,20 @@ export const useSuratJalanLogic = () => {
               });
             }
           });
-          
+
           const sisaKuantum = Number(line.kuantum) - previouslyShipped;
-          
+
           if (sisaKuantum > 0) {
-            const itemInfo = items.find(i => String(i.id) === String(line.item_id));
+            const itemInfo = items.find(
+              (i) => String(i.id) === String(line.item_id),
+            );
             acc.push({
               item_id: line.item_id,
-              kode: itemInfo?.kode || line.kode || '',
-              nama: itemInfo?.nama || line.nama || '',
-              satuan: itemInfo?.satuan || line.satuan || '',
+              kode: itemInfo?.kode || line.kode || "",
+              nama: itemInfo?.nama || line.nama || "",
+              satuan: itemInfo?.satuan || line.satuan || "",
               kuantum: sisaKuantum,
-              keterangan: line.keterangan || ''
+              keterangan: line.keterangan || "",
             });
           }
           return acc;
@@ -251,28 +298,30 @@ export const useSuratJalanLogic = () => {
       ...modalForm,
       lines: initialLines,
       create_date: new Date().toISOString(),
-      create_uid_name: user?.name || 'Unknown'
+      create_uid_name: user?.name || "Unknown",
     });
 
     setShowNewSjModal(false);
-    toast.success('Header Surat Jalan berhasil dibuat. Silakan cek detail barang.');
+    toast.success(
+      "Header Surat Jalan berhasil dibuat. Silakan cek detail barang.",
+    );
   };
 
   const handleSaveAll = async () => {
     if (isSaving) return;
     if (!form.no_sj) {
-      toast.error('Harap isi header Surat Jalan terlebih dahulu!');
+      toast.error("Harap isi header Surat Jalan terlebih dahulu!");
       return;
     }
     if (!form.lines || form.lines.length === 0) {
-      toast.error('Surat Jalan tidak dapat disimpan tanpa barang pengiriman!');
+      toast.error("Surat Jalan tidak dapat disimpan tanpa barang pengiriman!");
       return;
     }
 
     setIsSaving(true);
     try {
-      const selectedSO = salesOrders.find(so => so.no_so === form.no_so);
-      
+      const selectedSO = salesOrders.find((so) => so.no_so === form.no_so);
+
       const payload = {
         ...form,
         tgl_sj: form.tanggal,
@@ -283,31 +332,47 @@ export const useSuratJalanLogic = () => {
           item_id: Number(l.item_id),
           satuan: l.satuan,
           kuantum: Number(l.kuantum),
-          keterangan: l.keterangan || ''
-        }))
+          keterangan: l.keterangan || "",
+        })),
       };
 
       await saveSuratJalan(payload);
-      
+
       const latestData = await getSuratJalan();
       setDataList(latestData || []);
-      
-      toast.success('Surat Jalan berhasil disimpan');
-      setViewMode('list');
+
+      toast.success("Surat Jalan berhasil disimpan");
+      setViewMode("list");
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || e.message || 'Gagal menyimpan Surat Jalan');
+      toast.error(
+        e?.response?.data?.message ||
+          e.message ||
+          "Gagal menyimpan Surat Jalan",
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
   const calculateTotalQty = () => {
-    return form.lines?.reduce((acc: number, curr: any) => acc + (Number(curr.kuantum) || 0), 0) || 0;
+    return (
+      form.lines?.reduce(
+        (acc: number, curr: any) => acc + (Number(curr.kuantum) || 0),
+        0,
+      ) || 0
+    );
   };
 
   const handleOpenAddLine = () => {
     setEditLineIndex(null);
-    setLineForm({ item_id: null, kode: '', nama: '', satuan: '', kuantum: 1, keterangan: '' });
+    setLineForm({
+      item_id: null,
+      kode: "",
+      nama: "",
+      satuan: "",
+      kuantum: 1,
+      keterangan: "",
+    });
     setIsLineModalOpen(true);
   };
 
@@ -319,23 +384,25 @@ export const useSuratJalanLogic = () => {
 
   const handleSaveLine = () => {
     if (!lineForm.item_id) {
-      toast.error('Item harus dipilih!');
+      toast.error("Item harus dipilih!");
       return;
     }
     if ((lineForm.kuantum || 0) <= 0) {
-      toast.error('Kuantitas tidak boleh kurang dari atau sama dengan 0');
+      toast.error("Kuantitas tidak boleh kurang dari atau sama dengan 0");
       return;
     }
 
     // Validasi Over-delivery terhadap Sales Order
     if (form.no_so) {
-      const selectedSO = salesOrders.find(s => s.no_so === form.no_so);
+      const selectedSO = salesOrders.find((s) => s.no_so === form.no_so);
       if (selectedSO && selectedSO.lines) {
-        const soLine = selectedSO.lines.find((l: any) => String(l.item_id) === String(lineForm.item_id));
+        const soLine = selectedSO.lines.find(
+          (l: any) => String(l.item_id) === String(lineForm.item_id),
+        );
         if (soLine) {
           // Hitung qty yang sudah dikirim di SJ lain
           let previouslyShipped = 0;
-          dataList.forEach(sj => {
+          dataList.forEach((sj) => {
             if (sj.no_so === form.no_so && sj.no_sj !== form.no_sj) {
               sj.lines?.forEach((l: any) => {
                 if (String(l.item_id) === String(lineForm.item_id)) {
@@ -348,15 +415,21 @@ export const useSuratJalanLogic = () => {
           // Hitung qty di form SJ yang sedang aktif (baris lain dengan item sama)
           let shippedInCurrentForm = 0;
           (form.lines || []).forEach((l: any, idx: number) => {
-            if (idx !== editLineIndex && String(l.item_id) === String(lineForm.item_id)) {
+            if (
+              idx !== editLineIndex &&
+              String(l.item_id) === String(lineForm.item_id)
+            ) {
               shippedInCurrentForm += Number(l.kuantum) || 0;
             }
           });
 
-          const maxAllowed = Number(soLine.kuantum) - previouslyShipped - shippedInCurrentForm;
-          
+          const maxAllowed =
+            Number(soLine.kuantum) - previouslyShipped - shippedInCurrentForm;
+
           if (Number(lineForm.kuantum) > maxAllowed) {
-            toast.error(`Over-delivery! Kuantum melebihi Sisa Order. Maksimal pengiriman: ${maxAllowed} unit.`);
+            toast.error(
+              `Over-delivery! Kuantum melebihi Sisa Order. Maksimal pengiriman: ${maxAllowed} unit.`,
+            );
             return;
           }
         }
@@ -380,28 +453,62 @@ export const useSuratJalanLogic = () => {
   };
 
   const handleDeleteSJ = async (no_sj: string) => {
-    if (await confirm('Yakin ingin menghapus Surat Jalan ini?')) {
-      const sj = dataList.find(s => s.no_sj === no_sj);
+    if (await confirm("Yakin ingin menghapus Surat Jalan ini?")) {
+      const sj = dataList.find((s) => s.no_sj === no_sj);
       if (!sj) return;
       try {
         await deleteSuratJalan(sj.id);
         const newList = await getSuratJalan();
         setDataList(newList || []);
-        toast.success('Surat Jalan berhasil dihapus');
+        toast.success("Surat Jalan berhasil dihapus");
       } catch (e: any) {
-        toast.error(e?.response?.data?.message || 'Gagal menghapus Surat Jalan');
+        toast.error(
+          e?.response?.data?.message || "Gagal menghapus Surat Jalan",
+        );
       }
     }
   };
 
   return {
-    navigate, user, pelanggans, gudangs, items, salesOrders, periode, setPeriode,
-    showNewSjModal, setShowNewSjModal, showInvoiceModal, setShowInvoiceModal,
-    activeTab, setActiveTab, isLineModalOpen, setIsLineModalOpen, editLineIndex, setEditLineIndex,
-    lineForm, setLineForm, viewMode, setViewMode, dataList, setDataList,
-    emptyForm, form, setForm, modalForm, setModalForm,
-    handlePelangganChange, handleSOChange, handleCreateSJ, handleSaveAll,
-    calculateTotalQty, handleOpenAddLine, handleOpenEditLine, handleSaveLine, removeLine, handleDeleteSJ,
-    isSaving
+    navigate,
+    user,
+    pelanggans,
+    gudangs,
+    items,
+    salesOrders,
+    periode,
+    setPeriode,
+    showNewSjModal,
+    setShowNewSjModal,
+    showInvoiceModal,
+    setShowInvoiceModal,
+    activeTab,
+    setActiveTab,
+    isLineModalOpen,
+    setIsLineModalOpen,
+    editLineIndex,
+    setEditLineIndex,
+    lineForm,
+    setLineForm,
+    viewMode,
+    setViewMode,
+    dataList,
+    setDataList,
+    emptyForm,
+    form,
+    setForm,
+    modalForm,
+    setModalForm,
+    handlePelangganChange,
+    handleSOChange,
+    handleCreateSJ,
+    handleSaveAll,
+    calculateTotalQty,
+    handleOpenAddLine,
+    handleOpenEditLine,
+    handleSaveLine,
+    removeLine,
+    handleDeleteSJ,
+    isSaving,
   };
 };

@@ -1,14 +1,14 @@
-import React from 'react';
-import { useNotaReturPembelianLogic } from './useNotaReturPembelianLogic';
-import { NotaReturPembelianListView } from './NotaReturPembelianListView';
-import { NotaReturPembelianFormView } from './NotaReturPembelianFormView';
+import React from "react";
+import { useNotaReturPembelianLogic } from "./useNotaReturPembelianLogic";
+import { NotaReturPembelianListView } from "./NotaReturPembelianListView";
+import { NotaReturPembelianFormView } from "./NotaReturPembelianFormView";
 
 const NotaReturPembelian: React.FC = () => {
   const logic = useNotaReturPembelianLogic();
 
   return (
     <>
-      {logic.viewMode === 'list' ? (
+      {logic.viewMode === "list" ? (
         <NotaReturPembelianListView
           dataList={logic.dataList}
           loadingData={logic.loadingList}
@@ -31,9 +31,9 @@ const NotaReturPembelian: React.FC = () => {
           ppnAmount={logic.ppnAmount}
           onSave={logic.handleSave}
           onDelete={() => {
-             if (logic.form.id) logic.handleDeleteById(logic.form.id);
+            if (logic.form.id) logic.handleDeleteById(logic.form.id);
           }}
-          onClose={() => logic.setViewMode('list')}
+          onClose={() => logic.setViewMode("list")}
           onNew={logic.handleNewClick}
           handleSupplierChange={logic.handleSupplierChange}
           addLine={logic.addLine}

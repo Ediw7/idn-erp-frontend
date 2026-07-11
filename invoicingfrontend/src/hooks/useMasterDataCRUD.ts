@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
-import { useConfirm } from '../contexts/ConfirmContext';
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { useConfirm } from "../contexts/ConfirmContext";
 
 interface MasterDataCRUDProps<T> {
   fetchApi: () => Promise<T[]>;
@@ -15,12 +15,12 @@ export function useMasterDataCRUD<T extends { id?: number }>({
   saveApi,
   deleteApi,
   initialForm,
-  validate
+  validate,
 }: MasterDataCRUDProps<T>) {
   const confirm = useConfirm();
   const [list, setList] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<T>(initialForm);
 
@@ -34,7 +34,7 @@ export function useMasterDataCRUD<T extends { id?: number }>({
       const data = await fetchApi();
       setList(data || []);
     } catch (error) {
-      toast.error('Gagal memuat data dari server.');
+      toast.error("Gagal memuat data dari server.");
     } finally {
       setIsLoading(false);
     }
@@ -61,24 +61,36 @@ export function useMasterDataCRUD<T extends { id?: number }>({
 
     try {
       await saveApi(editForm);
-      toast.success(editForm.id ? 'Data berhasil diubah!' : 'Data berhasil ditambahkan!');
+      toast.success(
+        editForm.id ? "Data berhasil diubah!" : "Data berhasil ditambahkan!",
+      );
       setIsModalOpen(false);
       fetchData();
     } catch (error: any) {
-      toast.error(error?.message || error?.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.');
+      toast.error(
+        error?.message ||
+          error?.response?.data?.message ||
+          "Terjadi kesalahan saat menyimpan data.",
+      );
     }
   };
 
   const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm('Apakah Anda yakin ingin menghapus data ini?');
+    const isConfirmed = await confirm(
+      "Apakah Anda yakin ingin menghapus data ini?",
+    );
     if (!isConfirmed) return;
-    
+
     try {
       await deleteApi(id);
-      toast.success('Data berhasil dihapus!');
+      toast.success("Data berhasil dihapus!");
       fetchData();
     } catch (error: any) {
-      toast.error(error?.message || error?.response?.data?.message || 'Terjadi kesalahan saat menghapus data.');
+      toast.error(
+        error?.message ||
+          error?.response?.data?.message ||
+          "Terjadi kesalahan saat menghapus data.",
+      );
     }
   };
 
@@ -94,6 +106,6 @@ export function useMasterDataCRUD<T extends { id?: number }>({
     handleEdit,
     handleSave,
     handleDelete,
-    fetchData
+    fetchData,
   };
 }

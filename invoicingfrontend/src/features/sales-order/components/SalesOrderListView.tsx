@@ -1,6 +1,6 @@
-import React from 'react';
-import { FilePlus } from 'lucide-react';
-import { SalesOrderList } from './SalesOrderList';
+import React from "react";
+import { FilePlus } from "lucide-react";
+import { SalesOrderList } from "./SalesOrderList";
 
 interface SalesOrderListViewProps {
   dataList: any[];
@@ -17,12 +17,21 @@ interface SalesOrderListViewProps {
 }
 
 export const SalesOrderListView: React.FC<SalesOrderListViewProps> = ({
-  dataList, loadingData, pelanggans, mataUangs, salesmans, wajibPpnbm,
-  periode, setPeriode, onEdit, onDelete, onOpenForm
+  dataList,
+  loadingData,
+  pelanggans,
+  mataUangs,
+  salesmans,
+  wajibPpnbm,
+  periode,
+  setPeriode,
+  onEdit,
+  onDelete,
+  onOpenForm,
 }) => {
-  const [searchPelanggan, setSearchPelanggan] = React.useState('');
+  const [searchPelanggan, setSearchPelanggan] = React.useState("");
 
-  const filteredData = dataList.filter(item => {
+  const filteredData = dataList.filter((item) => {
     if (!searchPelanggan) return true;
     return String(item.pelanggan_id) === searchPelanggan;
   });
@@ -35,9 +44,11 @@ export const SalesOrderListView: React.FC<SalesOrderListViewProps> = ({
           <div className="flex items-center gap-4 mt-1.5">
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-300 font-medium">Bulan:</span>
-              <select 
-                value={periode.split('-')[1]} 
-                onChange={e => setPeriode(`${periode.split('-')[0]}-${e.target.value}`)}
+              <select
+                value={periode.split("-")[1]}
+                onChange={(e) =>
+                  setPeriode(`${periode.split("-")[0]}-${e.target.value}`)
+                }
                 className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
               >
                 <option value="01">Januari</option>
@@ -53,10 +64,14 @@ export const SalesOrderListView: React.FC<SalesOrderListViewProps> = ({
                 <option value="11">November</option>
                 <option value="12">Desember</option>
               </select>
-              <span className="text-xs text-slate-300 font-medium ml-1">Tahun:</span>
-              <select 
-                value={periode.split('-')[0]} 
-                onChange={e => setPeriode(`${e.target.value}-${periode.split('-')[1]}`)}
+              <span className="text-xs text-slate-300 font-medium ml-1">
+                Tahun:
+              </span>
+              <select
+                value={periode.split("-")[0]}
+                onChange={(e) =>
+                  setPeriode(`${e.target.value}-${periode.split("-")[1]}`)
+                }
                 className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
               >
                 <option value="2026">2026</option>
@@ -66,22 +81,29 @@ export const SalesOrderListView: React.FC<SalesOrderListViewProps> = ({
             </div>
             <div className="h-4 w-px bg-slate-600"></div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium">Pelanggan:</span>
-              <select 
+              <span className="text-xs text-slate-300 font-medium">
+                Pelanggan:
+              </span>
+              <select
                 value={searchPelanggan}
-                onChange={e => setSearchPelanggan(e.target.value)}
+                onChange={(e) => setSearchPelanggan(e.target.value)}
                 className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-48"
               >
                 <option value="">-- Semua Pelanggan --</option>
-                {pelanggans.map(p => (
-                  <option key={p.id} value={p.id}>{p.nama}</option>
+                {pelanggans.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
         </div>
-        <button onClick={onOpenForm} className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm">
-           <FilePlus size={14} /> + BUKA FORM
+        <button
+          onClick={onOpenForm}
+          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
+        >
+          <FilePlus size={14} /> + BUKA FORM
         </button>
       </div>
 

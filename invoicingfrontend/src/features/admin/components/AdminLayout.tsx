@@ -1,7 +1,14 @@
-import React from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth/contexts/AuthContext';
-import { LogOut, Users, LayoutDashboard, Settings, UserPlus, Shield } from 'lucide-react';
+import React from "react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/contexts/AuthContext";
+import {
+  LogOut,
+  Users,
+  LayoutDashboard,
+  Settings,
+  UserPlus,
+  Shield,
+} from "lucide-react";
 
 const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -10,17 +17,37 @@ const AdminLayout: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const adminMenu = [
-    { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={18} /> },
+    { label: "Dashboard", path: "/admin", icon: <LayoutDashboard size={18} /> },
 
-    { label: 'Setup User', path: '/admin/setup-user', icon: <UserPlus size={18} /> },
-    { label: 'Setup User Permission', path: '/admin/setup-permission', icon: <Shield size={18} /> },
-    { label: 'Database Connection', path: '/admin/database', icon: <Settings size={18} /> },
-    { label: 'Backup Data', path: '/admin/backup', icon: <Settings size={18} /> },
-    { label: 'Restore Data', path: '/admin/restore', icon: <Settings size={18} /> },
+    {
+      label: "Setup User",
+      path: "/admin/setup-user",
+      icon: <UserPlus size={18} />,
+    },
+    {
+      label: "Setup User Permission",
+      path: "/admin/setup-permission",
+      icon: <Shield size={18} />,
+    },
+    {
+      label: "Database Connection",
+      path: "/admin/database",
+      icon: <Settings size={18} />,
+    },
+    {
+      label: "Backup Data",
+      path: "/admin/backup",
+      icon: <Settings size={18} />,
+    },
+    {
+      label: "Restore Data",
+      path: "/admin/restore",
+      icon: <Settings size={18} />,
+    },
   ];
 
   return (
@@ -32,11 +59,13 @@ const AdminLayout: React.FC = () => {
             <Settings size={20} />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-wide text-white">ADMIN</h1>
+            <h1 className="text-xl font-bold tracking-wide text-white">
+              ADMIN
+            </h1>
             <p className="text-xs text-red-400">EDI Accounting System</p>
           </div>
         </div>
-        
+
         <nav className="flex-1 overflow-y-auto py-4 custom-scrollbar">
           <ul className="space-y-1">
             <li className="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -44,9 +73,9 @@ const AdminLayout: React.FC = () => {
             </li>
             {adminMenu.map((item, idx) => (
               <li key={idx}>
-                <Link 
+                <Link
                   to={item.path}
-                  className={`flex items-center gap-3 px-4 py-3 text-sm hover:bg-slate-800 transition-colors ${location.pathname === item.path || (item.path === '/admin' && location.pathname === '/admin/') ? 'bg-slate-800 border-l-4 border-red-500 font-medium text-white' : 'border-l-4 border-transparent text-slate-300 hover:text-white'}`}
+                  className={`flex items-center gap-3 px-4 py-3 text-sm hover:bg-slate-800 transition-colors ${location.pathname === item.path || (item.path === "/admin" && location.pathname === "/admin/") ? "bg-slate-800 border-l-4 border-red-500 font-medium text-white" : "border-l-4 border-transparent text-slate-300 hover:text-white"}`}
                 >
                   {item.icon}
                   {item.label}
@@ -55,7 +84,6 @@ const AdminLayout: React.FC = () => {
             ))}
           </ul>
         </nav>
-
       </aside>
 
       {/* Main Content Area */}
@@ -63,15 +91,19 @@ const AdminLayout: React.FC = () => {
         {/* Top Header */}
         <header className="h-14 bg-white shadow-sm border-b px-6 flex items-center justify-between z-0">
           <h2 className="text-lg font-semibold text-slate-800 capitalize">
-            {location.pathname === '/admin' ? 'Admin Dashboard' : location.pathname.split('/').pop()?.replace(/-/g, ' ')}
+            {location.pathname === "/admin"
+              ? "Admin Dashboard"
+              : location.pathname.split("/").pop()?.replace(/-/g, " ")}
           </h2>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-semibold text-slate-700">{user?.name || 'Administrator'}</p>
+              <p className="text-sm font-semibold text-slate-700">
+                {user?.name || "Administrator"}
+              </p>
               <p className="text-[11px] text-red-600 font-bold">SYSTEM ADMIN</p>
             </div>
             <div className="h-6 w-px bg-slate-300 mx-1"></div>
-            <button 
+            <button
               onClick={handleLogout}
               className="text-slate-500 hover:text-red-600 transition-colors flex items-center gap-1 text-xs font-semibold"
               title="Logout"

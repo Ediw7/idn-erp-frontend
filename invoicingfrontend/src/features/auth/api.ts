@@ -1,4 +1,4 @@
-import axiosClient from '../../lib/axiosClient';
+import axiosClient from "../../lib/axiosClient";
 
 // Define strict TypeScript interfaces for input and output
 export interface LoginCredentials {
@@ -61,7 +61,10 @@ export const authApi = {
    */
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     // We expect a LoginResponse type back from Odoo's json.dumps()
-    const response = await axiosClient.post<LoginResponse>('/api/auth/login', credentials);
+    const response = await axiosClient.post<LoginResponse>(
+      "/api/auth/login",
+      credentials,
+    );
     return response.data;
   },
 
@@ -69,24 +72,29 @@ export const authApi = {
    * Log the user out from the Odoo backend, invalidating the session.
    */
   logout: async (): Promise<LogoutResponse> => {
-    const response = await axiosClient.post<LogoutResponse>('/api/auth/logout');
+    const response = await axiosClient.post<LogoutResponse>("/api/auth/logout");
     return response.data;
   },
 
-  register: async (credentials: RegisterCredentials): Promise<{message?: string; uid?: number; error?: string}> => {
-    const response = await axiosClient.post('/api/auth/register', credentials);
+  register: async (
+    credentials: RegisterCredentials,
+  ): Promise<{ message?: string; uid?: number; error?: string }> => {
+    const response = await axiosClient.post("/api/auth/register", credentials);
     return response.data;
   },
 
   getUsers: async (): Promise<UserData[]> => {
-    const response = await axiosClient.get<UsersResponse>('/api/auth/users');
-    if (response.data.status === 'success') {
+    const response = await axiosClient.get<UsersResponse>("/api/auth/users");
+    if (response.data.status === "success") {
       return response.data.data || [];
     }
-    throw new Error(response.data.error || 'Failed to fetch users');
+    throw new Error(response.data.error || "Failed to fetch users");
   },
 
-  toggleUser: async (id: number): Promise<{message?: string; error?: string}> => {
-    const response = await axiosClient.post('/api/auth/users/toggle', { id });
+  toggleUser: async (
+    id: number,
+  ): Promise<{ message?: string; error?: string }> => {
+    const response = await axiosClient.post("/api/auth/users/toggle", { id });
     return response.data;
-  } };
+  },
+};
