@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Printer } from 'lucide-react';
 import { setupApi } from '../../setup/api';
 import { salesOrderApi } from '../../sales-order/api';
-import { getSuratJalan, getInvoices, getPembayaran as getPembayaranTrx } from '../../transactionsApi';
+import { getSuratJalan, getInvoices, getPembayaran as getPembayaranTrx, getKwitansi } from '../../transactionsApi';
 import { useAuth } from '../../auth/contexts/AuthContext';
 
 interface CompanyProfile {
@@ -35,7 +35,7 @@ const PreviewLaporan: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const type = params.get('reportType') || '';
-    const targetNo = params.get('no_sj') || params.get('no_so') || params.get('no_invoice') || params.get('no_pembayaran') || '';
+    const targetNo = params.get('no_sj') || params.get('no_so') || params.get('no_invoice') || params.get('no_pembayaran') || params.get('kwitansi_number') || '';
 
     let title = 'LAPORAN';
     let targetFormulir = '';
@@ -43,13 +43,14 @@ const PreviewLaporan: React.FC = () => {
     if (type.startsWith('sj')) { title = 'SURAT JALAN'; targetFormulir = 'Surat Jalan'; }
     if (type.startsWith('so')) { title = 'SALES ORDER'; targetFormulir = 'Sales Order'; }
     if (type.startsWith('inv')) { title = 'INVOICE'; targetFormulir = 'Invoice'; }
+    if (params.get('reportName')?.includes('Kwitansi') || targetNo.startsWith('KT/')) { title = 'KWITANSI'; targetFormulir = 'Kwitansi'; }
     setReportTitle(title);
     setReportType(targetFormulir);
     setDocNumber(targetNo || '-');
 
     const fetchData = async () => {
       try {
-        const [perusahaan, preferensi, soData, sjData, invData, pelanggans, items, tandaTanganData, pembayarans, salesmans, pembayaranTrxData] = await Promise.all([
+        const [perusahaan, preferensi, soData, sjData, invData, pelanggans, items, tandaTanganData, pembayarans, salesmans, pembayaranTrxData, kwitansiData] = await Promise.all([
           setupApi.getPerusahaan().catch(() => ({}) as any),
           setupApi.getPreferensi().catch(() => ({}) as any),
           salesOrderApi.getAll().catch(() => [] as any[]),
@@ -60,7 +61,8 @@ const PreviewLaporan: React.FC = () => {
           setupApi.getTandaTangan().catch(() => [] as any[]),
           setupApi.getPembayaran().catch(() => [] as any[]),
           setupApi.getSalesman().catch(() => [] as any[]),
-          getPembayaranTrx().catch(() => [] as any[])
+          getPembayaranTrx().catch(() => [] as any[]),
+          getKwitansi().catch(() => [] as any[])
         ]);
 
         setCompany({
@@ -202,6 +204,25 @@ const PreviewLaporan: React.FC = () => {
             mappedLines = tempLines;
           }
         }
+        else if (targetFormulir === 'Kwitansi') {
+          const k = kwitansiData.find((x:any) => x.no_kwitansi === targetNo);
+          if (k) {
+            setDocDate(k.tgl_kwitansi);
+            p = pelanggans.find((x:any) => String(x.id) === String(k.pembeli_id));
+            setMeta({
+              jumlah: k.jumlah || 0,
+              terbilang: k.terbilang || '',
+              untuk_pembayaran: k.untuk_pembayaran || '',
+              keterangan_footer: k.keterangan_footer || '',
+              mata_uang: k.mata_uang || 'IDR',
+              no_invoice: k.no_invoice || '',
+              alamat: k.alamat || ''
+            });
+            if (k.penandatangan) {
+              setSignature(prev => prev ? ({ ...prev, nama: k.penandatangan, jabatan: k.jabatan || prev.jabatan }) : ({ nama: k.penandatangan, jabatan: k.jabatan || '', ttd_image: '' }));
+            }
+          }
+        }
 
         if (p) {
           setCustomerName(p.nama);
@@ -298,167 +319,209 @@ const PreviewLaporan: React.FC = () => {
             </div>
           </div>
 
-          {/* Table */}
-          <div className="flex-1 mb-8">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-slate-100 border-y border-slate-300">
-                  <th className="py-3 px-3 text-left w-12 font-bold text-slate-700">No</th>
-                  <th className="py-3 px-3 text-left w-24 font-bold text-slate-700">Kode</th>
-                  <th className="py-3 px-3 text-left font-bold text-slate-700">Deskripsi Barang</th>
-                  <th className="py-3 px-3 text-center w-20 font-bold text-slate-700">Satuan</th>
-                  <th className="py-3 px-3 text-center w-20 font-bold text-slate-700">Qty</th>
-                  {isFinancial && (
-                    <>
-                      <th className="py-3 px-3 text-right w-28 font-bold text-slate-700">Harga ({meta.mata_uang || 'IDR'})</th>
-                      <th className="py-3 px-3 text-right w-20 font-bold text-slate-700">Disc</th>
-                      <th className="py-3 px-3 text-right w-32 font-bold text-slate-700">Total</th>
-                    </>
-                  )}
-                  {!isFinancial && (
-                    <th className="py-3 px-3 text-left w-48 font-bold text-slate-700">Keterangan</th>
-                  )}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {lines.length > 0 ? (() => {
-                  let itemIndex = 0;
-                  return lines.map((l, i) => {
-                    const base = (l.kuantum || 0) * (l.harga_satuan || 0);
-                    const disc = (base * (l.disc_persen || 0) / 100) + (l.disc_harga || 0);
-                    const jumlah = base - disc;
+          {/* Main Content Area */}
+          {reportType === 'Kwitansi' ? (
+            <div className="flex-1 mb-8">
+              <div className="bg-white border-2 border-slate-800 rounded-lg p-8 shadow-sm relative">
+                {/* Watermark / Logo could go here */}
+                <table className="w-full text-base">
+                  <tbody>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-5 w-48 font-bold text-slate-700 align-top uppercase tracking-wider text-sm">Telah Terima Dari</td>
+                      <td className="py-5 w-6 align-top font-bold text-slate-400">:</td>
+                      <td className="py-5 text-slate-900 font-bold text-lg">{customerName}</td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-5 font-bold text-slate-700 align-top uppercase tracking-wider text-sm">Uang Sebesar</td>
+                      <td className="py-5 align-top font-bold text-slate-400">:</td>
+                      <td className="py-5 font-mono font-black text-2xl text-blue-900 bg-blue-50/50 px-4 rounded-md inline-block mt-2">
+                        {meta.mata_uang || 'IDR'} {fmt(meta.jumlah)}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-slate-100">
+                      <td className="py-5 font-bold text-slate-700 align-top uppercase tracking-wider text-sm">Terbilang</td>
+                      <td className="py-5 align-top font-bold text-slate-400">:</td>
+                      <td className="py-5 italic text-slate-800 text-lg leading-relaxed bg-slate-50 p-4 rounded-md border border-slate-200 mt-2 block">
+                        "{meta.terbilang}"
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-5 font-bold text-slate-700 align-top uppercase tracking-wider text-sm">Untuk Pembayaran</td>
+                      <td className="py-5 align-top font-bold text-slate-400">:</td>
+                      <td className="py-5 text-slate-800 whitespace-pre-wrap text-base font-medium">{meta.untuk_pembayaran}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                
+                {meta.keterangan_footer && (
+                  <div className="mt-8 border-t border-slate-200 pt-4 text-xs font-mono text-slate-500 whitespace-pre-wrap">
+                    {meta.keterangan_footer}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 mb-8">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-slate-100 border-y border-slate-300">
+                    <th className="py-3 px-3 text-left w-12 font-bold text-slate-700">No</th>
+                    <th className="py-3 px-3 text-left w-24 font-bold text-slate-700">Kode</th>
+                    <th className="py-3 px-3 text-left font-bold text-slate-700">Deskripsi Barang</th>
+                    <th className="py-3 px-3 text-center w-20 font-bold text-slate-700">Satuan</th>
+                    <th className="py-3 px-3 text-center w-20 font-bold text-slate-700">Qty</th>
+                    {isFinancial && (
+                      <>
+                        <th className="py-3 px-3 text-right w-28 font-bold text-slate-700">Harga ({meta.mata_uang || 'IDR'})</th>
+                        <th className="py-3 px-3 text-right w-20 font-bold text-slate-700">Disc</th>
+                        <th className="py-3 px-3 text-right w-32 font-bold text-slate-700">Total</th>
+                      </>
+                    )}
+                    {!isFinancial && (
+                      <th className="py-3 px-3 text-left w-48 font-bold text-slate-700">Keterangan</th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {lines.length > 0 ? (() => {
+                    let itemIndex = 0;
+                    return lines.map((l, i) => {
+                      const base = (l.kuantum || 0) * (l.harga_satuan || 0);
+                      const disc = (base * (l.disc_persen || 0) / 100) + (l.disc_harga || 0);
+                      const jumlah = base - disc;
 
-                    if (l.keterangan === 'HEADER') {
-                      return (
-                        <tr key={i} className="bg-slate-100 border-y-2 border-slate-200">
-                          <td colSpan={isFinancial ? 8 : 6} className="py-2.5 px-3 font-bold text-slate-800 text-xs uppercase tracking-wide">
-                            {l.nama}
-                          </td>
-                        </tr>
-                      );
-                    }
+                      if (l.keterangan === 'HEADER') {
+                        return (
+                          <tr key={i} className="bg-slate-100 border-y-2 border-slate-200">
+                            <td colSpan={isFinancial ? 8 : 6} className="py-2.5 px-3 font-bold text-slate-800 text-xs uppercase tracking-wide">
+                              {l.nama}
+                            </td>
+                          </tr>
+                        );
+                      }
 
-                    if (l.keterangan === 'PAYMENT') {
+                      if (l.keterangan === 'PAYMENT') {
+                        return (
+                          <tr key={i} className="bg-emerald-50/50 border-b-2 border-emerald-100 group">
+                            <td colSpan={5} className="py-3 px-3 text-right font-bold text-emerald-800 text-xs uppercase tracking-wide">
+                              {l.nama}
+                            </td>
+                            {isFinancial && (
+                              <>
+                                <td className="py-3 px-3 text-right font-mono text-emerald-700 text-xs font-semibold">{fmt(l.harga_satuan)}</td>
+                                <td className="py-3 px-3 text-right text-emerald-600 text-xs">{l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
+                                <td className="py-3 px-3 text-right font-mono font-bold text-emerald-900 text-xs bg-emerald-100/50">{fmt(jumlah)}</td>
+                              </>
+                            )}
+                            {!isFinancial && (
+                              <td className="py-3 px-3 text-emerald-600 text-xs">{l.keterangan}</td>
+                            )}
+                          </tr>
+                        );
+                      }
+
+                      itemIndex++;
+
                       return (
-                        <tr key={i} className="bg-emerald-50/50 border-b-2 border-emerald-100 group">
-                          <td colSpan={5} className="py-3 px-3 text-right font-bold text-emerald-800 text-xs uppercase tracking-wide">
-                            {l.nama}
-                          </td>
+                        <tr key={i} className="group">
+                          <td className="py-3 px-3 text-slate-500">{itemIndex}</td>
+                          <td className="py-3 px-3 font-mono text-slate-600 text-xs">{l.kode}</td>
+                          <td className="py-3 px-3 font-semibold text-slate-800">{l.nama}</td>
+                          <td className="py-3 px-3 text-center text-slate-600 text-xs">{l.satuan}</td>
+                          <td className="py-3 px-3 text-center font-bold text-slate-800 bg-slate-50/50 group-hover:bg-transparent">{l.kuantum}</td>
                           {isFinancial && (
                             <>
-                              <td className="py-3 px-3 text-right font-mono text-emerald-700 text-xs font-semibold">{fmt(l.harga_satuan)}</td>
-                              <td className="py-3 px-3 text-right text-emerald-600 text-xs">{l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
-                              <td className="py-3 px-3 text-right font-mono font-bold text-emerald-900 text-xs bg-emerald-100/50">{fmt(jumlah)}</td>
+                              <td className="py-3 px-3 text-right font-mono text-slate-700 text-xs">{fmt(l.harga_satuan)}</td>
+                              <td className="py-3 px-3 text-right text-slate-500 text-xs">{l.disc_persen > 0 ? `${l.disc_persen}%` : l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
+                              <td className="py-3 px-3 text-right font-mono font-semibold text-slate-800 text-xs">{fmt(jumlah)}</td>
                             </>
                           )}
                           {!isFinancial && (
-                            <td className="py-3 px-3 text-emerald-600 text-xs">{l.keterangan}</td>
+                            <td className="py-3 px-3 text-slate-600 text-xs">{l.keterangan}</td>
                           )}
                         </tr>
                       );
-                    }
-
-                    itemIndex++;
-
-                    return (
-                      <tr key={i} className="group">
-                        <td className="py-3 px-3 text-slate-500">{itemIndex}</td>
-                        <td className="py-3 px-3 font-mono text-slate-600 text-xs">{l.kode}</td>
-                        <td className="py-3 px-3 font-semibold text-slate-800">{l.nama}</td>
-                        <td className="py-3 px-3 text-center text-slate-600 text-xs">{l.satuan}</td>
-                        <td className="py-3 px-3 text-center font-bold text-slate-800 bg-slate-50/50 group-hover:bg-transparent">{l.kuantum}</td>
-                        {isFinancial && (
-                          <>
-                            <td className="py-3 px-3 text-right font-mono text-slate-700 text-xs">{fmt(l.harga_satuan)}</td>
-                            <td className="py-3 px-3 text-right text-slate-500 text-xs">{l.disc_persen > 0 ? `${l.disc_persen}%` : l.disc_harga > 0 ? fmt(l.disc_harga) : '-'}</td>
-                            <td className="py-3 px-3 text-right font-mono font-semibold text-slate-800 text-xs">{fmt(jumlah)}</td>
-                          </>
-                        )}
-                        {!isFinancial && (
-                          <td className="py-3 px-3 text-slate-600 text-xs">{l.keterangan}</td>
-                        )}
-                      </tr>
-                    );
-                  });
-                })() : (
-                  <tr>
-                    <td colSpan={isFinancial ? 8 : 6} className="py-12 text-center text-slate-400 italic">Tidak ada rincian barang.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-
-            {/* Financial Summary */}
-            {isFinancial && lines.length > 0 && (
-              <div className="mt-6 flex justify-end">
-                <div className="w-[320px] bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col gap-2 text-sm">
-                  {reportType === 'Pembayaran' ? (
-                    <>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-medium">Total Diterima</span>
-                        <span className="font-mono font-semibold text-emerald-700">{fmt(meta.jumlah_penerimaan)}</span>
-                      </div>
-                      {meta.total_potongan > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 font-medium">Total Potongan</span>
-                          <span className="font-mono text-red-600">-{fmt(meta.total_potongan)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between items-center border-t-2 border-slate-800 pt-3 mt-2">
-                        <span className="font-black text-slate-900 tracking-wider">NET DITERIMA</span>
-                        <span className="font-mono font-black text-blue-900 text-lg">{fmt((meta.jumlah_penerimaan || 0) - (meta.total_potongan || 0))}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-600 font-medium">Sub Total</span>
-                        <span className="font-mono font-semibold text-slate-800">{fmt(subtotal)}</span>
-                      </div>
-                      {meta.potongan_harga > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 font-medium">Potongan Harga</span>
-                          <span className="font-mono text-red-600">-{fmt(meta.potongan_harga)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-1">
-                        <span className="text-slate-700 font-bold">Dasar Pengenaan Pajak (DPP)</span>
-                        <span className="font-mono font-bold text-slate-800">{fmt(dpp)}</span>
-                      </div>
-                      {meta.ppn_persen > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 font-medium">PPN ({meta.ppn_persen}%)</span>
-                          <span className="font-mono text-slate-700">{fmt(ppnAmount)}</span>
-                        </div>
-                      )}
-                      {meta.pph_persen > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 font-medium">PPh 22 ({meta.pph_persen}%)</span>
-                          <span className="font-mono text-slate-700">{fmt(pphAmount)}</span>
-                        </div>
-                      )}
-                      {meta.ppnbm_persen > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 font-medium">PPnBM ({meta.ppnbm_persen}%)</span>
-                          <span className="font-mono text-slate-700">{fmt(ppnbmAmount)}</span>
-                        </div>
-                      )}
-                      {meta.ongkos_angkut > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 font-medium">Ongkos Angkut</span>
-                          <span className="font-mono text-slate-700">{fmt(meta.ongkos_angkut)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between items-center border-t-2 border-slate-800 pt-3 mt-2">
-                        <span className="font-black text-slate-900 tracking-wider">TOTAL TAGIHAN</span>
-                        <span className="font-mono font-black text-blue-900 text-lg">{fmt(totalAkhir)}</span>
-                      </div>
-                    </>
+                    });
+                  })() : (
+                    <tr>
+                      <td colSpan={isFinancial ? 8 : 6} className="py-12 text-center text-slate-400 italic">Tidak ada rincian barang.</td>
+                    </tr>
                   )}
+                </tbody>
+              </table>
+
+              {/* Financial Summary */}
+              {isFinancial && lines.length > 0 && (
+                <div className="mt-6 flex justify-end">
+                  <div className="w-[320px] bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col gap-2 text-sm">
+                    {reportType === 'Pembayaran' ? (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-600 font-medium">Total Diterima</span>
+                          <span className="font-mono font-semibold text-emerald-700">{fmt(meta.jumlah_penerimaan)}</span>
+                        </div>
+                        {meta.total_potongan > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">Total Potongan</span>
+                            <span className="font-mono text-red-600">-{fmt(meta.total_potongan)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-center border-t-2 border-slate-800 pt-3 mt-2">
+                          <span className="font-black text-slate-900 tracking-wider">NET DITERIMA</span>
+                          <span className="font-mono font-black text-blue-900 text-lg">{fmt((meta.jumlah_penerimaan || 0) - (meta.total_potongan || 0))}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-600 font-medium">Sub Total</span>
+                          <span className="font-mono font-semibold text-slate-800">{fmt(subtotal)}</span>
+                        </div>
+                        {meta.potongan_harga > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">Potongan Harga</span>
+                            <span className="font-mono text-red-600">-{fmt(meta.potongan_harga)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-1">
+                          <span className="text-slate-700 font-bold">Dasar Pengenaan Pajak (DPP)</span>
+                          <span className="font-mono font-bold text-slate-800">{fmt(dpp)}</span>
+                        </div>
+                        {meta.ppn_persen > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">PPN ({meta.ppn_persen}%)</span>
+                            <span className="font-mono text-slate-700">{fmt(ppnAmount)}</span>
+                          </div>
+                        )}
+                        {meta.pph_persen > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">PPh 22 ({meta.pph_persen}%)</span>
+                            <span className="font-mono text-slate-700">{fmt(pphAmount)}</span>
+                          </div>
+                        )}
+                        {meta.ppnbm_persen > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">PPnBM ({meta.ppnbm_persen}%)</span>
+                            <span className="font-mono text-slate-700">{fmt(ppnbmAmount)}</span>
+                          </div>
+                        )}
+                        {meta.ongkos_angkut > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-600 font-medium">Ongkos Angkut</span>
+                            <span className="font-mono text-slate-700">{fmt(meta.ongkos_angkut)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between items-center border-t-2 border-slate-800 pt-3 mt-2">
+                          <span className="font-black text-slate-900 tracking-wider">TOTAL TAGIHAN</span>
+                          <span className="font-mono font-black text-blue-900 text-lg">{fmt(totalAkhir)}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {meta.keterangan && (
             <div className="mb-8 bg-amber-50/50 border border-amber-200 p-4 rounded-lg">
@@ -472,64 +535,90 @@ const PreviewLaporan: React.FC = () => {
             {/* Dekorasi Garis Kaki */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-900 via-blue-600 to-transparent opacity-20"></div>
             
-            <div className="flex justify-between items-start text-sm text-slate-800">
-              <div className="flex flex-col items-center w-48 text-center">
-                <span className="font-semibold text-slate-600 mb-2">Dibuat Oleh,</span>
-                <div className="mt-20 w-full">
-                  <p className="font-bold underline underline-offset-4 decoration-slate-400 uppercase tracking-wide">
-                    {user?.name || 'Admin ERP'}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">{user?.is_admin ? 'Administrator' : 'Staff'}</p>
-                </div>
-              </div>
-
-              {reportType === 'Surat Jalan' && (
-                <div className="flex flex-col items-center w-48 text-center">
-                  <span className="font-semibold text-slate-600 mb-2">Pengemudi / Supir,</span>
-                  <div className="mt-20 w-full">
-                    <div className="w-full border-b-2 border-slate-300 pt-5 border-dashed"></div>
-                    <p className="text-xs text-slate-500 mt-2">Tanda Tangan & Nama</p>
+            {reportType === 'Kwitansi' ? (
+              <div className="flex justify-end items-start text-sm text-slate-800 mt-4 mr-12">
+                <div className="flex flex-col items-center w-64 text-center">
+                  <span className="font-semibold text-slate-600 mb-2">Yang Menerima,</span>
+                  <div className="mt-6 w-full flex flex-col items-center min-h-[70px]">
+                    {signature?.ttd_image ? (
+                      <img src={`data:image/png;base64,${signature.ttd_image}`} alt="Tanda Tangan" className="h-20 object-contain mb-2 opacity-90 mix-blend-multiply" />
+                    ) : (
+                      <div className="h-20" />
+                    )}
+                    
+                    {signature?.nama ? (
+                      <>
+                        <p className="font-bold underline underline-offset-4 decoration-slate-400 uppercase tracking-wide">
+                          {signature.nama}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">{signature.jabatan}</p>
+                      </>
+                    ) : (
+                      <div className="w-full border-b-2 border-slate-300 pt-5 border-dashed"></div>
+                    )}
                   </div>
                 </div>
-              )}
-
-              <div className="flex flex-col items-center w-48 text-center">
-                <span className="font-semibold text-slate-600 mb-2">Penerima / Pelanggan,</span>
-                <div className="mt-20 w-full">
-                  <div className="w-full border-b-2 border-slate-300 pt-5 border-dashed"></div>
-                  <p className="text-xs text-slate-500 mt-2">Tanda Tangan, Nama, & Cap</p>
-                </div>
               </div>
+            ) : (
+              <div className="flex justify-between items-start text-sm text-slate-800 mt-4">
+                <div className="flex flex-col items-center w-48 text-center">
+                  <span className="font-semibold text-slate-600 mb-2">Dibuat Oleh,</span>
+                  <div className="mt-20 w-full">
+                    <p className="font-bold underline underline-offset-4 decoration-slate-400 uppercase tracking-wide">
+                      {user?.name || 'Admin ERP'}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">{user?.is_admin ? 'Administrator' : 'Staff'}</p>
+                  </div>
+                </div>
 
-              <div className="flex flex-col items-center w-48 text-center">
-                <span className="font-semibold text-slate-600 mb-2">Disetujui Oleh,</span>
-                <div className="mt-6 w-full flex flex-col items-center min-h-[70px]">
-                  {signature?.ttd_image ? (
-                    <img src={`data:image/png;base64,${signature.ttd_image}`} alt="Tanda Tangan" className="h-20 object-contain mb-2 opacity-90 mix-blend-multiply" />
-                  ) : (
-                    <div className="h-20" />
-                  )}
-                  
-                  {signature ? (
-                    <>
-                      <p className="font-bold underline underline-offset-4 decoration-slate-400 uppercase tracking-wide">
-                        {signature.nama}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">{signature.jabatan}</p>
-                    </>
-                  ) : company.managerName ? (
-                    <>
-                      <p className="font-bold underline underline-offset-4 decoration-slate-400 uppercase tracking-wide">
-                        {company.managerName}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">Direktur / Manager</p>
-                    </>
-                  ) : (
+                {reportType === 'Surat Jalan' && (
+                  <div className="flex flex-col items-center w-48 text-center">
+                    <span className="font-semibold text-slate-600 mb-2">Pengemudi / Supir,</span>
+                    <div className="mt-20 w-full">
+                      <div className="w-full border-b-2 border-slate-300 pt-5 border-dashed"></div>
+                      <p className="text-xs text-slate-500 mt-2">Tanda Tangan & Nama</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-col items-center w-48 text-center">
+                  <span className="font-semibold text-slate-600 mb-2">Penerima / Pelanggan,</span>
+                  <div className="mt-20 w-full">
                     <div className="w-full border-b-2 border-slate-300 pt-5 border-dashed"></div>
-                  )}
+                    <p className="text-xs text-slate-500 mt-2">Tanda Tangan, Nama, & Cap</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center w-48 text-center">
+                  <span className="font-semibold text-slate-600 mb-2">Disetujui Oleh,</span>
+                  <div className="mt-6 w-full flex flex-col items-center min-h-[70px]">
+                    {signature?.ttd_image ? (
+                      <img src={`data:image/png;base64,${signature.ttd_image}`} alt="Tanda Tangan" className="h-20 object-contain mb-2 opacity-90 mix-blend-multiply" />
+                    ) : (
+                      <div className="h-20" />
+                    )}
+                    
+                    {signature ? (
+                      <>
+                        <p className="font-bold underline underline-offset-4 decoration-slate-400 uppercase tracking-wide">
+                          {signature.nama}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">{signature.jabatan}</p>
+                      </>
+                    ) : company.managerName ? (
+                      <>
+                        <p className="font-bold underline underline-offset-4 decoration-slate-400 uppercase tracking-wide">
+                          {company.managerName}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">Direktur / Manager</p>
+                      </>
+                    ) : (
+                      <div className="w-full border-b-2 border-slate-300 pt-5 border-dashed"></div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
         </div>
