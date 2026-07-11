@@ -207,7 +207,7 @@ export const useNotaReturPembelianLogic = () => {
         line.kode_barang = item.kode;
         line.nama_barang = item.nama;
         line.satuan = item.satuan || "Pcs";
-        line.harga_satuan = item.harga_beli || 0; // Using harga_beli for pembelian
+        line.harga_satuan = item.harga_jual_1 || 0; // Using harga_jual_1 for pembelian
       }
     }
 

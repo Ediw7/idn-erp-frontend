@@ -8,6 +8,7 @@ export interface LoginCredentials {
 }
 
 export interface UserProfile {
+  id?: number;
   name: string;
   email: string;
   is_admin?: boolean;

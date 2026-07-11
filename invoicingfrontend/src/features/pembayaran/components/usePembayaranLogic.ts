@@ -102,7 +102,6 @@ export const usePembayaranLogic = () => {
         ...form,
         pelanggan_id: id,
         alamat: p?.alamat_wp || p?.alamat || "",
-        alamat: p?.alamat_wp || p?.alamat || "",
         lines: [],
       });
     }

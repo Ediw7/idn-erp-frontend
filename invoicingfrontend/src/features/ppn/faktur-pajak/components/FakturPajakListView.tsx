@@ -45,6 +45,7 @@ export const FakturPajakListView: React.FC<ListViewProps> = ({
   onShowAll,
   onOpenForm,
   onEdit,
+  onDelete,
 }) => {
   return (
     <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">

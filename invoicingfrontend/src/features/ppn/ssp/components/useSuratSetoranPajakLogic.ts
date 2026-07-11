@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useConfirm } from "../../../../contexts/ConfirmContext";
 import { sspApi, SuratSetoranPajakData } from "../api";
-import { setupApi, PerusahaanData } from "../../../setup/api";
+import { setupApi, CompanyData } from "../../../setup/api";
 import toast from "react-hot-toast";
 
 export const useSuratSetoranPajakLogic = () => {
@@ -10,7 +10,7 @@ export const useSuratSetoranPajakLogic = () => {
   const [dataList, setDataList] = useState<SuratSetoranPajakData[]>([]);
   const [loadingList, setLoadingList] = useState(true);
 
-  const [perusahaan, setPerusahaan] = useState<PerusahaanData | null>(null);
+  const [perusahaan, setPerusahaan] = useState<CompanyData | null>(null);
 
   const emptyForm: SuratSetoranPajakData = {
     kpp: "",
@@ -48,11 +48,11 @@ export const useSuratSetoranPajakLogic = () => {
     try {
       const [listRes, pRes] = await Promise.all([
         sspApi.getAll().catch(() => []),
-        setupApi.getPerusahaan().catch(() => []),
+        setupApi.getPerusahaan().catch(() => null),
       ]);
       setDataList(listRes);
-      if (pRes.length > 0) {
-        setPerusahaan(pRes[0]);
+      if (pRes) {
+        setPerusahaan(pRes);
       }
     } catch (error) {
       console.error("Failed to fetch SSP data", error);
@@ -65,10 +65,10 @@ export const useSuratSetoranPajakLogic = () => {
   const handleNewClick = () => {
     const f = { ...emptyForm };
     if (perusahaan) {
-      f.nama_wp = perusahaan.nama || "";
+      f.nama_wp = perusahaan.name || "";
       f.npwp = perusahaan.npwp || "";
-      f.alamat = perusahaan.alamat || "";
-      f.kode_pos = perusahaan.kode_pos || "";
+      f.alamat = perusahaan.street || "";
+      f.kode_pos = perusahaan.zip || "";
     }
     setForm(f);
     setIsNew(true);
