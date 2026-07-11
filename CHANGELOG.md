@@ -1,3 +1,12 @@
+## [0.1.2](https://github.com/Ediw7/idn-erp-frontend/compare/v0.1.1...v0.1.2) (2026-07-11)
+
+
+### Bug Fixes
+
+* resolve typescript build errors after formatter update ([39d179b](https://github.com/Ediw7/idn-erp-frontend/commit/39d179b76b552de42fa26e51cf0a1bd2089202cc))
+
+
+
 ## [0.1.1](https://github.com/Ediw7/idn-erp-frontend/compare/v0.1.0...v0.1.1) (2026-07-11)
 
 
