@@ -26,8 +26,8 @@ jobs:
           build-args: |
             VITE_API_URL=${{ vars.VITE_API_URL }}
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/ediw7/idn-erp-frontend:latest
+            ghcr.io/ediw7/idn-erp-frontend:${{ github.sha }}
 
   deploy:
     needs: build-and-push
