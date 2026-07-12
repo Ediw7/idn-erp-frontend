@@ -5,7 +5,12 @@ import toast from "react-hot-toast";
 export const useHistoryHargaJualLogic = () => {
   const [dataList, setDataList] = useState<HistoryHargaJualData[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  // View mode switcher
+  const [viewMode, setViewMode] = useState<"list" | "form">("list");
+  const [selectedRecord, setSelectedRecord] = useState<HistoryHargaJualData | null>(null);
 
+  // Filters
   const [kodeBarang, setKodeBarang] = useState("");
   const [namaBarang, setNamaBarang] = useState("");
   const [namaPelanggan, setNamaPelanggan] = useState("");
@@ -14,8 +19,12 @@ export const useHistoryHargaJualLogic = () => {
   const [showItemModal, setShowItemModal] = useState(false);
 
   useEffect(() => {
-    handleFilter();
-  }, []);
+    const timer = setTimeout(() => {
+      handleFilter();
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [kodeBarang, namaBarang, namaPelanggan, limit]);
 
   const handleFilter = async () => {
     setLoading(true);
@@ -56,5 +65,9 @@ export const useHistoryHargaJualLogic = () => {
     setShowItemModal,
     handleFilter,
     handleShowAll,
+    viewMode,
+    setViewMode,
+    selectedRecord,
+    setSelectedRecord,
   };
 };
