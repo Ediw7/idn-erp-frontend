@@ -1,3 +1,13 @@
+# [0.2.0](https://github.com/Ediw7/idn-erp-frontend/compare/v0.1.2...v0.2.0) (2026-07-12)
+
+
+### Features
+
+* **history-harga:** replace limit with periode month year filter ([32663d3](https://github.com/Ediw7/idn-erp-frontend/commit/32663d38b9031674caa64393038356f71ae2015e))
+* **history-harga:** standardize UI to match sales order form pattern ([9694d1b](https://github.com/Ediw7/idn-erp-frontend/commit/9694d1b21700f16f7f37518e6892becffca37158))
+
+
+
 ## [0.1.2](https://github.com/Ediw7/idn-erp-frontend/compare/v0.1.1...v0.1.2) (2026-07-11)
 
 
