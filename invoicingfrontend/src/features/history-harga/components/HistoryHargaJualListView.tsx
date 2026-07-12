@@ -7,7 +7,9 @@ interface HistoryHargaJualListViewProps {
   logic: any;
 }
 
-export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> = ({ logic }) => {
+export const HistoryHargaJualListView: React.FC<
+  HistoryHargaJualListViewProps
+> = ({ logic }) => {
   // Modal states for Item Search
   const [searchModalKode, setSearchModalKode] = useState("");
   const [searchModalNama, setSearchModalNama] = useState("");
@@ -33,9 +35,15 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
   }, [logic.showItemModal]);
 
   const filteredItems = items.filter((it) => {
-    const matchKode = it.kode.toLowerCase().includes(searchModalKode.toLowerCase());
-    const matchNama = it.nama.toLowerCase().includes(searchModalNama.toLowerCase());
-    const matchGroup = (it.group_barang_nama || "").toLowerCase().includes(searchModalGroup.toLowerCase());
+    const matchKode = it.kode
+      .toLowerCase()
+      .includes(searchModalKode.toLowerCase());
+    const matchNama = it.nama
+      .toLowerCase()
+      .includes(searchModalNama.toLowerCase());
+    const matchGroup = (it.group_barang_nama || "")
+      .toLowerCase()
+      .includes(searchModalGroup.toLowerCase());
     return matchKode && matchNama && matchGroup;
   });
 
@@ -51,11 +59,15 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
       {/* Modern Header */}
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold text-white">Cek History Harga Jual</h2>
-          
+          <h2 className="text-lg font-semibold text-white">
+            Cek History Harga Jual
+          </h2>
+
           <div className="flex flex-wrap items-center gap-4 mt-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium">Barang:</span>
+              <span className="text-xs text-slate-300 font-medium">
+                Barang:
+              </span>
               <div className="flex items-center relative">
                 <input
                   type="text"
@@ -79,7 +91,9 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
             <div className="h-4 w-px bg-slate-600"></div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium">Pelanggan:</span>
+              <span className="text-xs text-slate-300 font-medium">
+                Pelanggan:
+              </span>
               <input
                 type="text"
                 placeholder="Nama Pelanggan"
@@ -96,7 +110,11 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
               <select
                 className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
                 value={logic.periode.split("-")[1]}
-                onChange={(e) => logic.setPeriode(`${logic.periode.split("-")[0]}-${e.target.value}`)}
+                onChange={(e) =>
+                  logic.setPeriode(
+                    `${logic.periode.split("-")[0]}-${e.target.value}`,
+                  )
+                }
               >
                 <option value="01">Januari</option>
                 <option value="02">Februari</option>
@@ -116,7 +134,11 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
               </span>
               <select
                 value={logic.periode.split("-")[0]}
-                onChange={(e) => logic.setPeriode(`${e.target.value}-${logic.periode.split("-")[1]}`)}
+                onChange={(e) =>
+                  logic.setPeriode(
+                    `${e.target.value}-${logic.periode.split("-")[1]}`,
+                  )
+                }
                 className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
               >
                 <option value="2026">2026</option>
@@ -135,21 +157,42 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
             <table className="w-full text-sm text-left whitespace-nowrap">
               <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
                 <tr>
-                  <th className="px-4 py-3 font-semibold text-slate-700">Tanggal</th>
-                  <th className="px-4 py-3 font-semibold text-slate-700">No. Invoice</th>
-                  <th className="px-4 py-3 font-semibold text-slate-700 w-1/4">Nama Pelanggan</th>
-                  <th className="px-4 py-3 font-semibold text-slate-700 text-center">Terms</th>
-                  <th className="px-4 py-3 font-semibold text-slate-700">Item (Kode - Nama)</th>
-                  <th className="px-4 py-3 font-semibold text-slate-700 text-right">Qty</th>
-                  <th className="px-4 py-3 font-semibold text-slate-700 text-right">Harga Satuan</th>
-                  <th className="px-4 py-3 font-semibold text-slate-700 text-right">Harga Jual</th>
-                  <th className="px-4 py-3 font-semibold text-slate-700 text-center w-20">Aksi</th>
+                  <th className="px-4 py-3 font-semibold text-slate-700">
+                    Tanggal
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-700">
+                    No. Invoice
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-700 w-1/4">
+                    Nama Pelanggan
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-700 text-center">
+                    Terms
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-700">
+                    Item (Kode - Nama)
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-700 text-right">
+                    Qty
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-700 text-right">
+                    Harga Satuan
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-700 text-right">
+                    Harga Jual
+                  </th>
+                  <th className="px-4 py-3 font-semibold text-slate-700 text-center w-20">
+                    Aksi
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {logic.loading ? (
                   <tr>
-                    <td colSpan={9} className="text-center py-12 text-slate-400 bg-slate-50">
+                    <td
+                      colSpan={9}
+                      className="text-center py-12 text-slate-400 bg-slate-50"
+                    >
                       <div className="flex flex-col items-center justify-center">
                         <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
                         Memuat data histori...
@@ -158,55 +201,81 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
                   </tr>
                 ) : logic.dataList.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="text-center py-12 text-slate-400 bg-slate-50">
+                    <td
+                      colSpan={9}
+                      className="text-center py-12 text-slate-400 bg-slate-50"
+                    >
                       Tidak ada histori harga jual yang ditemukan.
                     </td>
                   </tr>
                 ) : (
-                  logic.dataList.map((item: HistoryHargaJualData, idx: number) => (
-                    <tr
-                      key={item.id || idx}
-                      className="hover:bg-blue-50 transition-colors cursor-pointer"
-                      onClick={() => {
-                        logic.setSelectedRecord(item);
-                        logic.setViewMode("form");
-                      }}
-                    >
-                      <td className="px-4 py-2.5 text-slate-600">{item.tgl}</td>
-                      <td className="px-4 py-2.5 text-blue-600 font-medium">{item.no_invoice}</td>
-                      <td className="px-4 py-2.5 text-slate-800 font-medium truncate max-w-[200px]">{item.nama_pelanggan}</td>
-                      <td className="px-4 py-2.5 text-slate-600 text-center">{item.terms}</td>
-                      <td className="px-4 py-2.5 text-slate-700">
-                        <span className="font-medium text-slate-900">{item.kode_item}</span> - {item.nama_item}
-                      </td>
-                      <td className="px-4 py-2.5 text-slate-700 text-right font-medium">{item.qty}</td>
-                      <td className="px-4 py-2.5 text-slate-600 text-right">
-                        {item.harga_satuan.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="px-4 py-2.5 text-emerald-600 font-semibold text-right">
-                        {item.curr} {item.harga_jual.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="px-4 py-2.5 text-center">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            logic.setSelectedRecord(item);
-                            logic.setViewMode("form");
-                          }}
-                          className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded transition-colors inline-flex items-center justify-center"
-                          title="Buka Form Detail"
-                        >
-                          <Eye size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                  logic.dataList.map(
+                    (item: HistoryHargaJualData, idx: number) => (
+                      <tr
+                        key={item.id || idx}
+                        className="hover:bg-blue-50 transition-colors cursor-pointer"
+                        onClick={() => {
+                          logic.setSelectedRecord(item);
+                          logic.setViewMode("form");
+                        }}
+                      >
+                        <td className="px-4 py-2.5 text-slate-600">
+                          {item.tgl}
+                        </td>
+                        <td className="px-4 py-2.5 text-blue-600 font-medium">
+                          {item.no_invoice}
+                        </td>
+                        <td className="px-4 py-2.5 text-slate-800 font-medium truncate max-w-[200px]">
+                          {item.nama_pelanggan}
+                        </td>
+                        <td className="px-4 py-2.5 text-slate-600 text-center">
+                          {item.terms}
+                        </td>
+                        <td className="px-4 py-2.5 text-slate-700">
+                          <span className="font-medium text-slate-900">
+                            {item.kode_item}
+                          </span>{" "}
+                          - {item.nama_item}
+                        </td>
+                        <td className="px-4 py-2.5 text-slate-700 text-right font-medium">
+                          {item.qty}
+                        </td>
+                        <td className="px-4 py-2.5 text-slate-600 text-right">
+                          {item.harga_satuan.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td className="px-4 py-2.5 text-emerald-600 font-semibold text-right">
+                          {item.curr}{" "}
+                          {item.harga_jual.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td className="px-4 py-2.5 text-center">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              logic.setSelectedRecord(item);
+                              logic.setViewMode("form");
+                            }}
+                            className="p-1.5 text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 rounded transition-colors inline-flex items-center justify-center"
+                            title="Buka Form Detail"
+                          >
+                            <Eye size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ),
+                  )
                 )}
               </tbody>
             </table>
           </div>
           <div className="bg-slate-50 px-4 py-2 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500 shrink-0">
-            <span>Menampilkan {logic.dataList.length} record{logic.periode ? ` untuk periode ${logic.periode}` : ''}</span>
+            <span>
+              Menampilkan {logic.dataList.length} record
+              {logic.periode ? ` untuk periode ${logic.periode}` : ""}
+            </span>
             <span>Klik baris untuk melihat detail dalam Form View</span>
           </div>
         </div>
@@ -234,7 +303,9 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
             <div className="p-6 flex flex-col gap-4">
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Cari Kode Barang</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                    Cari Kode Barang
+                  </label>
                   <input
                     type="text"
                     className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -244,7 +315,9 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Cari Nama Barang</label>
+                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                    Cari Nama Barang
+                  </label>
                   <input
                     type="text"
                     className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -259,22 +332,36 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
                 <table className="w-full text-sm text-left">
                   <thead className="bg-slate-50 sticky top-0">
                     <tr>
-                      <th className="px-4 py-2 font-medium text-slate-600 border-b">Kode</th>
-                      <th className="px-4 py-2 font-medium text-slate-600 border-b">Nama Barang</th>
-                      <th className="px-4 py-2 font-medium text-slate-600 border-b text-center">Satuan</th>
-                      <th className="px-4 py-2 font-medium text-slate-600 border-b">Group</th>
+                      <th className="px-4 py-2 font-medium text-slate-600 border-b">
+                        Kode
+                      </th>
+                      <th className="px-4 py-2 font-medium text-slate-600 border-b">
+                        Nama Barang
+                      </th>
+                      <th className="px-4 py-2 font-medium text-slate-600 border-b text-center">
+                        Satuan
+                      </th>
+                      <th className="px-4 py-2 font-medium text-slate-600 border-b">
+                        Group
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {loadingItems ? (
                       <tr>
-                        <td colSpan={4} className="text-center py-8 text-slate-400">
+                        <td
+                          colSpan={4}
+                          className="text-center py-8 text-slate-400"
+                        >
                           Memuat data barang...
                         </td>
                       </tr>
                     ) : filteredItems.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="text-center py-8 text-slate-400">
+                        <td
+                          colSpan={4}
+                          className="text-center py-8 text-slate-400"
+                        >
                           Barang tidak ditemukan
                         </td>
                       </tr>
@@ -285,10 +372,18 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
                           onClick={() => selectItem(it)}
                           className="hover:bg-blue-50 cursor-pointer transition-colors"
                         >
-                          <td className="px-4 py-2 font-medium text-slate-800">{it.kode}</td>
-                          <td className="px-4 py-2 text-slate-600">{it.nama}</td>
-                          <td className="px-4 py-2 text-slate-600 text-center">{it.satuan}</td>
-                          <td className="px-4 py-2 text-slate-600">{it.group_barang_nama || "-"}</td>
+                          <td className="px-4 py-2 font-medium text-slate-800">
+                            {it.kode}
+                          </td>
+                          <td className="px-4 py-2 text-slate-600">
+                            {it.nama}
+                          </td>
+                          <td className="px-4 py-2 text-slate-600 text-center">
+                            {it.satuan}
+                          </td>
+                          <td className="px-4 py-2 text-slate-600">
+                            {it.group_barang_nama || "-"}
+                          </td>
                         </tr>
                       ))
                     )}

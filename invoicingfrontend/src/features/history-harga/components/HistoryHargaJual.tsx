@@ -9,14 +9,10 @@ const HistoryHargaJual: React.FC = () => {
   return (
     <>
       {/* === LIST VIEW === */}
-      {logic.viewMode === "list" && (
-        <HistoryHargaJualListView logic={logic} />
-      )}
+      {logic.viewMode === "list" && <HistoryHargaJualListView logic={logic} />}
 
       {/* === FORM VIEW === */}
-      {logic.viewMode === "form" && (
-        <HistoryHargaJualFormView logic={logic} />
-      )}
+      {logic.viewMode === "form" && <HistoryHargaJualFormView logic={logic} />}
     </>
   );
 };

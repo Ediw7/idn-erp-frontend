@@ -5,11 +5,15 @@ interface HistoryHargaJualFormViewProps {
   logic: any;
 }
 
-export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> = ({ logic }) => {
+export const HistoryHargaJualFormView: React.FC<
+  HistoryHargaJualFormViewProps
+> = ({ logic }) => {
   const record = logic.selectedRecord || {};
 
-  const inputClass = "flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-sm bg-slate-50 text-slate-700 shadow-sm";
-  const labelClass = "w-40 text-sm font-semibold text-slate-700 mt-1.5 shrink-0";
+  const inputClass =
+    "flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-sm bg-slate-50 text-slate-700 shadow-sm";
+  const labelClass =
+    "w-40 text-sm font-semibold text-slate-700 mt-1.5 shrink-0";
 
   return (
     <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
@@ -23,7 +27,9 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
             >
               <ArrowLeft size={20} />
             </button>
-            <h2 className="text-lg font-semibold text-white">Detail History Harga Jual</h2>
+            <h2 className="text-lg font-semibold text-white">
+              Detail History Harga Jual
+            </h2>
           </div>
         </div>
       </div>
@@ -63,9 +69,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
         {/* Tabs */}
         <div className="bg-white border border-slate-300 rounded-sm shadow-sm flex flex-col shrink-0 flex-1">
           <div className="px-3 pt-2 bg-slate-100 border-b border-slate-300 flex gap-1">
-            <button
-              className="px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm"
-            >
+            <button className="px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm">
               Rincian Transaksi
             </button>
           </div>
@@ -156,18 +160,34 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={`${inputClass} text-right`}
-                    value={record.harga_satuan ? record.harga_satuan.toLocaleString("en-US", { minimumFractionDigits: 2 }) : ""}
+                    value={
+                      record.harga_satuan
+                        ? record.harga_satuan.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                          })
+                        : ""
+                    }
                   />
                 </div>
                 <div className="flex items-start mt-2 pt-4 border-t border-slate-200">
-                  <label className="w-40 text-sm font-bold text-slate-800 mt-1.5 shrink-0">Total Harga Jual</label>
+                  <label className="w-40 text-sm font-bold text-slate-800 mt-1.5 shrink-0">
+                    Total Harga Jual
+                  </label>
                   <div className="flex-1 flex items-center gap-2">
-                    <span className="font-bold text-slate-600">{record.curr}</span>
+                    <span className="font-bold text-slate-600">
+                      {record.curr}
+                    </span>
                     <input
                       type="text"
                       disabled
                       className="flex-1 px-3 py-1.5 text-base font-bold text-emerald-700 text-right border border-emerald-300 bg-emerald-50 rounded-sm shadow-sm"
-                      value={record.harga_jual ? record.harga_jual.toLocaleString("en-US", { minimumFractionDigits: 2 }) : ""}
+                      value={
+                        record.harga_jual
+                          ? record.harga_jual.toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                            })
+                          : ""
+                      }
                     />
                   </div>
                 </div>
