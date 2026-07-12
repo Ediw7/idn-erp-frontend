@@ -14,7 +14,7 @@ export const useHistoryHargaJualLogic = () => {
   const [kodeBarang, setKodeBarang] = useState("");
   const [namaBarang, setNamaBarang] = useState("");
   const [namaPelanggan, setNamaPelanggan] = useState("");
-  const [limit, setLimit] = useState(25);
+  const [periode, setPeriode] = useState("2026-07");
 
   const [showItemModal, setShowItemModal] = useState(false);
 
@@ -24,7 +24,7 @@ export const useHistoryHargaJualLogic = () => {
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [kodeBarang, namaBarang, namaPelanggan, limit]);
+  }, [kodeBarang, namaBarang, namaPelanggan, periode]);
 
   const handleFilter = async () => {
     setLoading(true);
@@ -33,7 +33,7 @@ export const useHistoryHargaJualLogic = () => {
         kode_barang: kodeBarang,
         nama_barang: namaBarang,
         nama_pelanggan: namaPelanggan,
-        limit: limit,
+        periode: periode,
       });
       setDataList(res);
     } catch (error) {
@@ -41,13 +41,6 @@ export const useHistoryHargaJualLogic = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleShowAll = () => {
-    setLimit(0);
-    setTimeout(() => {
-      handleFilter();
-    }, 0);
   };
 
   return {
@@ -59,12 +52,11 @@ export const useHistoryHargaJualLogic = () => {
     setNamaBarang,
     namaPelanggan,
     setNamaPelanggan,
-    limit,
-    setLimit,
+    periode,
+    setPeriode,
     showItemModal,
     setShowItemModal,
     handleFilter,
-    handleShowAll,
     viewMode,
     setViewMode,
     selectedRecord,

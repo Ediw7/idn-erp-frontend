@@ -92,16 +92,40 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
             <div className="h-4 w-px bg-slate-600"></div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium">Limit:</span>
-              <input
-                type="number"
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-16 text-center"
-                value={logic.limit === 0 ? "" : logic.limit}
-                onChange={(e) => logic.setLimit(Number(e.target.value))}
-                placeholder="All"
-              />
+              <span className="text-xs text-slate-300 font-medium">Bulan:</span>
+              <select
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
+                value={logic.periode.split("-")[1]}
+                onChange={(e) => logic.setPeriode(`${logic.periode.split("-")[0]}-${e.target.value}`)}
+              >
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Maret</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Juni</option>
+                <option value="07">Juli</option>
+                <option value="08">Agustus</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+              </select>
+              <span className="text-xs text-slate-300 font-medium ml-1">
+                Tahun:
+              </span>
+              <select
+                value={logic.periode.split("-")[0]}
+                onChange={(e) => logic.setPeriode(`${e.target.value}-${logic.periode.split("-")[1]}`)}
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
+              >
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+              </select>
             </div>
           </div>
+        </div>
       </div>
 
       {/* Modern Table Area */}
@@ -182,7 +206,7 @@ export const HistoryHargaJualListView: React.FC<HistoryHargaJualListViewProps> =
             </table>
           </div>
           <div className="bg-slate-50 px-4 py-2 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500 shrink-0">
-            <span>Menampilkan {logic.dataList.length} record terakhir</span>
+            <span>Menampilkan {logic.dataList.length} record{logic.periode ? ` untuk periode ${logic.periode}` : ''}</span>
             <span>Klik baris untuk melihat detail dalam Form View</span>
           </div>
         </div>

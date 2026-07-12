@@ -6,21 +6,7 @@ interface HistoryHargaJualFormViewProps {
 }
 
 export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> = ({ logic }) => {
-  const { selectedRecord } = logic;
-
-  if (!selectedRecord) {
-    return (
-      <div className="flex flex-col h-full bg-slate-50 items-center justify-center">
-        <div className="text-slate-400 text-sm">Pilih data dari tabel untuk melihat detail.</div>
-        <button 
-          onClick={() => logic.setViewMode("list")}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded shadow text-sm hover:bg-blue-700 transition"
-        >
-          Kembali ke List
-        </button>
-      </div>
-    );
-  }
+  const record = logic.selectedRecord || {};
 
   const inputClass = "flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-sm bg-slate-50 text-slate-700 shadow-sm";
   const labelClass = "w-40 text-sm font-semibold text-slate-700 mt-1.5 shrink-0";
@@ -52,7 +38,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                 No. Invoice
               </span>
               <span className="font-mono text-base font-bold text-slate-800">
-                {selectedRecord.no_invoice || "-"}
+                {record.no_invoice || "-"}
               </span>
             </div>
             <div>
@@ -60,7 +46,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                 Pelanggan
               </span>
               <span className="text-base font-bold text-slate-800">
-                {selectedRecord.nama_pelanggan || "-"}
+                {record.nama_pelanggan || "-"}
               </span>
             </div>
             <div>
@@ -68,7 +54,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                 Tanggal
               </span>
               <span className="text-base font-bold text-slate-800">
-                {selectedRecord.tgl || "-"}
+                {record.tgl || "-"}
               </span>
             </div>
           </div>
@@ -94,7 +80,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={`${inputClass} font-mono`}
-                    value={selectedRecord.no_invoice || ""}
+                    value={record.no_invoice || ""}
                   />
                 </div>
                 <div className="flex items-start">
@@ -103,7 +89,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={inputClass}
-                    value={selectedRecord.tgl || ""}
+                    value={record.tgl || ""}
                   />
                 </div>
                 <div className="flex items-start">
@@ -112,7 +98,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={inputClass}
-                    value={selectedRecord.nama_pelanggan || ""}
+                    value={record.nama_pelanggan || ""}
                   />
                 </div>
                 <div className="flex items-start">
@@ -121,7 +107,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={`${inputClass} w-32`}
-                    value={selectedRecord.terms || ""}
+                    value={record.terms || ""}
                   />
                 </div>
                 <div className="flex items-start">
@@ -130,7 +116,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={`${inputClass} w-32`}
-                    value={selectedRecord.curr || ""}
+                    value={record.curr || ""}
                   />
                 </div>
               </div>
@@ -143,7 +129,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={`${inputClass} font-mono`}
-                    value={selectedRecord.kode_item || ""}
+                    value={record.kode_item || ""}
                   />
                 </div>
                 <div className="flex items-start">
@@ -152,7 +138,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={inputClass}
-                    value={selectedRecord.nama_item || ""}
+                    value={record.nama_item || ""}
                   />
                 </div>
                 <div className="flex items-start">
@@ -161,7 +147,7 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={`${inputClass} text-right w-32`}
-                    value={selectedRecord.qty || ""}
+                    value={record.qty || ""}
                   />
                 </div>
                 <div className="flex items-start">
@@ -170,18 +156,18 @@ export const HistoryHargaJualFormView: React.FC<HistoryHargaJualFormViewProps> =
                     type="text"
                     disabled
                     className={`${inputClass} text-right`}
-                    value={selectedRecord.harga_satuan ? selectedRecord.harga_satuan.toLocaleString("en-US", { minimumFractionDigits: 2 }) : ""}
+                    value={record.harga_satuan ? record.harga_satuan.toLocaleString("en-US", { minimumFractionDigits: 2 }) : ""}
                   />
                 </div>
                 <div className="flex items-start mt-2 pt-4 border-t border-slate-200">
                   <label className="w-40 text-sm font-bold text-slate-800 mt-1.5 shrink-0">Total Harga Jual</label>
                   <div className="flex-1 flex items-center gap-2">
-                    <span className="font-bold text-slate-600">{selectedRecord.curr}</span>
+                    <span className="font-bold text-slate-600">{record.curr}</span>
                     <input
                       type="text"
                       disabled
                       className="flex-1 px-3 py-1.5 text-base font-bold text-emerald-700 text-right border border-emerald-300 bg-emerald-50 rounded-sm shadow-sm"
-                      value={selectedRecord.harga_jual ? selectedRecord.harga_jual.toLocaleString("en-US", { minimumFractionDigits: 2 }) : ""}
+                      value={record.harga_jual ? record.harga_jual.toLocaleString("en-US", { minimumFractionDigits: 2 }) : ""}
                     />
                   </div>
                 </div>
