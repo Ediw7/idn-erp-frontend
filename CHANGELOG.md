@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/Ediw7/idn-erp-frontend/compare/v0.2.0...v0.3.0) (2026-07-13)
+
+
+### Features
+
+* **kwitansi:** Add outstanding balance validation and UI fixes ([39ce039](https://github.com/Ediw7/idn-erp-frontend/commit/39ce039e0d9c7e48ce46389c72e0ba44794c1ca1))
+
+
+
 # [0.2.0](https://github.com/Ediw7/idn-erp-frontend/compare/v0.1.2...v0.2.0) (2026-07-12)
 
 
