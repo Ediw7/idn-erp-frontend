@@ -193,21 +193,34 @@ export const useKwitansiLogic = () => {
   const handleInvoiceChange = (no_invoice: string) => {
     const inv = invoices.find((i) => i.no_invoice === no_invoice);
     if (inv) {
-      const jumlah = inv.total || 0;
+      // Hitung total yang sudah dibayar dari kwitansi lain untuk invoice ini
+      const paidAmount = dataList
+        .filter((k) => k.no_invoice === no_invoice && k.id !== form.id)
+        .reduce((sum, k) => sum + (Number(k.jumlah) || 0), 0);
+      
+      const sisaTagihan = (inv.total || 0) - paidAmount;
+
+      if (sisaTagihan <= 0) {
+        toast.error(`Invoice ${no_invoice} sudah lunas! Tidak bisa membuat kwitansi baru.`);
+        setForm({ ...form, no_invoice: "", invoice_id: null });
+        return;
+      }
+
       const pId = inv.pelanggan_id || form.pembeli_id;
       const p = pelanggans.find((x) => x.id === pId);
 
       setForm({
         ...form,
         no_invoice,
+        invoice_id: inv.id,
         pembeli_id: pId,
         alamat: p?.alamat_wp || p?.alamat || "",
-        jumlah,
-        terbilang: formatTerbilang(jumlah),
+        jumlah: sisaTagihan,
+        terbilang: formatTerbilang(sisaTagihan),
         untuk_pembayaran: `Pembayaran Invoice No. ${no_invoice}`,
       });
     } else {
-      setForm({ ...form, no_invoice });
+      setForm({ ...form, no_invoice, invoice_id: null });
     }
   };
 
@@ -219,6 +232,25 @@ export const useKwitansiLogic = () => {
     if (!form.pembeli_id) {
       toast.error("Pelanggan harus dipilih!");
       return;
+    }
+    if (Number(form.jumlah) <= 0) {
+      toast.error("Jumlah tidak boleh nol atau negatif!");
+      return;
+    }
+
+    if (form.no_invoice) {
+      const inv = invoices.find((i) => i.no_invoice === form.no_invoice);
+      if (inv) {
+        const paidAmount = dataList
+          .filter((k) => k.no_invoice === form.no_invoice && k.id !== form.id)
+          .reduce((sum, k) => sum + (Number(k.jumlah) || 0), 0);
+        
+        const sisaTagihan = (inv.total || 0) - paidAmount;
+        if (Number(form.jumlah) > sisaTagihan) {
+          toast.error(`Jumlah pembayaran melebihi sisa tagihan! Sisa tagihan: ${sisaTagihan.toLocaleString()}`);
+          return;
+        }
+      }
     }
 
     try {
