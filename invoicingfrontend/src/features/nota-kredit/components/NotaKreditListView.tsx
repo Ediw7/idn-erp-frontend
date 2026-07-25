@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { FilePlus, Edit2, Trash2 } from "lucide-react";
-import { PageLayout } from "../../../../components/layouts/PageLayout";
-import Pagination from "../../../../components/ui/Pagination";
+import { PageLayout } from "../../../components/layouts/PageLayout";
+import Pagination from "../../../components/ui/Pagination";
+import { getAutoNo } from "../api";
 
-interface FakturPajakListViewProps {
+interface NotaKreditListViewProps {
   dataList: any[];
   pelanggans: any[];
   periode: string;
@@ -13,9 +14,12 @@ interface FakturPajakListViewProps {
   onDelete: (id: number) => void;
   pagination: any;
   onPageChange: (page: number) => void;
+  emptyForm: any;
+  setModalForm: (form: any) => void;
+  setShowNewModal: (show: boolean) => void;
 }
 
-export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
+export const NotaKreditListView: React.FC<NotaKreditListViewProps> = ({
   dataList,
   pelanggans,
   periode,
@@ -25,29 +29,29 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
   onDelete,
   pagination,
   onPageChange,
+  emptyForm,
+  setModalForm,
+  setShowNewModal,
 }) => {
   const [searchPelanggan, setSearchPelanggan] = useState("");
   const [searchNo, setSearchNo] = useState("");
 
   const filteredData = dataList.filter((item) => {
-    if (searchPelanggan && String(item.pembeli_id) !== searchPelanggan)
+    if (searchPelanggan && String(item.pelanggan_id) !== searchPelanggan)
       return false;
-    if (
-      searchNo &&
-      !item.no_fp.toLowerCase().includes(searchNo.toLowerCase())
-    )
+    if (searchNo && !item.no_nota_kredit.toLowerCase().includes(searchNo.toLowerCase()))
       return false;
     return true;
   });
 
   return (
     <PageLayout
-      title="Cari Faktur Pajak"
+      title="Pencarian Nota Kredit"
       contentClassName="flex-1 p-0 overflow-hidden flex flex-col"
       filters={
         <>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-300 font-medium">No. Faktur Pajak:</span>
+            <span className="text-xs text-slate-300 font-medium">No. NK:</span>
             <input
               type="text"
               value={searchNo}
@@ -95,14 +99,14 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
           <div className="h-4 w-px bg-slate-600"></div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-300 font-medium">
-              Nama Pembeli:
+              Pelanggan:
             </span>
             <select
               value={searchPelanggan}
               onChange={(e) => setSearchPelanggan(e.target.value)}
-              className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 max-w-[200px]"
+              className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-48"
             >
-              <option value="">-- Semua Pembeli --</option>
+              <option value="">-- Semua Pelanggan --</option>
               {pelanggans.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.nama}
@@ -127,27 +131,23 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
             <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
               <tr>
                 <th className="px-4 py-3 font-bold text-slate-800">
-                  Penomoran
-                </th>
-                <th className="px-4 py-3 font-bold text-slate-800">
-                  No. Faktur Pajak
+                  No. Nota Kredit
                 </th>
                 <th className="px-4 py-3 font-bold text-slate-800">Tgl</th>
                 <th className="px-4 py-3 font-bold text-slate-800">
-                  Nama Pembeli
+                  Nama Pelanggan
                 </th>
-                <th className="px-4 py-3 font-bold text-slate-800">NPWP</th>
                 <th className="px-4 py-3 font-bold text-slate-800">
                   No. Invoice
+                </th>
+                <th className="px-4 py-3 font-bold text-slate-800">
+                  No. Referensi
                 </th>
                 <th className="px-4 py-3 font-bold text-slate-800 text-center">
                   Ccy
                 </th>
                 <th className="px-4 py-3 font-bold text-slate-800 text-right">
-                  DPP Rp
-                </th>
-                <th className="px-4 py-3 font-bold text-slate-800 text-right">
-                  PPN Rp
+                  Nilai Nota Kredit
                 </th>
                 <th className="px-4 py-3 font-bold text-slate-800 text-center">
                   Aksi
@@ -158,49 +158,41 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
               {filteredData.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={10}
-                    className="px-4 py-8 text-center text-slate-500 italic"
+                    colSpan={8}
+                    className="px-4 py-8 text-center text-slate-500"
                   >
-                    Tidak ada data Faktur Pajak
+                    Tidak ada data nota kredit.
                   </td>
                 </tr>
               ) : (
-                filteredData.map((item, index) => (
+                filteredData.map((item) => (
                   <tr
                     key={item.id}
-                    className="hover:bg-blue-50/50 transition-colors group cursor-pointer"
+                    className="hover:bg-blue-50/50 transition-colors cursor-pointer"
                     onClick={() => onEdit(item.id)}
                   >
-                    <td className="px-4 py-3 text-slate-600 font-medium">
-                      {item.penomoran || "-"}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600 font-medium">
-                      {item.no_fp || "-"}
+                    <td className="px-4 py-3 font-mono font-medium text-slate-700">
+                      {item.no_nota_kredit}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
-                      {item.tgl_fp || "-"}
+                      {item.tgl_nota_kredit}
                     </td>
-                    <td className="px-4 py-3 text-slate-800 font-medium">
-                      {item.pembeli_nama || "-"}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {item.npwp || "-"}
+                    <td className="px-4 py-3 text-slate-700 font-medium">
+                      {item.pelanggan_nama}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
                       {item.no_invoice || "-"}
                     </td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {item.no_referensi || "-"}
+                    </td>
                     <td className="px-4 py-3 text-center text-slate-600">
-                      {item.mata_uang || "IDR"}
+                      {item.mata_uang_nama || "IDR"}
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-slate-800">
-                      {item.dpp_rp?.toLocaleString("en-US", {
+                      {item.nilai_nota_kredit?.toLocaleString("en-US", {
                         minimumFractionDigits: 2,
-                      }) || "0.00"}
-                    </td>
-                    <td className="px-4 py-3 text-right font-mono text-slate-800">
-                      {item.ppn_rp?.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                      }) || "0.00"}
+                      })}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div

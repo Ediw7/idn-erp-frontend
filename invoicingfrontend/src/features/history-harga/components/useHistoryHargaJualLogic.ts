@@ -35,7 +35,7 @@ export const useHistoryHargaJualLogic = () => {
         nama_barang: namaBarang,
         nama_pelanggan: namaPelanggan,
         periode: periode,
-      });
+      } as any);
       setDataList(res);
     } catch (error) {
       toast.error("Gagal memuat histori harga jual");

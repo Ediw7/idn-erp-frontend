@@ -9,6 +9,7 @@ const axiosClient = axios.create({
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
+    "X-Requested-With": "XMLHttpRequest", // Tells Odoo to return 401 instead of 303 Redirect on session expiry
   },
 });
 
@@ -21,10 +22,10 @@ axiosClient.interceptors.response.use(
   (error) => {
     if (error.response) {
       // Handle known HTTP errors from Odoo backend
-      if (error.response.status === 401) {
+      if (error.response.status === 401 || error.response.status === 403) {
         console.error("Session expired or unauthorized. Please log in again.");
-        // Note: We can integrate Zustand here to clear user session state globally
-        // e.g., useAuthStore.getState().logout()
+        localStorage.removeItem("edi_user");
+        window.location.href = "/login";
       } else if (error.response.status === 400) {
         console.error("Bad Request:", error.response.data);
       } else if (error.response.status === 500) {

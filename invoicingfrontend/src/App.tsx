@@ -45,7 +45,7 @@ import FakturPajak from "./features/ppn/faktur-pajak/components/FakturPajak";
 import Kwitansi from "./features/kwitansi/components/Kwitansi";
 import HistoryHargaJual from "./features/history-harga/components/HistoryHargaJual";
 import Pembayaran from "./features/pembayaran/components/Pembayaran";
-import NotaKredit from "./features/nota-kredit/components/NotaKredit";
+import NotaKredit from "./features/nota-kredit/NotaKredit";
 import KartuPiutang from "./features/kartu-piutang/components/KartuPiutang";
 import OutstandingInvoice from "./features/outstanding-invoice/components/OutstandingInvoice";
 import RangkumanPenjualan from "./features/rangkuman-penjualan/components/RangkumanPenjualan";

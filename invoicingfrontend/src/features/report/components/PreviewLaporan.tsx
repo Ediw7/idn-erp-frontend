@@ -140,8 +140,10 @@ const PreviewLaporan: React.FC = () => {
         let mappedLines: any[] = [];
         let p: any = null;
 
+        const rawSoData = await salesOrderApi.getAll();
+        const soList = Array.isArray(rawSoData) ? rawSoData : rawSoData.data || [];
+        const so = soList.find((s: any) => s.no_so === targetNo);
         if (targetFormulir === "Sales Order") {
-          const so = soData.find((s: any) => s.no_so === targetNo);
           if (so) {
             setDocDate(so.tgl_so);
             p = pelanggans.find(

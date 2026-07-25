@@ -64,6 +64,11 @@ const SalesOrder: React.FC = () => {
     handleOpenEditLine,
     handleSaveLine,
     removeLine,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
   } = useSalesOrderLogic();
 
   const isReadOnly = !!(form.is_closed || form.is_void);
@@ -117,6 +122,11 @@ const SalesOrder: React.FC = () => {
             setIsNew(true);
             setViewMode("form");
           }}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
         />
       )}
 

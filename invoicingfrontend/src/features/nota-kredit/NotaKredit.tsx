@@ -1,15 +1,16 @@
 import React from "react";
-import { useFakturPajakLogic } from "./useFakturPajakLogic";
-import { FakturPajakListView } from "./FakturPajakListView";
-import { FakturPajakFormView } from "./FakturPajakFormView";
+import { useNotaKreditLogic } from "./components/useNotaKreditLogic";
+import { NotaKreditListView } from "./components/NotaKreditListView";
+import { NotaKreditFormView } from "./components/NotaKreditFormView";
 
-const FakturPajak: React.FC = () => {
-  const logic = useFakturPajakLogic();
+
+const NotaKredit: React.FC = () => {
+  const logic = useNotaKreditLogic();
 
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-[#f4f6f8]">
       {logic.viewMode === "list" ? (
-        <FakturPajakListView
+        <NotaKreditListView
           dataList={logic.dataList}
           pelanggans={logic.pelanggans}
           periode={logic.periode}
@@ -19,9 +20,12 @@ const FakturPajak: React.FC = () => {
           onDelete={logic.handleDelete}
           pagination={logic.pagination}
           onPageChange={(page) => logic.fetchData(page)}
+          emptyForm={logic.emptyForm}
+          setModalForm={logic.setModalForm}
+          setShowNewModal={logic.setShowNewModal}
         />
       ) : (
-        <FakturPajakFormView
+        <NotaKreditFormView
           form={logic.form}
           setForm={logic.setForm}
           isSaving={logic.isSaving}
@@ -33,14 +37,15 @@ const FakturPajak: React.FC = () => {
           pelanggans={logic.pelanggans}
           mataUangs={logic.mataUangs}
           invoices={logic.invoices}
-          items={logic.items}
           onAddLine={logic.addLine}
           onUpdateLine={logic.updateLine}
           onRemoveLine={logic.removeLine}
         />
       )}
+
+
     </div>
   );
 };
 
-export default FakturPajak;
+export default NotaKredit

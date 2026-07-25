@@ -7,6 +7,7 @@ import { InvoiceSuratJalan } from "./InvoiceSuratJalan";
 import { InvoiceHistory } from "./InvoiceHistory";
 import toast from "react-hot-toast";
 import { getInvoiceAutoNo } from "../../transactionsApi";
+import { PageLayout } from "../../../components/layouts/PageLayout";
 
 interface InvoiceFormViewProps {
   form: any;
@@ -128,37 +129,30 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
   const isLocked = form.is_void || form.is_lunas;
 
   return (
-    <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
-      {/* Header */}
-      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex flex-wrap gap-3 justify-between items-center shrink-0">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setViewMode("list")}
-              className="text-slate-300 hover:text-white transition-colors"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <h2 className="text-lg font-semibold text-white">Invoice</h2>
-          </div>
-          <div className="flex items-center gap-2 mt-1.5 ml-9">
-            <span className="text-xs text-slate-300 font-medium">
-              Pilih Periode:
-            </span>
-            <select className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400">
-              <option>Juni 2026</option>
-              <option>Mei 2026</option>
-            </select>
-            <span className="text-xs text-slate-300 font-medium ml-2">
-              Jenis Invoice:
-            </span>
-            <select className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400">
-              <option>Dengan PPN</option>
-              <option>Tanpa PPN</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+    <PageLayout
+      title="Invoice"
+      onBack={() => setViewMode("list")}
+      contentClassName="flex-1 overflow-y-auto bg-slate-100 p-6 flex flex-col"
+      filters={
+        <>
+          <span className="text-xs text-slate-300 font-medium">
+            Pilih Periode:
+          </span>
+          <select className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400">
+            <option>Juni 2026</option>
+            <option>Mei 2026</option>
+          </select>
+          <span className="text-xs text-slate-300 font-medium ml-2">
+            Jenis Invoice:
+          </span>
+          <select className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400">
+            <option>Dengan PPN</option>
+            <option>Tanpa PPN</option>
+          </select>
+        </>
+      }
+      actions={
+        <>
           <button
             onClick={async () => {
               const autoNo = await getInvoiceAutoNo();
@@ -193,11 +187,10 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
           >
             PERBARUI KWITANSI
           </button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto bg-slate-100 p-6 flex flex-col">
-        {/* Tabs */}
+        </>
+      }
+    >
+      {/* Tabs */}
         <div className="px-1 border-b border-slate-300 flex gap-1 mb-6">
           {(["umum", "detail", "surat_jalan", "history"] as const).map(
             (tab) => {
@@ -518,8 +511,6 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
             </div>
           </div>
         </div>
-      </div>
-
       {/* Global Persistent Footer Buttons */}
       <div className="bg-white border-t border-slate-300 p-4 shrink-0 flex justify-end gap-3 z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <button
@@ -536,6 +527,6 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
           </button>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 };

@@ -112,7 +112,7 @@ const SetupPreferensi: React.FC = () => {
       const file = e.target.files[0];
       // @ts-ignore
       const path =
-        file.path ||
+        (file as any).path ||
         (file.webkitRelativePath
           ? file.webkitRelativePath.split("/")[0]
           : file.name);
@@ -125,7 +125,7 @@ const SetupPreferensi: React.FC = () => {
       const file = e.target.files[0];
       // @ts-ignore
       const path =
-        file.path ||
+        (file as any).path ||
         (file.webkitRelativePath
           ? file.webkitRelativePath.split("/")[0]
           : file.name);
@@ -263,8 +263,8 @@ const SetupPreferensi: React.FC = () => {
                       type="file"
                       ref={backupFolderRef}
                       onChange={handleBackupFolderChange}
-                      webkitdirectory="true"
-                      directory="true"
+                      {...({ webkitdirectory: "true", directory: "true" } as any)}
+
                       className="hidden"
                     />
                   </div>
@@ -292,8 +292,7 @@ const SetupPreferensi: React.FC = () => {
                       type="file"
                       ref={csvFolderRef}
                       onChange={handleCsvFolderChange}
-                      webkitdirectory="true"
-                      directory="true"
+                      {...({ webkitdirectory: "true", directory: "true" } as any)}
                       className="hidden"
                     />
                   </div>

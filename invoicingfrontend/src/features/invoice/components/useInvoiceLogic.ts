@@ -134,7 +134,7 @@ export const useInvoiceLogic = (locationSearch: string) => {
       .then((module) => {
         module.salesOrderApi
           .getAll()
-          .then((res) => setSalesOrders(res))
+          .then((res) => setSalesOrders(res.data || []))
           .catch(() => {});
       })
       .catch(() => {});

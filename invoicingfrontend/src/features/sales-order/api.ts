@@ -59,13 +59,18 @@ export const salesOrderApi = {
     no_so?: string;
     pelanggan_id?: number;
     periode?: string;
-  }): Promise<SalesOrderData[]> => {
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: SalesOrderData[]; pagination?: any }> => {
     const response = await axiosClient.post("/api/sales-order/get", {
       jsonrpc: "2.0",
       params: filters || {},
     });
     if (response.data.result && response.data.result.status === "success") {
-      return response.data.result.data;
+      return {
+        data: response.data.result.data,
+        pagination: response.data.result.pagination,
+      };
     }
     throw new Error(
       response.data.result?.message || "Failed to fetch sales orders",

@@ -21,6 +21,12 @@ export const useSalesOrderLogic = () => {
 
   const [dataList, setDataList] = useState<SalesOrderData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 20;
 
   const [pelanggans, setPelanggans] = useState<PelangganData[]>([]);
   const [mataUangs, setMataUangs] = useState<MataUangData[]>([]);
@@ -107,13 +113,13 @@ export const useSalesOrderLogic = () => {
 
   useEffect(() => {
     fetchInitialData();
-  }, []);
+  }, [currentPage]);
 
   const fetchInitialData = async () => {
     setLoadingData(true);
     try {
       const [resSo, p, m, py, s, i, g, company] = await Promise.all([
-        salesOrderApi.getAll().catch(() => []),
+        salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage }).catch(() => ({ data: [], pagination: undefined as any })),
         setupApi.getPelanggan().catch(() => []),
         setupApi.getMataUang().catch(() => []),
         setupApi.getPembayaran().catch(() => []),
@@ -123,8 +129,16 @@ export const useSalesOrderLogic = () => {
         setupApi.getPerusahaan().catch(() => null),
       ]);
 
-      let soData = resSo || [];
+      let soData = resSo?.data || [];
       soData = mergeSjToSo(soData);
+      
+      if (resSo?.pagination) {
+          setTotalPages(resSo.pagination.last_page);
+          setTotalItems(resSo.pagination.total);
+      } else {
+          setTotalPages(1);
+          setTotalItems(soData.length);
+      }
 
       setDataList(soData);
       setPelanggans(p || []);
@@ -188,9 +202,14 @@ export const useSalesOrderLogic = () => {
   const handleCreateNewSo = async () => {
     try {
       const savedRes = await salesOrderApi.save(newSoForm as SalesOrderData);
-      const resSo = await salesOrderApi.getAll();
-      const soData = mergeSjToSo(resSo || []);
+      const resSo = await salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage });
+      const soData = mergeSjToSo(resSo?.data || []);
       setDataList(soData);
+      
+      if (resSo?.pagination) {
+          setTotalPages(resSo.pagination.last_page);
+          setTotalItems(resSo.pagination.total);
+      }
 
       const newlyCreated =
         soData.find((so) => so.id === savedRes.id) || soData[soData.length - 1];
@@ -260,9 +279,14 @@ export const useSalesOrderLogic = () => {
     setIsSaving(true);
     try {
       await salesOrderApi.save(form as SalesOrderData);
-      const resSo = await salesOrderApi.getAll();
-      const soData = mergeSjToSo(resSo || []);
+      const resSo = await salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage });
+      const soData = mergeSjToSo(resSo?.data || []);
       setDataList(soData);
+
+      if (resSo?.pagination) {
+          setTotalPages(resSo.pagination.last_page);
+          setTotalItems(resSo.pagination.total);
+      }
 
       if (isNew) {
         setCurrentIndex(soData.length - 1);
@@ -286,9 +310,14 @@ export const useSalesOrderLogic = () => {
     if (!isConfirmed) return;
     try {
       await salesOrderApi.delete(id);
-      const resSo = await salesOrderApi.getAll();
-      const soData = mergeSjToSo(resSo || []);
+      const resSo = await salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage });
+      const soData = mergeSjToSo(resSo?.data || []);
       setDataList(soData);
+      
+      if (resSo?.pagination) {
+          setTotalPages(resSo.pagination.last_page);
+          setTotalItems(resSo.pagination.total);
+      }
       toast.success("Data berhasil dihapus");
     } catch (error) {
       toast.error("Gagal menghapus data");
@@ -303,9 +332,14 @@ export const useSalesOrderLogic = () => {
     if (!isConfirmed) return;
     try {
       await salesOrderApi.delete(form.id);
-      const resSo = await salesOrderApi.getAll();
-      const soData = mergeSjToSo(resSo || []);
+      const resSo = await salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage });
+      const soData = mergeSjToSo(resSo?.data || []);
       setDataList(soData);
+      
+      if (resSo?.pagination) {
+          setTotalPages(resSo.pagination.last_page);
+          setTotalItems(resSo.pagination.total);
+      }
 
       if (soData.length > 0) {
         setCurrentIndex(0);
@@ -505,5 +539,10 @@ export const useSalesOrderLogic = () => {
     removeLine,
     handlePrevious,
     handleNext,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
   };
 };

@@ -168,7 +168,9 @@ export const useSuratJalanLogic = () => {
       setPelanggans(p || []);
       setGudangs(g || []);
       setItems(i || []);
-      setSalesOrders(so || []);
+      salesOrderApi.getAll().then((so) => {
+        setSalesOrders(so.data || []);
+      });
       setDataList(sjData || []);
 
       const defGudang = (g || []).find((x: any) => x.is_default);

@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { getSjAutoNo } from "../../transactionsApi";
 import { SuratJalanFormUmum } from "./SuratJalanFormUmum";
 import { SuratJalanDetail } from "./SuratJalanDetail";
+import { PageLayout } from "../../../components/layouts/PageLayout";
 
 interface SuratJalanFormViewProps {
   form: any;
@@ -61,34 +62,26 @@ export const SuratJalanFormView: React.FC<SuratJalanFormViewProps> = ({
   const labelClass = "text-sm font-semibold text-slate-700 w-36 shrink-0 pt-1";
 
   return (
-    <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
-      {/* Header */}
-      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setViewMode("list")}
-              className="text-slate-300 hover:text-white transition-colors"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <h2 className="text-lg font-semibold text-white">Surat Jalan</h2>
-          </div>
-          <div className="flex items-center gap-2 mt-1.5 ml-9">
-            <span className="text-xs text-slate-300 font-medium">
-              Pilih Periode:
-            </span>
-            <select
-              value={periode}
-              onChange={(e) => setPeriode(e.target.value)}
-              className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
-            >
-              <option value="2026-06">Juni 2026</option>
-              <option value="2026-05">Mei 2026</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
+    <PageLayout
+      title="Surat Jalan"
+      onBack={() => setViewMode("list")}
+      filters={
+        <>
+          <span className="text-xs text-slate-300 font-medium">
+            Pilih Periode:
+          </span>
+          <select
+            value={periode}
+            onChange={(e) => setPeriode(e.target.value)}
+            className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
+          >
+            <option value="2026-06">Juni 2026</option>
+            <option value="2026-05">Mei 2026</option>
+          </select>
+        </>
+      }
+      actions={
+        <>
           <button
             onClick={async () => {
               const defGudangId = gudangs.find((g) => g.is_default)?.id || "";
@@ -141,9 +134,9 @@ export const SuratJalanFormView: React.FC<SuratJalanFormViewProps> = ({
           >
             <Send size={14} /> BUAT INVOICE{" "}
           </button>
-        </div>
-      </div>
-
+        </>
+      }
+    >
       {/* Mini Header State */}
       <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0 shadow-sm">
         <div className="flex gap-12">
@@ -240,6 +233,6 @@ export const SuratJalanFormView: React.FC<SuratJalanFormViewProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };

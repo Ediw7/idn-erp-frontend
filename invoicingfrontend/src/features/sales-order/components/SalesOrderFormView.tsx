@@ -4,6 +4,7 @@ import { SalesOrderFormUmum } from "./SalesOrderFormUmum";
 import { SalesOrderDetail } from "./SalesOrderDetail";
 import { SalesOrderSuratJalan } from "./SalesOrderSuratJalan";
 import { SalesOrderOutstanding } from "./SalesOrderOutstanding";
+import { PageLayout } from "../../../components/layouts/PageLayout";
 
 interface SalesOrderFormViewProps {
   form: any;
@@ -85,38 +86,30 @@ export const SalesOrderFormView: React.FC<SalesOrderFormViewProps> = ({
   isSaving,
 }) => {
   return (
-    <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
-      {/* Header */}
-      <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setViewMode("list")}
-              className="text-slate-300 hover:text-white transition-colors"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <h2 className="text-lg font-semibold text-white">Sales Order</h2>
-          </div>
-          <div className="flex items-center gap-2 mt-1.5 ml-9">
-            <span className="text-xs text-slate-300 font-medium">
-              Pilih Periode:
-            </span>
-            <select
-              value={periode}
-              onChange={(e) => setPeriode(e.target.value)}
-              className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
-            >
-              <option value="2026-06">Juni 2026</option>
-              <option value="2026-05">Mei 2026</option>
-              <option value="2026-04">April 2026</option>
-              <option value="2026-03">Maret 2026</option>
-              <option value="2026-02">Februari 2026</option>
-              <option value="2026-01">Januari 2026</option>
-            </select>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
+    <PageLayout
+      title="Sales Order"
+      onBack={() => setViewMode("list")}
+      filters={
+        <>
+          <span className="text-xs text-slate-300 font-medium">
+            Pilih Periode:
+          </span>
+          <select
+            value={periode}
+            onChange={(e) => setPeriode(e.target.value)}
+            className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
+          >
+            <option value="2026-06">Juni 2026</option>
+            <option value="2026-05">Mei 2026</option>
+            <option value="2026-04">April 2026</option>
+            <option value="2026-03">Maret 2026</option>
+            <option value="2026-02">Februari 2026</option>
+            <option value="2026-01">Januari 2026</option>
+          </select>
+        </>
+      }
+      actions={
+        <>
           <button
             onClick={handleNewClick}
             className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
@@ -125,24 +118,22 @@ export const SalesOrderFormView: React.FC<SalesOrderFormViewProps> = ({
           </button>
           <button
             onClick={handleCetak}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors ml-2 rounded-sm shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
           >
             <Printer size={14} /> CETAK
           </button>
           {!isReadOnly && (
             <button
               onClick={handleBuatSJClick}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-green-600 border border-transparent hover:bg-green-500 transition-colors ml-2 rounded-sm shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-green-600 border border-transparent hover:bg-green-500 transition-colors rounded-sm shadow-sm"
             >
               <Send size={14} /> BUAT SJ
             </button>
           )}
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
-        {/* Mini Header */}
+        </>
+      }
+    >
+      {/* Mini Header */}
         <div className="bg-white border-l-4 border-l-blue-600 border-y border-r border-slate-300 rounded-sm shadow-sm p-4 shrink-0 flex justify-between items-center">
           <div className="flex gap-12">
             <div>
@@ -411,7 +402,6 @@ export const SalesOrderFormView: React.FC<SalesOrderFormViewProps> = ({
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </PageLayout>
   );
 };
