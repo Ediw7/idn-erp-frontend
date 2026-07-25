@@ -36,23 +36,19 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
             <h2 className="text-lg font-semibold text-white">{title}</h2>
           </div>
           {filters && (
-            <div className={`flex items-center gap-4 mt-1.5 ${onBack ? "ml-9" : ""}`}>
+            <div
+              className={`flex items-center gap-4 mt-1.5 ${onBack ? "ml-9" : ""}`}
+            >
               {filters}
             </div>
           )}
         </div>
-        
-        {actions && (
-          <div className="flex items-center gap-2">
-            {actions}
-          </div>
-        )}
+
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
 
       {/* Main Content Area */}
-      <div className={contentClassName}>
-        {children}
-      </div>
+      <div className={contentClassName}>{children}</div>
     </div>
   );
 };

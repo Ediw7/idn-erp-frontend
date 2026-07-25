@@ -104,7 +104,6 @@ export const SuratJalanListView: React.FC<SuratJalanListViewProps> = ({
         </button>
       }
     >
-
       <div className="flex-1 p-6 overflow-hidden flex flex-col">
         <div className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-x-auto flex-1">
           <table className="w-full text-xs text-left whitespace-nowrap">

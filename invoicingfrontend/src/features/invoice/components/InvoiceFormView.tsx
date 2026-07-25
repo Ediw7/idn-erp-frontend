@@ -191,326 +191,318 @@ export const InvoiceFormView: React.FC<InvoiceFormViewProps> = ({
       }
     >
       {/* Tabs */}
-        <div className="px-1 border-b border-slate-300 flex gap-1 mb-6">
-          {(["umum", "detail", "surat_jalan", "history"] as const).map(
-            (tab) => {
-              const labels: any = {
-                umum: "Informasi Umum",
-                detail: "Detail Barang/Jasa",
-                surat_jalan: "Surat Jalan",
-                history: "History Pembayaran",
-              };
-              return (
-                <button
-                  key={tab}
-                  className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === tab ? "bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm" : "bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors"}`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {labels[tab]}
-                </button>
-              );
-            },
-          )}
+      <div className="px-1 border-b border-slate-300 flex gap-1 mb-6">
+        {(["umum", "detail", "surat_jalan", "history"] as const).map((tab) => {
+          const labels: any = {
+            umum: "Informasi Umum",
+            detail: "Detail Barang/Jasa",
+            surat_jalan: "Surat Jalan",
+            history: "History Pembayaran",
+          };
+          return (
+            <button
+              key={tab}
+              className={`px-5 py-2 text-sm font-bold rounded-t-sm border border-b-0 ${activeTab === tab ? "bg-white border-slate-300 text-blue-800 -mb-px pb-2.5 shadow-sm" : "bg-slate-200 border-slate-300 text-slate-600 hover:bg-white transition-colors"}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {labels[tab]}
+            </button>
+          );
+        })}
+      </div>
+
+      {activeTab === "umum" && (
+        <div className="flex flex-col gap-6">
+          <InvoiceFormUmum
+            form={form}
+            setForm={setForm}
+            dataList={dataList}
+            pelanggans={pelanggans}
+            proyeks={proyeks}
+            mataUangs={mataUangs}
+            salesOrders={salesOrders}
+            pembayarans={pembayarans}
+            salesmans={salesmans}
+            gudangs={gudangs}
+            loadingData={loadingData}
+            setShowPelangganModal={setShowPelangganModal}
+            handlePembeliChange={handlePembeliChange}
+          />
         </div>
+      )}
 
-        {activeTab === "umum" && (
-          <div className="flex flex-col gap-6">
-            <InvoiceFormUmum
-              form={form}
-              setForm={setForm}
-              dataList={dataList}
-              pelanggans={pelanggans}
-              proyeks={proyeks}
-              mataUangs={mataUangs}
-              salesOrders={salesOrders}
-              pembayarans={pembayarans}
-              salesmans={salesmans}
-              gudangs={gudangs}
-              loadingData={loadingData}
-              setShowPelangganModal={setShowPelangganModal}
-              handlePembeliChange={handlePembeliChange}
-            />
-          </div>
-        )}
+      {activeTab === "detail" && (
+        <div className="flex flex-col gap-6">
+          <InvoiceDetail
+            form={form}
+            items={items}
+            handleOpenAddLine={handleOpenAddLine}
+            handleOpenEditLine={handleOpenEditLine}
+            removeLine={removeLine}
+          />
+        </div>
+      )}
 
-        {activeTab === "detail" && (
-          <div className="flex flex-col gap-6">
-            <InvoiceDetail
-              form={form}
-              items={items}
-              handleOpenAddLine={handleOpenAddLine}
-              handleOpenEditLine={handleOpenEditLine}
-              removeLine={removeLine}
-            />
-          </div>
-        )}
+      {activeTab === "surat_jalan" && (
+        <div className="flex flex-col gap-6 h-full">
+          <InvoiceSuratJalan
+            form={form}
+            setForm={setForm}
+            suratJalans={suratJalans}
+            salesOrders={salesOrders}
+          />
+        </div>
+      )}
 
-        {activeTab === "surat_jalan" && (
-          <div className="flex flex-col gap-6 h-full">
-            <InvoiceSuratJalan
-              form={form}
-              setForm={setForm}
-              suratJalans={suratJalans}
-              salesOrders={salesOrders}
-            />
-          </div>
-        )}
-
-        {activeTab === "history" && (
-          <div className="flex flex-col gap-6 h-full">
-            <InvoiceHistory form={form} totalAkhir={totalAkhir} />
-          </div>
-        )}
-        {/* Box 4: Footer Kalkulasi & Tanda Tangan */}
-        <div className="bg-white border border-slate-300 rounded-sm shadow-sm p-6 shrink-0 flex flex-col lg:flex-row gap-8 justify-between mt-2">
-          {/* Kiri: Tanda Tangan */}
-          <div className="flex-1 max-w-lg flex flex-col gap-4">
-            <div className="flex gap-4 items-start">
-              <div className="w-24 shrink-0 flex flex-col gap-1">
-                <label className="text-sm font-semibold text-slate-700">
-                  Ttd / Cap
+      {activeTab === "history" && (
+        <div className="flex flex-col gap-6 h-full">
+          <InvoiceHistory form={form} totalAkhir={totalAkhir} />
+        </div>
+      )}
+      {/* Box 4: Footer Kalkulasi & Tanda Tangan */}
+      <div className="bg-white border border-slate-300 rounded-sm shadow-sm p-6 shrink-0 flex flex-col lg:flex-row gap-8 justify-between mt-2">
+        {/* Kiri: Tanda Tangan */}
+        <div className="flex-1 max-w-lg flex flex-col gap-4">
+          <div className="flex gap-4 items-start">
+            <div className="w-24 shrink-0 flex flex-col gap-1">
+              <label className="text-sm font-semibold text-slate-700">
+                Ttd / Cap
+              </label>
+              {signatureData && signatureData.ttd_image ? (
+                <img
+                  src={`data:image/png;base64,${signatureData.ttd_image}`}
+                  alt="Tanda Tangan"
+                  className="h-16 object-contain border border-slate-200 bg-white p-1 rounded-sm shadow-sm"
+                />
+              ) : (
+                <div className="h-16 border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-[10px] text-slate-400 text-center p-2 rounded-sm leading-tight">
+                  Canvas / Kosong
+                </div>
+              )}
+            </div>
+            <div className="flex-1 flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">
+                  Nama
                 </label>
-                {signatureData && signatureData.ttd_image ? (
-                  <img
-                    src={`data:image/png;base64,${signatureData.ttd_image}`}
-                    alt="Tanda Tangan"
-                    className="h-16 object-contain border border-slate-200 bg-white p-1 rounded-sm shadow-sm"
-                  />
-                ) : (
-                  <div className="h-16 border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-[10px] text-slate-400 text-center p-2 rounded-sm leading-tight">
-                    Canvas / Kosong
-                  </div>
-                )}
+                <input
+                  type="text"
+                  className={`${inputClass} flex-1 min-w-[120px]`}
+                  value={form.penandatangan || ""}
+                  onChange={(e) =>
+                    setForm({ ...form, penandatangan: e.target.value })
+                  }
+                />
               </div>
-              <div className="flex-1 flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">
-                    Nama
-                  </label>
-                  <input
-                    type="text"
-                    className={`${inputClass} flex-1 min-w-[120px]`}
-                    value={form.penandatangan || ""}
-                    onChange={(e) =>
-                      setForm({ ...form, penandatangan: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">
-                    Jabatan
-                  </label>
-                  <input
-                    type="text"
-                    className={`${inputClass} flex-1 min-w-[120px]`}
-                    value={form.jabatan || ""}
-                    onChange={(e) =>
-                      setForm({ ...form, jabatan: e.target.value })
-                    }
-                  />
-                </div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-semibold text-slate-600 w-12 shrink-0">
+                  Jabatan
+                </label>
+                <input
+                  type="text"
+                  className={`${inputClass} flex-1 min-w-[120px]`}
+                  value={form.jabatan || ""}
+                  onChange={(e) =>
+                    setForm({ ...form, jabatan: e.target.value })
+                  }
+                />
               </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-semibold text-slate-700">
-                Keterangan
-              </label>
-              <textarea
-                className={`${inputClass} w-full h-16 resize-none`}
-                value={form.keterangan || ""}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-semibold text-slate-700">
+              Keterangan
+            </label>
+            <textarea
+              className={`${inputClass} w-full h-16 resize-none`}
+              value={form.keterangan || ""}
+              onChange={(e) => setForm({ ...form, keterangan: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {/* Kanan: Dua Kolom Kalkulasi */}
+        <div className="flex flex-wrap lg:flex-nowrap gap-6 shrink-0">
+          {/* Kalkulasi Piutang */}
+          <div className="flex flex-col gap-2 w-[240px] shrink-0 lg:border-l border-slate-300 lg:pl-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-700">
+                Nilai Invoice
+              </span>
+              <input
+                type="text"
+                className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800"
+                readOnly
+                value={totalAkhir.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                })}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-700">
+                Pembayaran
+              </span>
+              <input
+                type="text"
+                className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800"
+                readOnly
+                value="0.00"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-700">
+                Potongan
+              </span>
+              <input
+                type="number"
+                className="w-32 text-right px-2 py-1 text-sm bg-white border border-slate-300 rounded-sm font-mono text-slate-800 focus:outline-none focus:border-blue-500"
+                value={form.potongan_harga || 0}
                 onChange={(e) =>
-                  setForm({ ...form, keterangan: e.target.value })
+                  setForm({ ...form, potongan_harga: Number(e.target.value) })
                 }
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-700">
+                Nota Kredit
+              </span>
+              <input
+                type="text"
+                className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800"
+                readOnly
+                value="0.00"
+              />
+            </div>
+            <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-300">
+              <span className="text-sm font-bold text-slate-800">
+                Sisa Piutang
+              </span>
+              <input
+                type="text"
+                className="w-32 text-right px-2 py-1 text-sm bg-white border border-slate-400 rounded-sm font-mono font-bold text-slate-900"
+                readOnly
+                value={totalAkhir.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                })}
               />
             </div>
           </div>
 
-          {/* Kanan: Dua Kolom Kalkulasi */}
-          <div className="flex flex-wrap lg:flex-nowrap gap-6 shrink-0">
-            {/* Kalkulasi Piutang */}
-            <div className="flex flex-col gap-2 w-[240px] shrink-0 lg:border-l border-slate-300 lg:pl-6">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">
-                  Nilai Invoice
-                </span>
-                <input
-                  type="text"
-                  className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800"
-                  readOnly
-                  value={totalAkhir.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                  })}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">
-                  Pembayaran
-                </span>
-                <input
-                  type="text"
-                  className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800"
-                  readOnly
-                  value="0.00"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">
-                  Potongan
-                </span>
+          {/* Kalkulasi Akhir */}
+          <div className="flex flex-col gap-2 w-[260px] shrink-0 border-l border-slate-300 pl-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-700">
+                Jlh Harga Jual
+              </span>
+              <input
+                type="text"
+                className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800"
+                readOnly
+                value={subtotal.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                })}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-700">Disc.</span>
+              <div className="flex gap-1.5 w-32 justify-end">
                 <input
                   type="number"
-                  className="w-32 text-right px-2 py-1 text-sm bg-white border border-slate-300 rounded-sm font-mono text-slate-800 focus:outline-none focus:border-blue-500"
-                  value={form.potongan_harga || 0}
+                  className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm bg-slate-100"
+                  readOnly
+                  placeholder="%"
+                />
+                <input
+                  type="text"
+                  className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono"
+                  value={potonganHarga.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                  })}
+                  readOnly
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-700">
+                Uang Muka
+              </span>
+              <input
+                type="text"
+                className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono"
+                readOnly
+                value="0.00"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.ppn_persen > 0}
                   onChange={(e) =>
-                    setForm({ ...form, potongan_harga: Number(e.target.value) })
+                    setForm({
+                      ...form,
+                      ppn_persen: e.target.checked ? 11 : 0,
+                    })
+                  }
+                  className="w-3.5 h-3.5 rounded border-slate-300"
+                />{" "}
+                Incl PPN
+              </label>
+              <div className="flex gap-1.5 items-center w-32 justify-end">
+                <span className="text-xs font-bold text-slate-500">PPN</span>
+                <input
+                  type="number"
+                  className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500"
+                  value={form.ppn_persen || 0}
+                  onChange={(e) =>
+                    setForm({ ...form, ppn_persen: Number(e.target.value) })
                   }
                 />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">
-                  Nota Kredit
-                </span>
                 <input
                   type="text"
-                  className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800"
+                  className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono"
                   readOnly
-                  value="0.00"
-                />
-              </div>
-              <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-300">
-                <span className="text-sm font-bold text-slate-800">
-                  Sisa Piutang
-                </span>
-                <input
-                  type="text"
-                  className="w-32 text-right px-2 py-1 text-sm bg-white border border-slate-400 rounded-sm font-mono font-bold text-slate-900"
-                  readOnly
-                  value={totalAkhir.toLocaleString("en-US", {
+                  value={ppnAmount.toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                   })}
                 />
               </div>
             </div>
-
-            {/* Kalkulasi Akhir */}
-            <div className="flex flex-col gap-2 w-[260px] shrink-0 border-l border-slate-300 pl-6">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">
-                  Jlh Harga Jual
-                </span>
+            <div className="flex items-center justify-end">
+              <div className="flex gap-1.5 items-center w-32 justify-end">
+                <span className="text-xs font-bold text-slate-500">PPh 22</span>
+                <input
+                  type="number"
+                  className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm bg-white focus:outline-none focus:border-blue-500"
+                  value={form.pph_persen || 0}
+                  onChange={(e) =>
+                    setForm({ ...form, pph_persen: Number(e.target.value) })
+                  }
+                />
                 <input
                   type="text"
-                  className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono text-slate-800"
+                  className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono"
                   readOnly
-                  value={subtotal.toLocaleString("en-US", {
+                  value={pphAmount.toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                   })}
                 />
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">
-                  Disc.
-                </span>
-                <div className="flex gap-1.5 w-32 justify-end">
-                  <input
-                    type="number"
-                    className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm bg-slate-100"
-                    readOnly
-                    placeholder="%"
-                  />
-                  <input
-                    type="text"
-                    className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono"
-                    value={potonganHarga.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                    })}
-                    readOnly
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">
-                  Uang Muka
-                </span>
-                <input
-                  type="text"
-                  className="w-32 text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono"
-                  readOnly
-                  value="0.00"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.ppn_persen > 0}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        ppn_persen: e.target.checked ? 11 : 0,
-                      })
-                    }
-                    className="w-3.5 h-3.5 rounded border-slate-300"
-                  />{" "}
-                  Incl PPN
-                </label>
-                <div className="flex gap-1.5 items-center w-32 justify-end">
-                  <span className="text-xs font-bold text-slate-500">PPN</span>
-                  <input
-                    type="number"
-                    className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm focus:outline-none focus:border-blue-500"
-                    value={form.ppn_persen || 0}
-                    onChange={(e) =>
-                      setForm({ ...form, ppn_persen: Number(e.target.value) })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono"
-                    readOnly
-                    value={ppnAmount.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                    })}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-end">
-                <div className="flex gap-1.5 items-center w-32 justify-end">
-                  <span className="text-xs font-bold text-slate-500">
-                    PPh 22
-                  </span>
-                  <input
-                    type="number"
-                    className="w-10 text-center px-1 py-1 text-sm border border-slate-300 rounded-sm bg-white focus:outline-none focus:border-blue-500"
-                    value={form.pph_persen || 0}
-                    onChange={(e) =>
-                      setForm({ ...form, pph_persen: Number(e.target.value) })
-                    }
-                  />
-                  <input
-                    type="text"
-                    className="w-[80px] text-right px-2 py-1 text-sm bg-slate-100 border border-slate-300 rounded-sm font-mono"
-                    readOnly
-                    value={pphAmount.toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                    })}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-300">
-                <span className="text-sm font-bold text-slate-800">Total</span>
-                <input
-                  type="text"
-                  className="w-32 text-right px-2 py-1 text-base bg-white border border-slate-400 rounded-sm font-mono font-bold text-slate-900 shadow-inner"
-                  readOnly
-                  value={totalAkhir.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                  })}
-                />
-              </div>
+            </div>
+            <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-300">
+              <span className="text-sm font-bold text-slate-800">Total</span>
+              <input
+                type="text"
+                className="w-32 text-right px-2 py-1 text-base bg-white border border-slate-400 rounded-sm font-mono font-bold text-slate-900 shadow-inner"
+                readOnly
+                value={totalAkhir.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                })}
+              />
             </div>
           </div>
         </div>
+      </div>
       {/* Global Persistent Footer Buttons */}
       <div className="bg-white border-t border-slate-300 p-4 shrink-0 flex justify-end gap-3 z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <button

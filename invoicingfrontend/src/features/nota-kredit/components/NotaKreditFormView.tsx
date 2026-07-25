@@ -29,7 +29,9 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
   onUpdateLine,
   onRemoveLine,
 }) => {
-  const selectedPelanggan = pelanggans.find((p) => String(p.id) === String(form.pelanggan_id));
+  const selectedPelanggan = pelanggans.find(
+    (p) => String(p.id) === String(form.pelanggan_id),
+  );
 
   return (
     <PageLayout
@@ -58,7 +60,9 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
         <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
           <div className="space-y-4">
             <div className="grid grid-cols-[130px_1fr] items-center gap-2">
-              <label className="text-xs font-medium text-slate-700">Pilih Periode</label>
+              <label className="text-xs font-medium text-slate-700">
+                Pilih Periode
+              </label>
               <input
                 type="text"
                 value={form.periode}
@@ -67,28 +71,40 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
               />
             </div>
             <div className="grid grid-cols-[130px_1fr] items-center gap-2">
-              <label className="text-xs font-medium text-slate-700">No. Nota Kredit</label>
+              <label className="text-xs font-medium text-slate-700">
+                No. Nota Kredit
+              </label>
               <input
                 type="text"
                 value={form.no_nota_kredit}
-                onChange={(e) => setForm({ ...form, no_nota_kredit: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, no_nota_kredit: e.target.value })
+                }
                 className="text-xs border border-slate-300 rounded-sm px-3 py-1.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
               />
             </div>
             <div className="grid grid-cols-[130px_1fr] items-center gap-2">
-              <label className="text-xs font-medium text-slate-700">Tgl Nota Kredit</label>
+              <label className="text-xs font-medium text-slate-700">
+                Tgl Nota Kredit
+              </label>
               <input
                 type="date"
                 value={form.tgl_nota_kredit}
-                onChange={(e) => setForm({ ...form, tgl_nota_kredit: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, tgl_nota_kredit: e.target.value })
+                }
                 className="text-xs border border-slate-300 rounded-sm px-3 py-1.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
               />
             </div>
             <div className="grid grid-cols-[130px_1fr] items-center gap-2">
-              <label className="text-xs font-medium text-slate-700">Nama Pelanggan</label>
+              <label className="text-xs font-medium text-slate-700">
+                Nama Pelanggan
+              </label>
               <select
                 value={form.pelanggan_id}
-                onChange={(e) => setForm({ ...form, pelanggan_id: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, pelanggan_id: e.target.value })
+                }
                 className="text-xs border border-slate-300 rounded-sm px-3 py-1.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
               >
                 <option value="">-- Pilih --</option>
@@ -100,7 +116,9 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
               </select>
             </div>
             <div className="grid grid-cols-[130px_1fr] items-start gap-2">
-              <label className="text-xs font-medium text-slate-700 pt-1">Alamat</label>
+              <label className="text-xs font-medium text-slate-700 pt-1">
+                Alamat
+              </label>
               <textarea
                 value={selectedPelanggan?.alamat || ""}
                 disabled
@@ -109,21 +127,33 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
               />
             </div>
             <div className="grid grid-cols-[130px_1fr] items-center gap-2">
-              <label className="text-xs font-medium text-slate-700">Nilai Nota Kredit</label>
+              <label className="text-xs font-medium text-slate-700">
+                Nilai Nota Kredit
+              </label>
               <div className="flex gap-2">
                 <select
                   value={form.mata_uang_id}
-                  onChange={(e) => setForm({ ...form, mata_uang_id: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, mata_uang_id: e.target.value })
+                  }
                   className="text-xs border border-slate-300 rounded-sm px-2 py-1.5 w-20 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                 >
                   <option value="">IDR</option>
                   {mataUangs.map((mu) => (
-                    <option key={mu.id} value={mu.id}>{mu.nama}</option>
+                    <option key={mu.id} value={mu.id}>
+                      {mu.nama}
+                    </option>
                   ))}
                 </select>
                 <input
                   type="text"
-                  value={form.lines?.reduce((sum: number, line: any) => sum + (parseFloat(line.jumlah) || 0), 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                  value={form.lines
+                    ?.reduce(
+                      (sum: number, line: any) =>
+                        sum + (parseFloat(line.jumlah) || 0),
+                      0,
+                    )
+                    .toLocaleString("en-US", { minimumFractionDigits: 2 })}
                   disabled
                   className="text-xs border border-slate-300 rounded-sm px-3 py-1.5 bg-green-50 text-right font-mono flex-1 text-slate-800 font-semibold"
                 />
@@ -132,40 +162,55 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
           </div>
           <div className="space-y-4 bg-slate-50 p-4 border border-slate-200 rounded-sm">
             <div className="grid grid-cols-[120px_1fr] items-center gap-2">
-              <label className="text-xs font-medium text-slate-700">Atas No. Invoice</label>
+              <label className="text-xs font-medium text-slate-700">
+                Atas No. Invoice
+              </label>
               <select
                 value={form.invoice_id}
-                onChange={(e) => setForm({ ...form, invoice_id: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, invoice_id: e.target.value })
+                }
                 className="text-xs border border-slate-300 rounded-sm px-3 py-1.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
               >
                 <option value="">-- Kosong --</option>
                 {invoices.map((inv) => (
                   <option key={inv.id} value={inv.id}>
-                    {inv.no_invoice} (Sisa: {inv.saldo_piutang?.toLocaleString()})
+                    {inv.no_invoice} (Sisa:{" "}
+                    {inv.saldo_piutang?.toLocaleString()})
                   </option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-[120px_1fr] items-center gap-2">
-              <label className="text-xs font-medium text-slate-700">No. Referensi</label>
+              <label className="text-xs font-medium text-slate-700">
+                No. Referensi
+              </label>
               <input
                 type="text"
                 value={form.no_referensi}
-                onChange={(e) => setForm({ ...form, no_referensi: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, no_referensi: e.target.value })
+                }
                 className="text-xs border border-slate-300 rounded-sm px-3 py-1.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
               />
             </div>
             <div className="grid grid-cols-[120px_1fr] items-center gap-2">
-              <label className="text-xs font-medium text-slate-700">Tanda Tangan</label>
+              <label className="text-xs font-medium text-slate-700">
+                Tanda Tangan
+              </label>
               <input
                 type="text"
                 value={form.tanda_tangan}
-                onChange={(e) => setForm({ ...form, tanda_tangan: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, tanda_tangan: e.target.value })
+                }
                 className="text-xs border border-slate-300 rounded-sm px-3 py-1.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
               />
             </div>
             <div className="grid grid-cols-[120px_1fr] items-center gap-2">
-              <label className="text-xs font-medium text-slate-700">Jabatan</label>
+              <label className="text-xs font-medium text-slate-700">
+                Jabatan
+              </label>
               <input
                 type="text"
                 value={form.jabatan}
@@ -181,17 +226,29 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
           <table className="w-full text-xs text-left whitespace-nowrap">
             <thead className="bg-[#1e1e1e] border-b border-slate-300">
               <tr>
-                <th className="px-3 py-2 font-semibold text-white w-10 text-center">No.</th>
-                <th className="px-3 py-2 font-semibold text-white w-12 text-center">Aksi</th>
-                <th className="px-3 py-2 font-semibold text-white">Keterangan</th>
-                <th className="px-3 py-2 font-semibold text-white text-right w-48">Jumlah</th>
-                <th className="px-3 py-2 font-semibold text-white w-48">No Perkiraan</th>
+                <th className="px-3 py-2 font-semibold text-white w-10 text-center">
+                  No.
+                </th>
+                <th className="px-3 py-2 font-semibold text-white w-12 text-center">
+                  Aksi
+                </th>
+                <th className="px-3 py-2 font-semibold text-white">
+                  Keterangan
+                </th>
+                <th className="px-3 py-2 font-semibold text-white text-right w-48">
+                  Jumlah
+                </th>
+                <th className="px-3 py-2 font-semibold text-white w-48">
+                  No Perkiraan
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
               {form.lines?.map((line: any, idx: number) => (
                 <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-3 py-2 text-center text-slate-500 font-medium">{idx + 1}</td>
+                  <td className="px-3 py-2 text-center text-slate-500 font-medium">
+                    {idx + 1}
+                  </td>
                   <td className="px-3 py-2 text-center">
                     <button
                       onClick={() => onRemoveLine(idx)}
@@ -204,7 +261,12 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
                     <input
                       type="text"
                       value={line.keterangan || ""}
-                      onChange={(e) => onUpdateLine(idx, { ...line, keterangan: e.target.value })}
+                      onChange={(e) =>
+                        onUpdateLine(idx, {
+                          ...line,
+                          keterangan: e.target.value,
+                        })
+                      }
                       className="w-full text-xs border border-slate-200 rounded-sm px-2 py-1 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </td>
@@ -212,7 +274,9 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
                     <input
                       type="number"
                       value={line.jumlah || ""}
-                      onChange={(e) => onUpdateLine(idx, { ...line, jumlah: e.target.value })}
+                      onChange={(e) =>
+                        onUpdateLine(idx, { ...line, jumlah: e.target.value })
+                      }
                       className="w-full text-xs border border-slate-200 rounded-sm px-2 py-1 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-right font-mono"
                     />
                   </td>
@@ -220,7 +284,12 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
                     <input
                       type="text"
                       value={line.no_perkiraan || ""}
-                      onChange={(e) => onUpdateLine(idx, { ...line, no_perkiraan: e.target.value })}
+                      onChange={(e) =>
+                        onUpdateLine(idx, {
+                          ...line,
+                          no_perkiraan: e.target.value,
+                        })
+                      }
                       className="w-full text-xs border border-slate-200 rounded-sm px-2 py-1 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
                   </td>
@@ -230,7 +299,9 @@ export const NotaKreditFormView: React.FC<NotaKreditFormViewProps> = ({
           </table>
           <div className="p-3 bg-slate-50 border-t border-slate-200">
             <button
-              onClick={() => onAddLine({ keterangan: "", jumlah: 0, no_perkiraan: "" })}
+              onClick={() =>
+                onAddLine({ keterangan: "", jumlah: 0, no_perkiraan: "" })
+              }
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-sm transition-colors border border-blue-200"
             >
               <Plus size={14} /> TAMBAH BARIS

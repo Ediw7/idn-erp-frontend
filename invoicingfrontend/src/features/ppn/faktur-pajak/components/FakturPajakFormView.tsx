@@ -34,22 +34,25 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
     "w-full text-xs border border-slate-300 rounded-sm px-2 py-1 outline-none focus:border-blue-500 bg-white";
   const labelClass = "text-[11px] font-semibold text-slate-700 mb-1 block";
 
-  const selectedPelanggan = pelanggans.find((p) => p.id === Number(form.pembeli_id));
+  const selectedPelanggan = pelanggans.find(
+    (p) => p.id === Number(form.pembeli_id),
+  );
 
   const calculateTotal = () => {
     let totalDpp = 0;
     (form.lines || []).forEach((line: any) => {
       totalDpp += (line.kuantum || 0) * (line.harga_satuan || 0);
     });
-    
+
     // Potongan dan Uang muka
-    const dppSetelahPotongan = totalDpp - (form.potongan || 0) - (form.uang_muka || 0);
+    const dppSetelahPotongan =
+      totalDpp - (form.potongan || 0) - (form.uang_muka || 0);
     const ppn = dppSetelahPotongan * (form.tarif_ppn / 100);
 
     setForm({
       ...form,
       dpp_rp: dppSetelahPotongan,
-      ppn_rp: ppn
+      ppn_rp: ppn,
     });
   };
 
@@ -110,34 +113,46 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                       type="text"
                       className={inputClass}
                       value={form.penomoran || ""}
-                      onChange={(e) => setForm({ ...form, penomoran: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, penomoran: e.target.value })
+                      }
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2 items-center">
-                  <label className={labelClass + " mb-0"}>No. Faktur Pajak</label>
+                  <label className={labelClass + " mb-0"}>
+                    No. Faktur Pajak
+                  </label>
                   <div className="col-span-2">
                     <input
                       type="text"
                       className={inputClass}
                       value={form.no_fp || ""}
-                      onChange={(e) => setForm({ ...form, no_fp: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, no_fp: e.target.value })
+                      }
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2 items-center">
-                  <label className={labelClass + " mb-0"}>Tgl Faktur Pajak</label>
+                  <label className={labelClass + " mb-0"}>
+                    Tgl Faktur Pajak
+                  </label>
                   <div className="col-span-2 flex gap-2">
                     <input
                       type="date"
                       className={inputClass}
                       value={form.tgl_fp || ""}
-                      onChange={(e) => setForm({ ...form, tgl_fp: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, tgl_fp: e.target.value })
+                      }
                     />
                     <select
                       className={inputClass + " w-24"}
                       value={form.mata_uang || "IDR"}
-                      onChange={(e) => setForm({ ...form, mata_uang: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, mata_uang: e.target.value })
+                      }
                     >
                       {mataUangs.map((mu) => (
                         <option key={mu.id} value={mu.kode}>
@@ -153,7 +168,9 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                     <select
                       className={inputClass}
                       value={form.pembeli_id || ""}
-                      onChange={(e) => setForm({ ...form, pembeli_id: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, pembeli_id: e.target.value })
+                      }
                     >
                       <option value="">-- Pilih Pembeli --</option>
                       {pelanggans.map((p) => (
@@ -166,7 +183,11 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                       readOnly
                       rows={2}
                       className={inputClass + " bg-slate-50"}
-                      value={selectedPelanggan?.alamat || selectedPelanggan?.alamat_wp || ""}
+                      value={
+                        selectedPelanggan?.alamat ||
+                        selectedPelanggan?.alamat_wp ||
+                        ""
+                      }
                       placeholder="Alamat Pembeli"
                     />
                   </div>
@@ -183,38 +204,64 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2 items-center">
-                  <label className={labelClass + " mb-0"}>FP Yang Diganti</label>
+                  <label className={labelClass + " mb-0"}>
+                    FP Yang Diganti
+                  </label>
                   <div className="col-span-2 flex gap-2">
                     <input
                       type="text"
                       className={inputClass}
                       value={form.fp_diganti || ""}
-                      onChange={(e) => setForm({ ...form, fp_diganti: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, fp_diganti: e.target.value })
+                      }
                     />
                     <input
                       type="date"
                       className={inputClass}
                       value={form.tgl_fp_diganti || ""}
-                      onChange={(e) => setForm({ ...form, tgl_fp_diganti: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, tgl_fp_diganti: e.target.value })
+                      }
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2 items-center">
-                  <label className={labelClass + " mb-0"}>Jenis Transaksi</label>
+                  <label className={labelClass + " mb-0"}>
+                    Jenis Transaksi
+                  </label>
                   <div className="col-span-2">
                     <select
                       className={inputClass}
                       value={form.jenis_transaksi || ""}
-                      onChange={(e) => setForm({ ...form, jenis_transaksi: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, jenis_transaksi: e.target.value })
+                      }
                     >
-                      <option value="01 - Kepada Bukan Pemungut PPN">01 - Kepada Bukan Pemungut PPN</option>
-                      <option value="02 - Kepada Pemungut Bendaharawan">02 - Kepada Pemungut Bendaharawan</option>
-                      <option value="03 - Kepada Pemungut Selain Bendaharawan">03 - Kepada Pemungut Selain Bendaharawan</option>
-                      <option value="04 - DPP Nilai Lain">04 - DPP Nilai Lain</option>
-                      <option value="06 - Penyerahan Lainnya">06 - Penyerahan Lainnya</option>
-                      <option value="07 - Penyerahan Tidak Dipungut PPN">07 - Penyerahan Tidak Dipungut PPN</option>
-                      <option value="08 - Penyerahan Dibebaskan PPN">08 - Penyerahan Dibebaskan PPN</option>
-                      <option value="09 - Penyerahan Aktiva Pasal 16D">09 - Penyerahan Aktiva Pasal 16D</option>
+                      <option value="01 - Kepada Bukan Pemungut PPN">
+                        01 - Kepada Bukan Pemungut PPN
+                      </option>
+                      <option value="02 - Kepada Pemungut Bendaharawan">
+                        02 - Kepada Pemungut Bendaharawan
+                      </option>
+                      <option value="03 - Kepada Pemungut Selain Bendaharawan">
+                        03 - Kepada Pemungut Selain Bendaharawan
+                      </option>
+                      <option value="04 - DPP Nilai Lain">
+                        04 - DPP Nilai Lain
+                      </option>
+                      <option value="06 - Penyerahan Lainnya">
+                        06 - Penyerahan Lainnya
+                      </option>
+                      <option value="07 - Penyerahan Tidak Dipungut PPN">
+                        07 - Penyerahan Tidak Dipungut PPN
+                      </option>
+                      <option value="08 - Penyerahan Dibebaskan PPN">
+                        08 - Penyerahan Dibebaskan PPN
+                      </option>
+                      <option value="09 - Penyerahan Aktiva Pasal 16D">
+                        09 - Penyerahan Aktiva Pasal 16D
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -228,7 +275,9 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                     <select
                       className={inputClass}
                       value={form.jenis_status || "Normal"}
-                      onChange={(e) => setForm({ ...form, jenis_status: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, jenis_status: e.target.value })
+                      }
                     >
                       <option value="Normal">Normal</option>
                       <option value="Pengganti">Pengganti</option>
@@ -243,7 +292,9 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                       type="text"
                       className={inputClass}
                       value={form.no_invoice || ""}
-                      onChange={(e) => setForm({ ...form, no_invoice: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, no_invoice: e.target.value })
+                      }
                     />
                   </div>
                 </div>
@@ -254,7 +305,12 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                       type="number"
                       className={inputClass + " w-20"}
                       value={form.tarif_ppn || 0}
-                      onChange={(e) => setForm({ ...form, tarif_ppn: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          tarif_ppn: parseFloat(e.target.value) || 0,
+                        })
+                      }
                     />
                     <span className="text-xs font-bold">%</span>
                   </div>
@@ -266,9 +322,16 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                       type="number"
                       className={inputClass + " w-32"}
                       value={form.kurs_pajak || 0}
-                      onChange={(e) => setForm({ ...form, kurs_pajak: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          kurs_pajak: parseFloat(e.target.value) || 0,
+                        })
+                      }
                     />
-                    <span className="text-xs font-bold">1 {form.mata_uang || "IDR"}</span>
+                    <span className="text-xs font-bold">
+                      1 {form.mata_uang || "IDR"}
+                    </span>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2 items-center">
@@ -278,7 +341,9 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                       type="text"
                       className={inputClass}
                       value={form.penandatangan || ""}
-                      onChange={(e) => setForm({ ...form, penandatangan: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, penandatangan: e.target.value })
+                      }
                     />
                   </div>
                 </div>
@@ -289,7 +354,9 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                       type="text"
                       className={inputClass}
                       value={form.jabatan || ""}
-                      onChange={(e) => setForm({ ...form, jabatan: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, jabatan: e.target.value })
+                      }
                     />
                   </div>
                 </div>
@@ -300,7 +367,9 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                       rows={2}
                       className={inputClass}
                       value={form.ket_tambahan || ""}
-                      onChange={(e) => setForm({ ...form, ket_tambahan: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, ket_tambahan: e.target.value })
+                      }
                     />
                   </div>
                 </div>
@@ -375,13 +444,15 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                           value={line.item_id || ""}
                           onChange={(e) => {
                             const selectedItem = items.find(
-                              (i) => i.id === Number(e.target.value)
+                              (i) => i.id === Number(e.target.value),
                             );
                             onUpdateLine(idx, {
                               ...line,
                               item_id: selectedItem?.id || null,
                               harga_satuan: selectedItem?.harga_jual || 0,
-                              harga_jual: (selectedItem?.harga_jual || 0) * (line.kuantum || 1)
+                              harga_jual:
+                                (selectedItem?.harga_jual || 0) *
+                                (line.kuantum || 1),
                             });
                           }}
                         >
@@ -427,7 +498,9 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                         <input
                           type="number"
                           readOnly
-                          className={inputClass + " text-right bg-slate-50 font-semibold"}
+                          className={
+                            inputClass + " text-right bg-slate-50 font-semibold"
+                          }
                           value={line.harga_jual || 0}
                         />
                       </td>
@@ -452,26 +525,42 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
             <div className="bg-white p-5 rounded-sm shadow-sm border border-slate-200">
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-600">Dikurangi Potongan Harga</span>
+                  <span className="text-slate-600">
+                    Dikurangi Potongan Harga
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-400">{form.mata_uang || "IDR"}</span>
+                    <span className="font-semibold text-slate-400">
+                      {form.mata_uang || "IDR"}
+                    </span>
                     <input
                       type="number"
                       className={inputClass + " w-32 text-right"}
                       value={form.potongan || 0}
-                      onChange={(e) => setForm({ ...form, potongan: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          potongan: parseFloat(e.target.value) || 0,
+                        })
+                      }
                     />
                   </div>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-slate-600">Dikurangi Uang Muka</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-400">{form.mata_uang || "IDR"}</span>
+                    <span className="font-semibold text-slate-400">
+                      {form.mata_uang || "IDR"}
+                    </span>
                     <input
                       type="number"
                       className={inputClass + " w-32 text-right"}
                       value={form.uang_muka || 0}
-                      onChange={(e) => setForm({ ...form, uang_muka: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          uang_muka: parseFloat(e.target.value) || 0,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -479,23 +568,33 @@ export const FakturPajakFormView: React.FC<FakturPajakFormViewProps> = ({
                 <div className="flex justify-between items-center text-sm font-bold text-slate-800">
                   <span>Dasar Pengenaan Pajak (DPP)</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-400">{form.mata_uang || "IDR"}</span>
+                    <span className="font-semibold text-slate-400">
+                      {form.mata_uang || "IDR"}
+                    </span>
                     <input
                       type="number"
                       readOnly
-                      className={inputClass + " w-32 text-right bg-blue-50 font-bold"}
+                      className={
+                        inputClass + " w-32 text-right bg-blue-50 font-bold"
+                      }
                       value={form.dpp_rp || 0}
                     />
                   </div>
                 </div>
                 <div className="flex justify-between items-center text-sm font-bold text-slate-800">
-                  <span>PPN = {form.tarif_ppn || 11}% x Dasar Pengenaan Pajak</span>
+                  <span>
+                    PPN = {form.tarif_ppn || 11}% x Dasar Pengenaan Pajak
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-400">{form.mata_uang || "IDR"}</span>
+                    <span className="font-semibold text-slate-400">
+                      {form.mata_uang || "IDR"}
+                    </span>
                     <input
                       type="number"
                       readOnly
-                      className={inputClass + " w-32 text-right bg-blue-50 font-bold"}
+                      className={
+                        inputClass + " w-32 text-right bg-blue-50 font-bold"
+                      }
                       value={form.ppn_rp || 0}
                     />
                   </div>

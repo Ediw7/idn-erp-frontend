@@ -39,7 +39,10 @@ export const NotaKreditListView: React.FC<NotaKreditListViewProps> = ({
   const filteredData = dataList.filter((item) => {
     if (searchPelanggan && String(item.pelanggan_id) !== searchPelanggan)
       return false;
-    if (searchNo && !item.no_nota_kredit.toLowerCase().includes(searchNo.toLowerCase()))
+    if (
+      searchNo &&
+      !item.no_nota_kredit.toLowerCase().includes(searchNo.toLowerCase())
+    )
       return false;
     return true;
   });

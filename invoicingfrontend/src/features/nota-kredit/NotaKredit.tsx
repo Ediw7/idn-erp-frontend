@@ -3,7 +3,6 @@ import { useNotaKreditLogic } from "./components/useNotaKreditLogic";
 import { NotaKreditListView } from "./components/NotaKreditListView";
 import { NotaKreditFormView } from "./components/NotaKreditFormView";
 
-
 const NotaKredit: React.FC = () => {
   const logic = useNotaKreditLogic();
 
@@ -42,10 +41,8 @@ const NotaKredit: React.FC = () => {
           onRemoveLine={logic.removeLine}
         />
       )}
-
-
     </div>
   );
 };
 
-export default NotaKredit
+export default NotaKredit;

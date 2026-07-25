@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { getNotaKredit, getNotaKreditById, createNotaKredit, updateNotaKredit, deleteNotaKredit, getAutoNo } from "../api";
+import {
+  getNotaKredit,
+  getNotaKreditById,
+  createNotaKredit,
+  updateNotaKredit,
+  deleteNotaKredit,
+  getAutoNo,
+} from "../api";
 import { setupApi } from "../../setup/api";
 import { getInvoices } from "../../transactionsApi"; // Reusing existing invoice api
 
@@ -23,7 +30,7 @@ export const useNotaKreditLogic = () => {
   const [loadingData, setLoadingData] = useState(false);
   const [form, setForm] = useState<any>(emptyForm);
   const [modalForm, setModalForm] = useState<any>(emptyForm);
-  
+
   const [pelanggans, setPelanggans] = useState<any[]>([]);
   const [mataUangs, setMataUangs] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -38,7 +45,7 @@ export const useNotaKreditLogic = () => {
     total: 0,
     last_page: 1,
   });
-  
+
   const [periode, setPeriode] = useState(() => {
     const d = new Date();
     return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -47,7 +54,11 @@ export const useNotaKreditLogic = () => {
   const fetchData = async (page = 1) => {
     setLoadingData(true);
     try {
-      const res = await getNotaKredit({ page, limit: pagination.limit, periode });
+      const res = await getNotaKredit({
+        page,
+        limit: pagination.limit,
+        periode,
+      });
       if (res.status === "success") {
         setDataList(res.data);
         if (res.meta?.pagination) {
@@ -66,8 +77,14 @@ export const useNotaKreditLogic = () => {
   const fetchDependencies = async () => {
     try {
       const [pelRes, muRes, invRes] = await Promise.all([
-        setupApi.getPelanggan().then(data => ({ success: true, data })).catch(() => ({ success: false, data: [] })),
-        setupApi.getMataUang().then(data => ({ success: true, data })).catch(() => ({ success: false, data: [] })),
+        setupApi
+          .getPelanggan()
+          .then((data) => ({ success: true, data }))
+          .catch(() => ({ success: false, data: [] })),
+        setupApi
+          .getMataUang()
+          .then((data) => ({ success: true, data }))
+          .catch(() => ({ success: false, data: [] })),
         getInvoices(),
       ]);
       if (pelRes.success) setPelanggans(pelRes.data);

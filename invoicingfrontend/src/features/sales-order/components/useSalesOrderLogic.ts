@@ -21,7 +21,7 @@ export const useSalesOrderLogic = () => {
 
   const [dataList, setDataList] = useState<SalesOrderData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -119,7 +119,9 @@ export const useSalesOrderLogic = () => {
     setLoadingData(true);
     try {
       const [resSo, p, m, py, s, i, g, company] = await Promise.all([
-        salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage }).catch(() => ({ data: [], pagination: undefined as any })),
+        salesOrderApi
+          .getAll({ page: currentPage, limit: itemsPerPage })
+          .catch(() => ({ data: [], pagination: undefined as any })),
         setupApi.getPelanggan().catch(() => []),
         setupApi.getMataUang().catch(() => []),
         setupApi.getPembayaran().catch(() => []),
@@ -131,13 +133,13 @@ export const useSalesOrderLogic = () => {
 
       let soData = resSo?.data || [];
       soData = mergeSjToSo(soData);
-      
+
       if (resSo?.pagination) {
-          setTotalPages(resSo.pagination.last_page);
-          setTotalItems(resSo.pagination.total);
+        setTotalPages(resSo.pagination.last_page);
+        setTotalItems(resSo.pagination.total);
       } else {
-          setTotalPages(1);
-          setTotalItems(soData.length);
+        setTotalPages(1);
+        setTotalItems(soData.length);
       }
 
       setDataList(soData);
@@ -202,13 +204,16 @@ export const useSalesOrderLogic = () => {
   const handleCreateNewSo = async () => {
     try {
       const savedRes = await salesOrderApi.save(newSoForm as SalesOrderData);
-      const resSo = await salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage });
+      const resSo = await salesOrderApi.getAll({
+        page: currentPage,
+        limit: itemsPerPage,
+      });
       const soData = mergeSjToSo(resSo?.data || []);
       setDataList(soData);
-      
+
       if (resSo?.pagination) {
-          setTotalPages(resSo.pagination.last_page);
-          setTotalItems(resSo.pagination.total);
+        setTotalPages(resSo.pagination.last_page);
+        setTotalItems(resSo.pagination.total);
       }
 
       const newlyCreated =
@@ -279,13 +284,16 @@ export const useSalesOrderLogic = () => {
     setIsSaving(true);
     try {
       await salesOrderApi.save(form as SalesOrderData);
-      const resSo = await salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage });
+      const resSo = await salesOrderApi.getAll({
+        page: currentPage,
+        limit: itemsPerPage,
+      });
       const soData = mergeSjToSo(resSo?.data || []);
       setDataList(soData);
 
       if (resSo?.pagination) {
-          setTotalPages(resSo.pagination.last_page);
-          setTotalItems(resSo.pagination.total);
+        setTotalPages(resSo.pagination.last_page);
+        setTotalItems(resSo.pagination.total);
       }
 
       if (isNew) {
@@ -310,13 +318,16 @@ export const useSalesOrderLogic = () => {
     if (!isConfirmed) return;
     try {
       await salesOrderApi.delete(id);
-      const resSo = await salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage });
+      const resSo = await salesOrderApi.getAll({
+        page: currentPage,
+        limit: itemsPerPage,
+      });
       const soData = mergeSjToSo(resSo?.data || []);
       setDataList(soData);
-      
+
       if (resSo?.pagination) {
-          setTotalPages(resSo.pagination.last_page);
-          setTotalItems(resSo.pagination.total);
+        setTotalPages(resSo.pagination.last_page);
+        setTotalItems(resSo.pagination.total);
       }
       toast.success("Data berhasil dihapus");
     } catch (error) {
@@ -332,13 +343,16 @@ export const useSalesOrderLogic = () => {
     if (!isConfirmed) return;
     try {
       await salesOrderApi.delete(form.id);
-      const resSo = await salesOrderApi.getAll({ page: currentPage, limit: itemsPerPage });
+      const resSo = await salesOrderApi.getAll({
+        page: currentPage,
+        limit: itemsPerPage,
+      });
       const soData = mergeSjToSo(resSo?.data || []);
       setDataList(soData);
-      
+
       if (resSo?.pagination) {
-          setTotalPages(resSo.pagination.last_page);
-          setTotalItems(resSo.pagination.total);
+        setTotalPages(resSo.pagination.last_page);
+        setTotalItems(resSo.pagination.total);
       }
 
       if (soData.length > 0) {

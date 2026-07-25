@@ -171,7 +171,7 @@ export const useFakturPajakLogic = () => {
         if (res.status === "success") {
           toast.success("Berhasil dibuat");
           fetchData(pagination.page);
-          
+
           // Stay on form view with updated ID
           setForm({ ...form, id: res.data.id });
         } else {

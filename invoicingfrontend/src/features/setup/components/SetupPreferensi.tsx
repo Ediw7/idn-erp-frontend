@@ -263,7 +263,10 @@ const SetupPreferensi: React.FC = () => {
                       type="file"
                       ref={backupFolderRef}
                       onChange={handleBackupFolderChange}
-                      {...({ webkitdirectory: "true", directory: "true" } as any)}
+                      {...({
+                        webkitdirectory: "true",
+                        directory: "true",
+                      } as any)}
 
                       className="hidden"
                     />
@@ -292,7 +295,10 @@ const SetupPreferensi: React.FC = () => {
                       type="file"
                       ref={csvFolderRef}
                       onChange={handleCsvFolderChange}
-                      {...({ webkitdirectory: "true", directory: "true" } as any)}
+                      {...({
+                        webkitdirectory: "true",
+                        directory: "true",
+                      } as any)}
                       className="hidden"
                     />
                   </div>

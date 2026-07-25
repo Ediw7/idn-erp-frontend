@@ -141,7 +141,9 @@ const PreviewLaporan: React.FC = () => {
         let p: any = null;
 
         const rawSoData = await salesOrderApi.getAll();
-        const soList = Array.isArray(rawSoData) ? rawSoData : rawSoData.data || [];
+        const soList = Array.isArray(rawSoData)
+          ? rawSoData
+          : rawSoData.data || [];
         const so = soList.find((s: any) => s.no_so === targetNo);
         if (targetFormulir === "Sales Order") {
           if (so) {

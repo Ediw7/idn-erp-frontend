@@ -32,10 +32,7 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
   const filteredData = dataList.filter((item) => {
     if (searchPelanggan && String(item.pembeli_id) !== searchPelanggan)
       return false;
-    if (
-      searchNo &&
-      !item.no_fp.toLowerCase().includes(searchNo.toLowerCase())
-    )
+    if (searchNo && !item.no_fp.toLowerCase().includes(searchNo.toLowerCase()))
       return false;
     return true;
   });
@@ -47,7 +44,9 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
       filters={
         <>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-300 font-medium">No. Faktur Pajak:</span>
+            <span className="text-xs text-slate-300 font-medium">
+              No. Faktur Pajak:
+            </span>
             <input
               type="text"
               value={searchNo}

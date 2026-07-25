@@ -197,11 +197,13 @@ export const useKwitansiLogic = () => {
       const paidAmount = dataList
         .filter((k) => k.no_invoice === no_invoice && k.id !== form.id)
         .reduce((sum, k) => sum + (Number(k.jumlah) || 0), 0);
-      
+
       const sisaTagihan = (inv.total || 0) - paidAmount;
 
       if (sisaTagihan <= 0) {
-        toast.error(`Invoice ${no_invoice} sudah lunas! Tidak bisa membuat kwitansi baru.`);
+        toast.error(
+          `Invoice ${no_invoice} sudah lunas! Tidak bisa membuat kwitansi baru.`,
+        );
         setForm({ ...form, no_invoice: "", invoice_id: null });
         return;
       }
@@ -244,10 +246,12 @@ export const useKwitansiLogic = () => {
         const paidAmount = dataList
           .filter((k) => k.no_invoice === form.no_invoice && k.id !== form.id)
           .reduce((sum, k) => sum + (Number(k.jumlah) || 0), 0);
-        
+
         const sisaTagihan = (inv.total || 0) - paidAmount;
         if (Number(form.jumlah) > sisaTagihan) {
-          toast.error(`Jumlah pembayaran melebihi sisa tagihan! Sisa tagihan: ${sisaTagihan.toLocaleString()}`);
+          toast.error(
+            `Jumlah pembayaran melebihi sisa tagihan! Sisa tagihan: ${sisaTagihan.toLocaleString()}`,
+          );
           return;
         }
       }

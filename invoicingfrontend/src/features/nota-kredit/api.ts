@@ -26,6 +26,8 @@ export const deleteNotaKredit = async (id: number) => {
 };
 
 export const getAutoNo = async (periode?: string) => {
-  const res = await axiosClient.get("/api/nota-kredit/auto-no", { params: { periode } });
+  const res = await axiosClient.get("/api/nota-kredit/auto-no", {
+    params: { periode },
+  });
   return res.data;
 };

@@ -130,7 +130,7 @@ export const SalesOrderListView: React.FC<SalesOrderListViewProps> = ({
         onEdit={onEdit}
         onDelete={onDelete}
       />
-      
+
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
