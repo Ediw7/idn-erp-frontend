@@ -31,7 +31,6 @@ export const InvoiceFpModal: React.FC<InvoiceFpModalProps> = ({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-[1px] p-4">
       <div className="bg-white w-full max-w-[480px] rounded shadow-xl flex flex-col overflow-hidden border border-slate-300">
-        
         {/* Header (Light and subtle) */}
         <div className="px-6 py-4 flex justify-between items-center border-b border-slate-100">
           <div className="flex items-center gap-2">
@@ -50,7 +49,12 @@ export const InvoiceFpModal: React.FC<InvoiceFpModalProps> = ({
 
         {/* Body */}
         <div className="px-6 py-6 text-sm text-slate-600 leading-relaxed">
-          Faktur Pajak untuk invoice <span className="font-semibold text-slate-800">{form?.no_invoice || "ini"}</span> telah ada. Apakah Anda ingin mengupdate datanya atau membuat Faktur Pajak Pengganti?
+          Faktur Pajak untuk invoice{" "}
+          <span className="font-semibold text-slate-800">
+            {form?.no_invoice || "ini"}
+          </span>{" "}
+          telah ada. Apakah Anda ingin mengupdate datanya atau membuat Faktur
+          Pajak Pengganti?
         </div>
 
         {/* Footer (Buttons side by side) */}
@@ -61,7 +65,7 @@ export const InvoiceFpModal: React.FC<InvoiceFpModalProps> = ({
           >
             Batal
           </button>
-          
+
           <button
             onClick={() => handleRouteToFp("PERBARUI")}
             className="px-4 py-2 text-sm font-semibold rounded-sm bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors flex items-center gap-2"
@@ -78,7 +82,6 @@ export const InvoiceFpModal: React.FC<InvoiceFpModalProps> = ({
             Buat Pengganti
           </button>
         </div>
-
       </div>
     </div>
   );

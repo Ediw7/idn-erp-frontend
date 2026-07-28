@@ -300,7 +300,8 @@ export const SuratSetoranPajakFormView: React.FC<FormViewProps> = ({
                       </option>
                     ))}
                   </select>
-                  {tandaTangans?.find((t) => t.nama === form.tanda_tangan)?.ttd_image && (
+                  {tandaTangans?.find((t) => t.nama === form.tanda_tangan)
+                    ?.ttd_image && (
                     <div className="mt-2 bg-slate-50 border border-slate-200 p-2 rounded-sm inline-block">
                       <img
                         src={`data:image/png;base64,${tandaTangans.find((t) => t.nama === form.tanda_tangan)?.ttd_image}`}

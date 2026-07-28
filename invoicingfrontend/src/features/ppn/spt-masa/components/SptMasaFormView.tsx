@@ -162,7 +162,6 @@ export const SptMasaFormView: React.FC<FormViewProps> = ({
                 <Lock size={12} /> LOCKED
               </span>
             )}
-
           </div>
         </div>
 

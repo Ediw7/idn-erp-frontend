@@ -13,7 +13,7 @@ export interface RiwayatPiutang {
 export const kartuPiutangApi = {
   getRiwayat: async (
     pelanggan_id: number,
-    mata_uang: string
+    mata_uang: string,
   ): Promise<RiwayatPiutang[]> => {
     const res = await axiosClient.get("/api/piutang/kartu", {
       params: { pelanggan_id, mata_uang },

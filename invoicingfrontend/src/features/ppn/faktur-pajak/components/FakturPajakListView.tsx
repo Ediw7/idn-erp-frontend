@@ -41,14 +41,12 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
       return false;
     if (
       searchInvoice &&
-      !(item.no_invoice || "").toLowerCase().includes(searchInvoice.toLowerCase())
+      !(item.no_invoice || "")
+        .toLowerCase()
+        .includes(searchInvoice.toLowerCase())
     )
       return false;
-    if (
-      searchMataUang &&
-      item.mata_uang !== searchMataUang
-    )
-      return false;
+    if (searchMataUang && item.mata_uang !== searchMataUang) return false;
     return true;
   });
 
@@ -59,7 +57,9 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
       filters={
         <>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-300 font-medium">No. Faktur Pajak:</span>
+            <span className="text-xs text-slate-300 font-medium">
+              No. Faktur Pajak:
+            </span>
             <input
               type="text"
               value={searchNo}
@@ -123,7 +123,9 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-300 font-medium">Mata Uang:</span>
+            <span className="text-xs text-slate-300 font-medium">
+              Mata Uang:
+            </span>
             <select
               value={searchMataUang}
               onChange={(e) => setSearchMataUang(e.target.value)}
@@ -137,7 +139,9 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-300 font-medium">No. Invoice:</span>
+            <span className="text-xs text-slate-300 font-medium">
+              No. Invoice:
+            </span>
             <input
               type="text"
               value={searchInvoice}
@@ -231,7 +235,9 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
                       {item.mata_uang || "IDR"}
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-slate-800">
-                      {((item.dpp_rp || 0) / (item.kurs_pajak || 1)).toLocaleString("en-US", {
+                      {(
+                        (item.dpp_rp || 0) / (item.kurs_pajak || 1)
+                      ).toLocaleString("en-US", {
                         minimumFractionDigits: 2,
                       })}
                     </td>

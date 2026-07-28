@@ -146,15 +146,20 @@ const TransferEFakturForm: React.FC = () => {
 
   const inputClass =
     "w-full px-3 py-2 border border-slate-300 bg-white rounded-md text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50";
-  const labelClass = "col-span-12 md:col-span-4 text-sm font-semibold text-slate-700";
+  const labelClass =
+    "col-span-12 md:col-span-4 text-sm font-semibold text-slate-700";
 
   return (
-    <PageLayout title="Transfer Data ke Program e-Faktur" contentClassName="flex-1 p-8 overflow-y-auto bg-slate-50 flex justify-center items-start">
+    <PageLayout
+      title="Transfer Data ke Program e-Faktur"
+      contentClassName="flex-1 p-8 overflow-y-auto bg-slate-50 flex justify-center items-start"
+    >
       <div className="w-full max-w-3xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow rounded-xl overflow-hidden mt-4">
-        
         <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-800">Ekspor Data e-Faktur</h2>
+            <h2 className="text-xl font-bold text-slate-800">
+              Ekspor Data e-Faktur
+            </h2>
             <p className="text-sm text-slate-500 mt-1">
               Ekspor data faktur pajak ke format CSV sesuai Skema Impor DJP
             </p>
@@ -181,136 +186,121 @@ const TransferEFakturForm: React.FC = () => {
         </div>
 
         <div className="p-8 space-y-6">
-
-        <div className="grid grid-cols-12 gap-4 items-center">
-          <label className={labelClass}>
-            Jenis Pajak
-          </label>
-          <div className="col-span-12 md:col-span-8">
-            <select
-              className={inputClass}
-              value={form.jenis_pajak}
-              onChange={(e) =>
-                setForm({ ...form, jenis_pajak: e.target.value })
-              }
-              disabled={isLoading}
-            >
-              {jenisPajakOptions.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-12 gap-4 items-center">
+            <label className={labelClass}>Jenis Pajak</label>
+            <div className="col-span-12 md:col-span-8">
+              <select
+                className={inputClass}
+                value={form.jenis_pajak}
+                onChange={(e) =>
+                  setForm({ ...form, jenis_pajak: e.target.value })
+                }
+                disabled={isLoading}
+              >
+                {jenisPajakOptions.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-12 gap-4 items-center">
-          <label className={labelClass}>
-            Tahun
-          </label>
-          <div className="col-span-12 md:col-span-8">
-            <input
-              type="number"
-              className={inputClass}
-              value={form.tahun}
-              onChange={(e) =>
-                setForm({ ...form, tahun: Number(e.target.value) })
-              }
-              disabled={isLoading}
-            />
+          <div className="grid grid-cols-12 gap-4 items-center">
+            <label className={labelClass}>Tahun</label>
+            <div className="col-span-12 md:col-span-8">
+              <input
+                type="number"
+                className={inputClass}
+                value={form.tahun}
+                onChange={(e) =>
+                  setForm({ ...form, tahun: Number(e.target.value) })
+                }
+                disabled={isLoading}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-12 gap-4 items-center">
-          <label className={labelClass}>
-            Bulan
-          </label>
-          <div className="col-span-12 md:col-span-8">
-            <select
-              className={inputClass}
-              value={form.bulan}
-              onChange={(e) => setForm({ ...form, bulan: e.target.value })}
-              disabled={isLoading}
-            >
-              {bulanOptions.map((b) => (
-                <option key={b.v} value={b.v}>
-                  {b.l}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-12 gap-4 items-center">
+            <label className={labelClass}>Bulan</label>
+            <div className="col-span-12 md:col-span-8">
+              <select
+                className={inputClass}
+                value={form.bulan}
+                onChange={(e) => setForm({ ...form, bulan: e.target.value })}
+                disabled={isLoading}
+              >
+                {bulanOptions.map((b) => (
+                  <option key={b.v} value={b.v}>
+                    {b.l}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-12 gap-4 items-center">
-          <label className={labelClass}>
-            Pembetulan
-          </label>
-          <div className="col-span-12 md:col-span-8">
-            <input
-              type="number"
-              className={inputClass}
-              value={form.pembetulan}
-              onChange={(e) =>
-                setForm({ ...form, pembetulan: Number(e.target.value) })
-              }
-              disabled={isLoading}
-              min={0}
-            />
+          <div className="grid grid-cols-12 gap-4 items-center">
+            <label className={labelClass}>Pembetulan</label>
+            <div className="col-span-12 md:col-span-8">
+              <input
+                type="number"
+                className={inputClass}
+                value={form.pembetulan}
+                onChange={(e) =>
+                  setForm({ ...form, pembetulan: Number(e.target.value) })
+                }
+                disabled={isLoading}
+                min={0}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="w-full h-px bg-slate-100 my-6"></div>
+          <div className="w-full h-px bg-slate-100 my-6"></div>
 
-        <div className="grid grid-cols-12 gap-4 items-center">
-          <label className={labelClass}>
-            No FP Awal
-          </label>
-          <div className="col-span-12 md:col-span-8">
-            <input
-              type="text"
-              className={`${inputClass} font-mono`}
-              value={form.fp_awal}
-              onChange={(e) => setForm({ ...form, fp_awal: e.target.value })}
-              placeholder="13 digit terakhir"
-              disabled={isLoading}
-            />
+          <div className="grid grid-cols-12 gap-4 items-center">
+            <label className={labelClass}>No FP Awal</label>
+            <div className="col-span-12 md:col-span-8">
+              <input
+                type="text"
+                className={`${inputClass} font-mono`}
+                value={form.fp_awal}
+                onChange={(e) => setForm({ ...form, fp_awal: e.target.value })}
+                placeholder="13 digit terakhir"
+                disabled={isLoading}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-12 gap-4 items-center">
-          <label className={labelClass}>
-            No FP Akhir
-          </label>
-          <div className="col-span-12 md:col-span-8">
-            <input
-              type="text"
-              className={`${inputClass} font-mono`}
-              value={form.fp_akhir}
-              onChange={(e) => setForm({ ...form, fp_akhir: e.target.value })}
-              placeholder="13 digit terakhir"
-              disabled={isLoading}
-            />
+          <div className="grid grid-cols-12 gap-4 items-center">
+            <label className={labelClass}>No FP Akhir</label>
+            <div className="col-span-12 md:col-span-8">
+              <input
+                type="text"
+                className={`${inputClass} font-mono`}
+                value={form.fp_akhir}
+                onChange={(e) => setForm({ ...form, fp_akhir: e.target.value })}
+                placeholder="13 digit terakhir"
+                disabled={isLoading}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="w-full h-px bg-slate-100 my-6"></div>
+          <div className="w-full h-px bg-slate-100 my-6"></div>
 
-        {/* Generated File Output Name (Read-Only) */}
-        <div className="grid grid-cols-12 gap-4 items-center">
-          <label className={labelClass}>
-            Nama File Output
-          </label>
-          <div className="col-span-12 md:col-span-8">
-            <input
-              type="text"
-              readOnly
-              className="w-full px-3 py-2 border border-slate-200 bg-slate-50 text-slate-500 rounded-md text-sm font-semibold focus:outline-none font-mono"
-              value={outputFileName}
-            />
+          {/* Generated File Output Name (Read-Only) */}
+          <div className="grid grid-cols-12 gap-4 items-center">
+            <label className={labelClass}>Nama File Output</label>
+            <div className="col-span-12 md:col-span-8">
+              <input
+                type="text"
+                readOnly
+                className="w-full px-3 py-2 border border-slate-200 bg-slate-50 text-slate-500 rounded-md text-sm font-semibold focus:outline-none font-mono"
+                value={outputFileName}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </PageLayout>
   );
 };

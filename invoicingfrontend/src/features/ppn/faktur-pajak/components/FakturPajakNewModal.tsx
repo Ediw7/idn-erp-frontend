@@ -65,14 +65,21 @@ export const FakturPajakNewModal: React.FC<FakturPajakNewModalProps> = ({
                     if (val && onAutoNoFp) {
                       const noFp = await onAutoNoFp(val);
                       if (noFp) {
-                        setNewForm((prev: any) => ({ ...prev, penomoran: val, no_fp: noFp }));
+                        setNewForm((prev: any) => ({
+                          ...prev,
+                          penomoran: val,
+                          no_fp: noFp,
+                        }));
                       }
                     }
                   }}
                 >
                   <option value="">-- Manual --</option>
                   {penjatahans.map((p) => (
-                    <option key={p.id} value={`${p.no_seri_awal} - ${p.no_seri_akhir}`}>
+                    <option
+                      key={p.id}
+                      value={`${p.no_seri_awal} - ${p.no_seri_akhir}`}
+                    >
                       {p.no_seri_awal} - {p.no_seri_akhir}
                     </option>
                   ))}
@@ -96,7 +103,9 @@ export const FakturPajakNewModal: React.FC<FakturPajakNewModalProps> = ({
                   type="text"
                   className={inputClass + " flex-1"}
                   value={newForm.no_fp || ""}
-                  onChange={(e) => setNewForm({ ...newForm, no_fp: e.target.value })}
+                  onChange={(e) =>
+                    setNewForm({ ...newForm, no_fp: e.target.value })
+                  }
                   placeholder="Contoh: 010.000-20.00000001"
                   maxLength={19}
                   pattern="\d{3}\.\d{3}-\d{2}\.\d{8}"
@@ -140,7 +149,10 @@ export const FakturPajakNewModal: React.FC<FakturPajakNewModalProps> = ({
                       ...newForm,
                       no_invoice: val,
                       pembeli_id: inv.pembeli_id || newForm.pembeli_id,
-                      lines: inv.lines && inv.lines.length > 0 ? inv.lines : newForm.lines,
+                      lines:
+                        inv.lines && inv.lines.length > 0
+                          ? inv.lines
+                          : newForm.lines,
                     });
                   } else {
                     setNewForm({ ...newForm, no_invoice: val });

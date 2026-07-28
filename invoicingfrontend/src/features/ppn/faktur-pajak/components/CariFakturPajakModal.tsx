@@ -19,7 +19,7 @@ export const CariFakturPajakModal: React.FC<CariFakturPajakModalProps> = ({
       (d) =>
         (d.no_fp || "").toLowerCase().includes(search.toLowerCase()) ||
         (d.pembeli_nama || "").toLowerCase().includes(search.toLowerCase()) ||
-        (d.no_invoice || "").toLowerCase().includes(search.toLowerCase())
+        (d.no_invoice || "").toLowerCase().includes(search.toLowerCase()),
     );
   }, [dataList, search]);
 
@@ -36,12 +36,17 @@ export const CariFakturPajakModal: React.FC<CariFakturPajakModalProps> = ({
         {/* Header */}
         <div className="bg-slate-800 px-6 py-4 flex justify-between items-center cursor-default">
           <div>
-            <h3 className="text-white font-semibold">Cari Faktur Pajak Standar</h3>
+            <h3 className="text-white font-semibold">
+              Cari Faktur Pajak Standar
+            </h3>
             <p className="text-xs text-slate-300 mt-0.5">
               Pilih faktur pajak yang akan diganti
             </p>
           </div>
-          <button onClick={onClose} className="text-slate-300 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            className="text-slate-300 hover:text-white transition-colors"
+          >
             <X size={20} />
           </button>
         </div>
@@ -74,34 +79,65 @@ export const CariFakturPajakModal: React.FC<CariFakturPajakModalProps> = ({
             <table className="w-full text-xs text-left whitespace-nowrap">
               <thead className="bg-slate-100 border-b border-slate-200 sticky top-0 z-10">
                 <tr>
-                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200">No. Faktur Pajak</th>
-                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200">Tgl</th>
-                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200">No. Invoice</th>
-                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200">Curr</th>
-                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200 text-right">DPP</th>
-                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200 text-right">DPP Rp</th>
-                  <th className="px-3 py-2 font-semibold text-slate-700 text-right">PPN Rp</th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200">
+                    No. Faktur Pajak
+                  </th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200">
+                    Tgl
+                  </th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200">
+                    No. Invoice
+                  </th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200">
+                    Curr
+                  </th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200 text-right">
+                    DPP
+                  </th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 border-r border-slate-200 text-right">
+                    DPP Rp
+                  </th>
+                  <th className="px-3 py-2 font-semibold text-slate-700 text-right">
+                    PPN Rp
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredData.map((d, i) => (
-                  <tr 
-                    key={d.id} 
+                  <tr
+                    key={d.id}
                     className="hover:bg-blue-50 cursor-pointer"
                     onClick={() => onSelect(d)}
                   >
-                    <td className="px-3 py-2 border-r border-slate-100 text-slate-700">{d.no_fp}</td>
-                    <td className="px-3 py-2 border-r border-slate-100 text-slate-600">{d.tgl_fp}</td>
-                    <td className="px-3 py-2 border-r border-slate-100 text-slate-700">{d.no_invoice}</td>
-                    <td className="px-3 py-2 border-r border-slate-100 text-slate-600">{d.mata_uang}</td>
-                    <td className="px-3 py-2 border-r border-slate-100 text-slate-700 text-right">{d.dpp_rp?.toLocaleString('en-US')}</td>
-                    <td className="px-3 py-2 border-r border-slate-100 text-slate-700 text-right">{d.dpp_rp?.toLocaleString('en-US')}</td>
-                    <td className="px-3 py-2 text-slate-700 text-right">{d.ppn_rp?.toLocaleString('en-US')}</td>
+                    <td className="px-3 py-2 border-r border-slate-100 text-slate-700">
+                      {d.no_fp}
+                    </td>
+                    <td className="px-3 py-2 border-r border-slate-100 text-slate-600">
+                      {d.tgl_fp}
+                    </td>
+                    <td className="px-3 py-2 border-r border-slate-100 text-slate-700">
+                      {d.no_invoice}
+                    </td>
+                    <td className="px-3 py-2 border-r border-slate-100 text-slate-600">
+                      {d.mata_uang}
+                    </td>
+                    <td className="px-3 py-2 border-r border-slate-100 text-slate-700 text-right">
+                      {d.dpp_rp?.toLocaleString("en-US")}
+                    </td>
+                    <td className="px-3 py-2 border-r border-slate-100 text-slate-700 text-right">
+                      {d.dpp_rp?.toLocaleString("en-US")}
+                    </td>
+                    <td className="px-3 py-2 text-slate-700 text-right">
+                      {d.ppn_rp?.toLocaleString("en-US")}
+                    </td>
                   </tr>
                 ))}
                 {filteredData.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-3 py-6 text-center text-slate-500 italic">
+                    <td
+                      colSpan={7}
+                      className="px-3 py-6 text-center text-slate-500 italic"
+                    >
                       Tidak ada data ditemukan
                     </td>
                   </tr>
@@ -115,11 +151,13 @@ export const CariFakturPajakModal: React.FC<CariFakturPajakModalProps> = ({
             <div className="text-xs text-slate-500">
               Menampilkan {filteredData.length} records
             </div>
-            
+
             <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-slate-600">Total PPN:</span>
+              <span className="text-sm font-semibold text-slate-600">
+                Total PPN:
+              </span>
               <span className="text-base font-bold text-slate-900">
-                {totalPpn.toLocaleString('en-US')}
+                {totalPpn.toLocaleString("en-US")}
               </span>
             </div>
           </div>

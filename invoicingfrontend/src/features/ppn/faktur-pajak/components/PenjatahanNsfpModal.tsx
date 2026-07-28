@@ -214,7 +214,10 @@ export const PenjatahanNsfpModal: React.FC<PenjatahanNsfpModalProps> = ({
                         placeholder="No Seri Akhir"
                         value={newRow.no_seri_akhir}
                         onChange={(e) =>
-                          setNewRow({ ...newRow, no_seri_akhir: e.target.value })
+                          setNewRow({
+                            ...newRow,
+                            no_seri_akhir: e.target.value,
+                          })
                         }
                       />
                     </td>

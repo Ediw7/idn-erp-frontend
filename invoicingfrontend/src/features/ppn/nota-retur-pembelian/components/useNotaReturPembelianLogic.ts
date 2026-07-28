@@ -72,7 +72,9 @@ export const useNotaReturPembelianLogic = () => {
         setupApi.getItem().catch(() => []),
         setupApi.getGudang().catch(() => []),
         getInvoices().catch(() => []),
-        getFakturPajak().then(res => res.data).catch(() => []),
+        getFakturPajak()
+          .then((res) => res.data)
+          .catch(() => []),
         setupApi.getTandaTangan().catch(() => []),
         notaReturPembelianApi.getAll().catch(() => []),
       ]);

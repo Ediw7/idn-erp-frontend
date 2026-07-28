@@ -65,7 +65,7 @@ export const useSptMasaLogic = () => {
       (x) =>
         x.tahun === form.tahun &&
         x.masa_awal === form.masa_awal &&
-        x.pembetulan_ke === form.pembetulan_ke
+        x.pembetulan_ke === form.pembetulan_ke,
     );
 
     if (existing && existing.id !== form.id) {
@@ -74,7 +74,13 @@ export const useSptMasaLogic = () => {
     } else if (!existing && !isNew && form.id) {
       // If no existing record for this period, but we have an ID, it means the user changed the period of a saved record to a new period.
       // We should switch to a new form keeping the period they selected.
-      setForm({ ...emptyForm, tahun: form.tahun, masa_awal: form.masa_awal, masa_akhir: form.masa_akhir, pembetulan_ke: form.pembetulan_ke });
+      setForm({
+        ...emptyForm,
+        tahun: form.tahun,
+        masa_awal: form.masa_awal,
+        masa_akhir: form.masa_akhir,
+        pembetulan_ke: form.pembetulan_ke,
+      });
       setIsNew(true);
     }
   }, [form.tahun, form.masa_awal, form.pembetulan_ke, dataList]);

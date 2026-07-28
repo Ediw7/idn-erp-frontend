@@ -36,7 +36,9 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
             <h2 className="text-lg font-semibold text-white">{title}</h2>
           </div>
           {filters && (
-            <div className={`flex flex-wrap items-center gap-4 mt-1.5 ${onBack ? "ml-9" : ""}`}>
+            <div
+              className={`flex flex-wrap items-center gap-4 mt-1.5 ${onBack ? "ml-9" : ""}`}
+            >
               {filters}
             </div>
           )}

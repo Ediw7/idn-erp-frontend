@@ -139,7 +139,7 @@ export const useFakturPajakLogic = () => {
   useEffect(() => {
     if (location.state?.no_invoice) {
       const { action, no_invoice, pembeli_id, lines } = location.state;
-      
+
       const loadFromInvoice = async () => {
         setLoadingData(true);
         try {
@@ -147,7 +147,7 @@ export const useFakturPajakLogic = () => {
           const res = await getFakturPajak({ no_invoice });
           if (res.status === "success" && res.data && res.data.length > 0) {
             const existingFp = res.data[0];
-            
+
             if (action === "pengganti") {
               // Create pengganti from existing
               setForm({
@@ -229,13 +229,16 @@ export const useFakturPajakLogic = () => {
       return;
     }
     setIsSaving(true);
-    
+
     let totalHargaJual = 0;
     (form.lines || []).forEach((line: any) => {
-      totalHargaJual += ((line.kuantum || 0) * (line.harga_satuan || 0)) - (line.disc_footer || 0);
+      totalHargaJual +=
+        (line.kuantum || 0) * (line.harga_satuan || 0) -
+        (line.disc_footer || 0);
     });
-    
-    let dppSetelahPotongan = totalHargaJual - (form.potongan || 0) - (form.uang_muka || 0);
+
+    let dppSetelahPotongan =
+      totalHargaJual - (form.potongan || 0) - (form.uang_muka || 0);
     if (form.is_dpp_valas) {
       dppSetelahPotongan = dppSetelahPotongan * (100 / 110);
     }
@@ -245,7 +248,7 @@ export const useFakturPajakLogic = () => {
       ...form,
       harga_jual_total: totalHargaJual,
       dpp_rp: dppSetelahPotongan,
-      ppn_rp: ppn
+      ppn_rp: ppn,
     };
 
     try {
@@ -339,13 +342,19 @@ export const useFakturPajakLogic = () => {
   };
 
   // Auto generate No. FP based on selected penomoran
-  const handleAutoNoFp = async (penomoran: string, kode_transaksi?: string, kode_status?: string) => {
+  const handleAutoNoFp = async (
+    penomoran: string,
+    kode_transaksi?: string,
+    kode_status?: string,
+  ) => {
     if (!penomoran) return "";
     try {
       // Default to "01" and "0" if not provided
-      const tx = kode_transaksi || (form.jenis_transaksi ? form.jenis_transaksi.split(" ")[0] : "01");
+      const tx =
+        kode_transaksi ||
+        (form.jenis_transaksi ? form.jenis_transaksi.split(" ")[0] : "01");
       const st = kode_status || (form.jenis_status === "Pengganti" ? "1" : "0");
-      
+
       const res = await autoNoFp(penomoran, tx, st);
       if (res.status === "success" && res.data?.no_fp) {
         return res.data.no_fp;

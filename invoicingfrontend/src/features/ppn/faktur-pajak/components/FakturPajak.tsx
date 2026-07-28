@@ -79,7 +79,11 @@ const FakturPajak: React.FC = () => {
           onAutoNoFp={logic.handleAutoNoFp}
           onAutoGenerate={async () => {
             if (logic.newForm.penomoran) {
-              const no = await logic.handleAutoNoFp(logic.newForm.penomoran, undefined, undefined);
+              const no = await logic.handleAutoNoFp(
+                logic.newForm.penomoran,
+                undefined,
+                undefined,
+              );
               if (no) {
                 logic.setNewForm((prev: any) => ({ ...prev, no_fp: no }));
               }

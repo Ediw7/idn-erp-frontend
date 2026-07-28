@@ -97,9 +97,7 @@ export const NotaReturPenjualanListView: React.FC<ListViewProps> = ({
             />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-300 font-medium">
-              Pembeli:
-            </span>
+            <span className="text-xs text-slate-300 font-medium">Pembeli:</span>
             <input
               type="text"
               className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-28"
