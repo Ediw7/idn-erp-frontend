@@ -9,6 +9,7 @@ import {
   GudangData,
 } from "../../../setup/api";
 import { getInvoices } from "../../../transactionsApi";
+import { getFakturPajak } from "../../faktur-pajak/api";
 import toast from "react-hot-toast";
 
 export const useNotaReturPenjualanLogic = () => {
@@ -22,6 +23,8 @@ export const useNotaReturPenjualanLogic = () => {
   const [items, setItems] = useState<ItemData[]>([]);
   const [gudangs, setGudangs] = useState<GudangData[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
+  const [fakturPajaks, setFakturPajaks] = useState<any[]>([]);
+  const [tandaTangans, setTandaTangans] = useState<any[]>([]);
 
   // Filters for list view
   const currentYear = new Date().getFullYear().toString();
@@ -60,12 +63,14 @@ export const useNotaReturPenjualanLogic = () => {
   const fetchInitialData = async () => {
     setLoadingList(true);
     try {
-      const [p, m, i, g, invRes, listRes] = await Promise.all([
+      const [p, m, i, g, invRes, fpRes, ttRes, listRes] = await Promise.all([
         setupApi.getPelanggan().catch(() => []),
         setupApi.getMataUang().catch(() => []),
         setupApi.getItem().catch(() => []),
         setupApi.getGudang().catch(() => []),
         getInvoices().catch(() => []),
+        getFakturPajak().then(res => res.data).catch(() => []),
+        setupApi.getTandaTangan().catch(() => []),
         notaReturApi.getAll().catch(() => []),
       ]);
 
@@ -74,6 +79,8 @@ export const useNotaReturPenjualanLogic = () => {
       setItems(i);
       setGudangs(g);
       setInvoices(invRes);
+      setFakturPajaks(fpRes);
+      setTandaTangans(ttRes);
       setDataList(listRes);
     } catch (error) {
       console.error("Failed to fetch data", error);
@@ -83,18 +90,10 @@ export const useNotaReturPenjualanLogic = () => {
     }
   };
 
-  const handleNewClick = async () => {
-    try {
-      const res = await notaReturApi.autoNo().catch(() => ({ no_nota: "" }));
-      setForm({ ...emptyForm, no_nota: res.no_nota || "" });
-      setIsNew(true);
-      setViewMode("form");
-    } catch (e) {
-      console.error(e);
-      setForm(emptyForm);
-      setIsNew(true);
-      setViewMode("form");
-    }
+  const handleNewClick = () => {
+    setForm(emptyForm);
+    setIsNew(true);
+    setViewMode("form");
   };
 
   const handleEditClick = (item: NotaReturData) => {
@@ -256,5 +255,7 @@ export const useNotaReturPenjualanLogic = () => {
     addLine,
     removeLine,
     updateLine,
+    fakturPajaks,
+    tandaTangans,
   };
 };

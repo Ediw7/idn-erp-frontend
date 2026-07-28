@@ -62,6 +62,7 @@ import ProsesHPP from "./features/inventory/components/ProsesHPP";
 import KartuStock from "./features/inventory/components/KartuStock";
 import RekapStock from "./features/inventory/components/RekapStock";
 import TransferEFaktur from "./features/ppn/faktur-pajak/components/TransferEFaktur";
+import { TransferESpt } from "./features/ppn/transfer-espt/components/TransferESpt";
 import GantiPassword from "./features/pemeliharaan/components/GantiPassword";
 import MigrasiData from "./features/pemeliharaan/components/MigrasiData";
 import SetupUser from "./features/admin/components/SetupUser";
@@ -209,16 +210,18 @@ function App() {
                 <Route path="preview-laporan" element={<PreviewLaporan />} />
                 <Route path="setup-data-baru" element={<SetupDataBaru />} />
                 <Route
-                  path="inventory/retur-penjualan"
-                  element={<NotaReturPenjualan />}
-                />
-                <Route
                   path="ppn/retur-penjualan"
                   element={<NotaReturPenjualan />}
                 />
                 <Route
-                  path="inventory/retur-pembelian"
+                  path="ppn/retur-pembelian"
                   element={<NotaReturPembelian />}
+                />
+                <Route path="spt-masa-1111" element={<SptMasa1111 />} />
+                <Route path="ppn/transfer-espt" element={<TransferESpt />} />
+                <Route
+                  path="surat-setoran-pajak"
+                  element={<SuratSetoranPajak />}
                 />
                 <Route path="inventory/gudang" element={<SetupGudang />} />
                 <Route path="inventory/barang" element={<SetupItem />} />
@@ -238,10 +241,7 @@ function App() {
                 <Route path="inventory/proses-hpp" element={<ProsesHPP />} />
                 <Route path="inventory/kartu-stock" element={<KartuStock />} />
                 <Route path="inventory/rekap-stok" element={<RekapStock />} />
-                <Route
-                  path="ppn/retur-pembelian"
-                  element={<NotaReturPembelian />}
-                />
+
                 <Route path="ppn/spt" element={<SptMasa1111 />} />
                 <Route path="ppn/ssp" element={<SuratSetoranPajak />} />
                 <Route

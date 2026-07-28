@@ -1,5 +1,5 @@
 import React from "react";
-import { X } from "lucide-react";
+import { AlertCircle, FileEdit, FilePlus, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface InvoiceFpModalProps {
@@ -29,45 +29,56 @@ export const InvoiceFpModal: React.FC<InvoiceFpModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/20 p-4">
-      <div className="bg-white w-full max-w-md rounded-lg shadow-2xl flex flex-col overflow-hidden border border-slate-700">
-        <div className="bg-slate-800 px-6 py-4 flex justify-between items-center border-b border-slate-700">
-          <h3 className="text-white font-bold text-lg">
-            Konfirmasi Faktur Pajak
-          </h3>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-[1px] p-4">
+      <div className="bg-white w-full max-w-[480px] rounded shadow-xl flex flex-col overflow-hidden border border-slate-300">
+        
+        {/* Header (Light and subtle) */}
+        <div className="px-6 py-4 flex justify-between items-center border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <AlertCircle size={20} className="text-amber-500" />
+            <h3 className="text-slate-800 font-bold text-base">
+              Konfirmasi Faktur Pajak
+            </h3>
+          </div>
           <button
             onClick={() => setShowFpModal(false)}
-            className="text-slate-400 hover:text-white transition-colors p-1 rounded-md hover:bg-slate-700"
+            className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-sm hover:bg-slate-100"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
-        <div className="p-8 flex flex-col gap-5 text-center">
-          <p className="text-sm font-medium text-slate-700">
-            Faktur Pajak untuk invoice ini telah ada. Apakah Anda ingin
-            mengupdate datanya atau membuat Faktur Pajak Pengganti?
-          </p>
+
+        {/* Body */}
+        <div className="px-6 py-6 text-sm text-slate-600 leading-relaxed">
+          Faktur Pajak untuk invoice <span className="font-semibold text-slate-800">{form?.no_invoice || "ini"}</span> telah ada. Apakah Anda ingin mengupdate datanya atau membuat Faktur Pajak Pengganti?
         </div>
-        <div className="bg-slate-50 px-8 py-5 border-t border-gray-200 flex flex-col gap-3">
+
+        {/* Footer (Buttons side by side) */}
+        <div className="bg-slate-50 px-6 py-4 flex justify-end gap-2 border-t border-slate-100">
+          <button
+            onClick={() => setShowFpModal(false)}
+            className="px-4 py-2 text-sm font-semibold rounded-sm bg-white text-slate-600 border border-slate-300 hover:bg-slate-100 hover:text-slate-800 shadow-sm transition-colors"
+          >
+            Batal
+          </button>
+          
           <button
             onClick={() => handleRouteToFp("PERBARUI")}
-            className="w-full px-4 py-2.5 text-sm font-bold rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors"
+            className="px-4 py-2 text-sm font-semibold rounded-sm bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors flex items-center gap-2"
           >
-            PERBARUI DATA
+            <FileEdit size={16} />
+            Perbarui Data
           </button>
+
           <button
             onClick={() => handleRouteToFp("pengganti")}
-            className="w-full px-4 py-2.5 text-sm font-bold rounded-md bg-amber-500 text-white hover:bg-amber-600 shadow-sm transition-colors"
+            className="px-4 py-2 text-sm font-semibold rounded-sm bg-amber-500 text-white hover:bg-amber-600 shadow-sm transition-colors flex items-center gap-2"
           >
-            BUAT PENGGANTI
-          </button>
-          <button
-            onClick={() => setShowFpModal(false)}
-            className="w-full px-4 py-2.5 text-sm font-bold rounded-md bg-white text-slate-700 border border-gray-300 hover:bg-slate-50 shadow-sm transition-colors mt-2"
-          >
-            BATAL
+            <FilePlus size={16} />
+            Buat Pengganti
           </button>
         </div>
+
       </div>
     </div>
   );

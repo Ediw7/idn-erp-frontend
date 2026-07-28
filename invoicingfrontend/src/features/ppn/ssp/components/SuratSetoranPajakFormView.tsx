@@ -6,6 +6,7 @@ interface FormViewProps {
   form: SuratSetoranPajakData;
   setForm: (v: SuratSetoranPajakData) => void;
   isNew: boolean;
+  tandaTangans?: any[];
   onSave: () => void;
   onDelete: () => void;
   onClose: () => void;
@@ -15,6 +16,7 @@ export const SuratSetoranPajakFormView: React.FC<FormViewProps> = ({
   form,
   setForm,
   isNew,
+  tandaTangans,
   onSave,
   onDelete,
   onClose,
@@ -283,14 +285,31 @@ export const SuratSetoranPajakFormView: React.FC<FormViewProps> = ({
 
               <div className="flex items-start gap-4">
                 <span className={labelClass}>Tanda Tangan</span>
-                <input
-                  type="text"
-                  className={`${inputClass} w-64`}
-                  value={form.tanda_tangan}
-                  onChange={(e) =>
-                    setForm({ ...form, tanda_tangan: e.target.value })
-                  }
-                />
+                <div className="flex flex-col gap-2">
+                  <select
+                    className={`${inputClass} w-64`}
+                    value={form.tanda_tangan}
+                    onChange={(e) =>
+                      setForm({ ...form, tanda_tangan: e.target.value })
+                    }
+                  >
+                    <option value="">-- Pilih --</option>
+                    {tandaTangans?.map((t) => (
+                      <option key={t.id} value={t.nama}>
+                        {t.nama}
+                      </option>
+                    ))}
+                  </select>
+                  {tandaTangans?.find((t) => t.nama === form.tanda_tangan)?.ttd_image && (
+                    <div className="mt-2 bg-slate-50 border border-slate-200 p-2 rounded-sm inline-block">
+                      <img
+                        src={`data:image/png;base64,${tandaTangans.find((t) => t.nama === form.tanda_tangan)?.ttd_image}`}
+                        alt="Tanda Tangan"
+                        className="h-16 object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-start gap-4">

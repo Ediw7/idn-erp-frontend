@@ -28,6 +28,8 @@ const NotaReturPenjualan: React.FC = () => {
           items={logic.items}
           gudangs={logic.gudangs}
           invoices={logic.invoices}
+          fakturPajaks={logic.fakturPajaks}
+          tandaTangans={logic.tandaTangans}
           dpp={logic.dpp}
           ppnAmount={logic.ppnAmount}
           onSave={logic.handleSave}

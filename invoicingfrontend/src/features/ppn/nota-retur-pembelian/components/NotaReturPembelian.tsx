@@ -27,6 +27,9 @@ const NotaReturPembelian: React.FC = () => {
           mataUangs={logic.mataUangs}
           items={logic.items}
           gudangs={logic.gudangs}
+          fakturPajaks={logic.fakturPajaks}
+          invoices={logic.invoices}
+          tandaTangans={logic.tandaTangans}
           dpp={logic.dpp}
           ppnAmount={logic.ppnAmount}
           onSave={logic.handleSave}
@@ -39,6 +42,7 @@ const NotaReturPembelian: React.FC = () => {
           addLine={logic.addLine}
           removeLine={logic.removeLine}
           updateLine={logic.updateLine}
+          onAutoGenerate={logic.handleAutoNo}
         />
       )}
     </>

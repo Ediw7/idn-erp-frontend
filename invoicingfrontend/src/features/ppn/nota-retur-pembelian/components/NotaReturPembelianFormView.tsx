@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FilePlus, Trash2, Printer, Save, Plus, ArrowLeft } from "lucide-react";
+import { FilePlus, Trash2, Printer, Save, Plus, ArrowLeft, X } from "lucide-react";
 import { NotaReturPembelianData, NotaReturPembelianLine } from "../api";
 import {
   SupplierData,
@@ -7,6 +7,7 @@ import {
   ItemData,
   GudangData,
 } from "../../../setup/api";
+import { useConfirm } from "../../../../contexts/ConfirmContext";
 
 interface FormViewProps {
   form: NotaReturPembelianData;
@@ -16,6 +17,9 @@ interface FormViewProps {
   mataUangs: MataUangData[];
   items: ItemData[];
   gudangs: GudangData[];
+  fakturPajaks?: any[];
+  invoices?: any[];
+  tandaTangans?: any[];
 
   dpp: number;
   ppnAmount: number;
@@ -24,6 +28,7 @@ interface FormViewProps {
   onDelete: () => void;
   onClose: () => void;
   onNew: () => void;
+  onAutoGenerate?: () => void;
 
   handleSupplierChange: (id: number | "") => void;
   addLine: () => void;
@@ -53,8 +58,14 @@ export const NotaReturPembelianFormView: React.FC<FormViewProps> = ({
   addLine,
   removeLine,
   updateLine,
+  fakturPajaks,
+  invoices,
+  tandaTangans,
+  onAutoGenerate,
 }) => {
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState<"umum" | "detail">("umum");
+  const [showNewModal, setShowNewModal] = useState(false);
 
   const inputClass =
     "w-full px-3 py-1.5 bg-white border border-slate-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-sm text-sm disabled:bg-slate-100 disabled:text-slate-500 transition-colors";
@@ -82,7 +93,10 @@ export const NotaReturPembelianFormView: React.FC<FormViewProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={onNew}
+            onClick={() => {
+              onNew();
+              setShowNewModal(true);
+            }}
             className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-800 bg-white border border-transparent hover:bg-slate-100 transition-colors rounded-sm shadow-sm"
           >
             <FilePlus size={14} /> + TAMBAH RETUR
@@ -159,7 +173,10 @@ export const NotaReturPembelianFormView: React.FC<FormViewProps> = ({
                             setForm({ ...form, no_nota: e.target.value })
                           }
                         />
-                        <button className="px-3 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold text-slate-700 hover:bg-slate-200 whitespace-nowrap">
+                        <button 
+                          onClick={onAutoGenerate}
+                          className="px-3 bg-slate-100 border border-slate-300 rounded-sm text-xs font-semibold text-slate-700 hover:bg-slate-200 whitespace-nowrap"
+                        >
                           Auto No
                         </button>
                       </div>
@@ -236,21 +253,67 @@ export const NotaReturPembelianFormView: React.FC<FormViewProps> = ({
                   <div className="flex-1 flex flex-col gap-3 max-w-lg">
                     <div className="flex items-start">
                       <label className={labelClass}>Atas No. FP</label>
-                      <div className="flex gap-2 flex-1 items-center">
-                        <input
-                          type="text"
-                          className={`${inputClass} flex-1`}
+                      <div className="flex gap-2 flex-1 items-center min-w-0">
+                        <select
+                          className={inputClass.replace("w-full", "flex-1 min-w-0")}
                           value={form.atas_no_fp || ""}
-                          onChange={(e) =>
-                            setForm({ ...form, atas_no_fp: e.target.value })
-                          }
-                        />
+                          onChange={(e) => {
+                            const fp = fakturPajaks?.find(f => f.no_fp === e.target.value);
+                            if (fp) {
+                              const inv = invoices?.find((i: any) => i.no_invoice === fp.no_invoice);
+                              const applyFakturPajak = () => {
+                                setForm({
+                                  ...form,
+                                  atas_no_fp: fp.no_fp || "",
+                                  tgl_fp: fp.tgl_fp || "",
+                                  mata_uang_id: fp.mata_uang_id || form.mata_uang_id,
+                                  tarif_ppn: fp.tarif_ppn || form.tarif_ppn,
+                                  kurs_pajak: fp.kurs_pajak || form.kurs_pajak,
+                                  gudang_id: inv?.gudang_id || form.gudang_id,
+                                  tanda_tangan: fp.penandatangan || form.tanda_tangan,
+                                  jabatan: fp.jabatan || form.jabatan,
+                                  lines: fp.lines && fp.lines.length > 0 ? fp.lines.map((l: any) => ({
+                                    ...l,
+                                    item_id: l.item_id,
+                                    nama_barang: l.nama_barang,
+                                    satuan: l.satuan,
+                                    kuantum: l.kuantum,
+                                    harga_satuan: l.harga_satuan,
+                                    harga_jual: l.harga_jual,
+                                  })) : form.lines,
+                                });
+                              };
+                              if (form.lines && form.lines.length > 0 && fp.lines && fp.lines.length > 0) {
+                                confirm.show(
+                                  "Apakah Anda yakin ingin mengganti detail barang dengan data dari Faktur Pajak ini?",
+                                  "Semua baris barang yang sudah diinput akan diganti.",
+                                  "warning",
+                                  () => applyFakturPajak()
+                                );
+                              } else {
+                                applyFakturPajak();
+                              }
+                            } else {
+                              setForm({
+                                ...form,
+                                atas_no_fp: "",
+                                tgl_fp: "",
+                                lines: []
+                              });
+                            }
+                          }}
+                        >
+                          <option value="">- Pilih Faktur Pajak -</option>
+                          {fakturPajaks?.map((fp, idx) => (
+                            <option key={idx} value={fp.no_fp}>{fp.no_fp} - {fp.pembeli_nama}</option>
+                          ))}
+                        </select>
                         <span className="text-xs font-semibold text-slate-700">
                           Tgl
                         </span>
                         <input
                           type="date"
-                          className={`${inputClass} w-36`}
+                          className={inputClass.replace("w-full", "w-32")}
                           value={form.tgl_fp || ""}
                           onChange={(e) =>
                             setForm({ ...form, tgl_fp: e.target.value })
@@ -492,30 +555,48 @@ export const NotaReturPembelianFormView: React.FC<FormViewProps> = ({
           {/* Footer Totals */}
           <div className="bg-slate-50 border-t border-slate-200 p-6 flex flex-col lg:flex-row gap-8 justify-between shrink-0">
             {/* Kiri: Informasi Pelaporan */}
-            <div className="flex-1 max-w-xl">
-              <div className="flex items-center mb-2">
-                <label className={labelClass}>Tanda Tangan</label>
-                <input
-                  type="text"
-                  className={`${inputClass} flex-1`}
-                  value={form.tanda_tangan || ""}
-                  onChange={(e) =>
-                    setForm({ ...form, tanda_tangan: e.target.value })
-                  }
-                />
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-2">
+                  <label className={`${labelClass} w-32 mb-0`}>Nama Penandatangan</label>
+                  <select
+                    className={`${inputClass} w-48`}
+                    value={form.tanda_tangan || ""}
+                    onChange={(e) => {
+                      const tt = tandaTangans?.find(t => t.nama === e.target.value);
+                      setForm({
+                        ...form,
+                        tanda_tangan: e.target.value,
+                        jabatan: tt ? tt.jabatan : form.jabatan,
+                      });
+                    }}
+                  >
+                    <option value="">-- Pilih --</option>
+                    {tandaTangans?.map((t) => (
+                      <option key={t.id} value={t.nama}>
+                        {t.nama}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className={`${labelClass} w-32 mb-0`}>Jabatan</label>
+                  <input
+                    type="text"
+                    className={`${inputClass} w-48`}
+                    value={form.jabatan || ""}
+                    onChange={(e) => setForm({ ...form, jabatan: e.target.value })}
+                  />
+                </div>
+                {tandaTangans?.find(t => t.nama === form.tanda_tangan)?.ttd_image && (
+                  <div className="ml-34 mt-2">
+                    <img 
+                      src={`data:image/png;base64,${tandaTangans.find(t => t.nama === form.tanda_tangan)?.ttd_image}`} 
+                      alt="Tanda Tangan" 
+                      className="h-16 object-contain"
+                    />
+                  </div>
+                )}
               </div>
-              <div className="flex items-center">
-                <label className={labelClass}>Jabatan</label>
-                <input
-                  type="text"
-                  className={`${inputClass} flex-1`}
-                  value={form.jabatan || ""}
-                  onChange={(e) =>
-                    setForm({ ...form, jabatan: e.target.value })
-                  }
-                />
-              </div>
-            </div>
 
             {/* Kanan: Kalkulasi Pajak & Buttons */}
             <div className="w-full lg:w-[500px] flex flex-col">
@@ -637,6 +718,135 @@ export const NotaReturPembelianFormView: React.FC<FormViewProps> = ({
           </div>
         </div>
       </div>
+      {showNewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 p-4 overflow-y-auto">
+          <div className="bg-white w-full max-w-3xl rounded-md shadow-xl flex flex-col overflow-hidden border border-slate-700 my-8">
+            <div className="bg-slate-800 px-6 py-4 flex justify-between items-center text-white">
+              <div>
+                <h3 className="text-white font-semibold">Buat Nota Retur Pembelian</h3>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Isi detail dokumen header sebelum menambahkan rincian barang.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowNewModal(false);
+                  onClose();
+                }}
+                className="text-slate-300 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-slate-700">No. Nota Retur</label>
+                  <div className="flex gap-2">
+                    <input type="text" className={`${inputClass} flex-1`} value={form.no_nota || ""} readOnly />
+                    <button
+                      className="px-3 py-1.5 text-xs font-bold border border-slate-300 bg-slate-100 hover:bg-slate-200 rounded-sm shadow-sm"
+                      onClick={onAutoGenerate}
+                    >
+                      Auto No
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-slate-700">Tgl Retur</label>
+                  <input 
+                    type="date" 
+                    className={inputClass} 
+                    value={form.tgl_nota || ""} 
+                    onChange={(e) => setForm({...form, tgl_nota: e.target.value})} 
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-slate-700">Faktur Pajak</label>
+                  <select
+                    className={inputClass}
+                    value={form.atas_no_fp || ""}
+                    onChange={(e) => {
+                      const fp = fakturPajaks?.find(f => f.no_fp === e.target.value);
+                      if (fp) {
+                        const inv = invoices?.find((i: any) => i.no_invoice === fp.no_invoice);
+                        setForm({
+                          ...form,
+                          atas_no_fp: fp.no_fp || "",
+                          tgl_fp: fp.tgl_fp || "",
+                          mata_uang_id: fp.mata_uang_id || form.mata_uang_id,
+                          tarif_ppn: fp.tarif_ppn || form.tarif_ppn,
+                          kurs_pajak: fp.kurs_pajak || form.kurs_pajak,
+                          gudang_id: inv?.gudang_id || form.gudang_id,
+                          tanda_tangan: fp.penandatangan || form.tanda_tangan,
+                          jabatan: fp.jabatan || form.jabatan,
+                          lines: fp.lines && fp.lines.length > 0 ? fp.lines.map((l: any) => ({
+                            ...l,
+                            item_id: l.item_id,
+                            nama_barang: l.nama_barang,
+                            satuan: l.satuan,
+                            kuantum: l.kuantum,
+                            harga_satuan: l.harga_satuan,
+                            harga_jual: l.harga_jual,
+                          })) : form.lines,
+                        });
+                      } else {
+                        setForm({
+                          ...form,
+                          atas_no_fp: "",
+                          tgl_fp: "",
+                          lines: []
+                        });
+                      }
+                    }}
+                  >
+                    <option value="">- Pilih Faktur Pajak -</option>
+                    {fakturPajaks?.map((fp, idx) => (
+                      <option key={idx} value={fp.no_fp}>{fp.no_fp} - {fp.pembeli_nama}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-slate-700">Nama Supplier</label>
+                  <select
+                    className={inputClass}
+                    value={form.supplier_id || ""}
+                    onChange={(e) => handleSupplierChange(Number(e.target.value))}
+                  >
+                    <option value="">- Pilih Supplier -</option>
+                    {suppliers.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.nama}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-slate-200 flex justify-end gap-3 bg-slate-50">
+              <button
+                onClick={() => {
+                  setShowNewModal(false);
+                  onClose();
+                }}
+                className="px-5 py-2 text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 font-semibold rounded-sm text-sm"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => setShowNewModal(false)}
+                className="px-6 py-2 text-white bg-blue-600 hover:bg-blue-700 font-semibold rounded-sm shadow-sm flex items-center gap-2 text-sm"
+              >
+                <Save size={16} /> Buat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

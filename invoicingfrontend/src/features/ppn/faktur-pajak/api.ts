@@ -24,3 +24,8 @@ export const deleteFakturPajak = async (id: number) => {
   const res = await axiosClient.delete(`/api/faktur_pajak/${id}`);
   return res.data;
 };
+
+export const autoNoFp = async (penomoran: string, kode_transaksi: string, kode_status: string) => {
+  const res = await axiosClient.post("/api/faktur_pajak/auto-no", { penomoran, kode_transaksi, kode_status });
+  return res.data;
+};

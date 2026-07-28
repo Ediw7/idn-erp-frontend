@@ -12,6 +12,8 @@ import {
   ItemData,
   GudangData,
 } from "../../../setup/api";
+import { getFakturPajak } from "../../faktur-pajak/api";
+import { getInvoices } from "../../../transactionsApi";
 import toast from "react-hot-toast";
 
 export const useNotaReturPembelianLogic = () => {
@@ -24,6 +26,9 @@ export const useNotaReturPembelianLogic = () => {
   const [mataUangs, setMataUangs] = useState<MataUangData[]>([]);
   const [items, setItems] = useState<ItemData[]>([]);
   const [gudangs, setGudangs] = useState<GudangData[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [fakturPajaks, setFakturPajaks] = useState<any[]>([]);
+  const [tandaTangans, setTandaTangans] = useState<any[]>([]);
 
   // Filters for list view
   const currentYear = new Date().getFullYear().toString();
@@ -61,11 +66,14 @@ export const useNotaReturPembelianLogic = () => {
   const fetchInitialData = async () => {
     setLoadingList(true);
     try {
-      const [s, m, i, g, listRes] = await Promise.all([
+      const [s, m, i, g, invRes, fpRes, ttRes, listRes] = await Promise.all([
         setupApi.getSupplier().catch(() => []),
         setupApi.getMataUang().catch(() => []),
         setupApi.getItem().catch(() => []),
         setupApi.getGudang().catch(() => []),
+        getInvoices().catch(() => []),
+        getFakturPajak().then(res => res.data).catch(() => []),
+        setupApi.getTandaTangan().catch(() => []),
         notaReturPembelianApi.getAll().catch(() => []),
       ]);
 
@@ -73,6 +81,9 @@ export const useNotaReturPembelianLogic = () => {
       setMataUangs(m);
       setItems(i);
       setGudangs(g);
+      setInvoices(invRes);
+      setFakturPajaks(fpRes);
+      setTandaTangans(ttRes);
       setDataList(listRes);
     } catch (error) {
       console.error("Failed to fetch data", error);
@@ -82,19 +93,18 @@ export const useNotaReturPembelianLogic = () => {
     }
   };
 
-  const handleNewClick = async () => {
+  const handleNewClick = () => {
+    setForm(emptyForm);
+    setIsNew(true);
+    setViewMode("form");
+  };
+
+  const handleAutoNo = async () => {
     try {
-      const res = await notaReturPembelianApi
-        .autoNo()
-        .catch(() => ({ no_nota: "" }));
-      setForm({ ...emptyForm, no_nota: res.no_nota || "" });
-      setIsNew(true);
-      setViewMode("form");
-    } catch (e) {
-      console.error(e);
-      setForm(emptyForm);
-      setIsNew(true);
-      setViewMode("form");
+      const res = await notaReturPembelianApi.autoNo();
+      setForm({ ...form, no_nota: res.no_nota });
+    } catch (error) {
+      toast.error("Gagal mendapatkan nomor otomatis");
     }
   };
 
@@ -230,6 +240,9 @@ export const useNotaReturPembelianLogic = () => {
     mataUangs,
     items,
     gudangs,
+    invoices,
+    fakturPajaks,
+    tandaTangans,
     periode,
     setPeriode,
     form,
@@ -248,5 +261,6 @@ export const useNotaReturPembelianLogic = () => {
     addLine,
     removeLine,
     updateLine,
+    handleAutoNo,
   };
 };

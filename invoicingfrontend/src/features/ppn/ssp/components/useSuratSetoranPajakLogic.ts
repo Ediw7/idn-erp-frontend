@@ -11,6 +11,7 @@ export const useSuratSetoranPajakLogic = () => {
   const [loadingList, setLoadingList] = useState(true);
 
   const [perusahaan, setPerusahaan] = useState<CompanyData | null>(null);
+  const [tandaTangans, setTandaTangans] = useState<any[]>([]);
 
   const emptyForm: SuratSetoranPajakData = {
     kpp: "",
@@ -46,14 +47,16 @@ export const useSuratSetoranPajakLogic = () => {
   const fetchInitialData = async () => {
     setLoadingList(true);
     try {
-      const [listRes, pRes] = await Promise.all([
+      const [listRes, pRes, ttRes] = await Promise.all([
         sspApi.getAll().catch(() => []),
         setupApi.getPerusahaan().catch(() => null),
+        setupApi.getTandaTangan().catch(() => []),
       ]);
       setDataList(listRes);
       if (pRes) {
         setPerusahaan(pRes);
       }
+      setTandaTangans(ttRes);
     } catch (error) {
       console.error("Failed to fetch SSP data", error);
       toast.error("Gagal memuat data SSP");
@@ -131,6 +134,7 @@ export const useSuratSetoranPajakLogic = () => {
     setViewMode,
     isNew,
     isSaving,
+    tandaTangans,
     handleNewClick,
     handleEditClick,
     handleSave,

@@ -22,7 +22,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
     <div className="bg-slate-50 shadow-sm border border-slate-300 flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
-        <div className="flex flex-col">
+        <div className="flex flex-col flex-1 min-w-0 pr-4">
           <div className="flex items-center gap-4">
             {onBack && (
               <button
@@ -36,9 +36,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
             <h2 className="text-lg font-semibold text-white">{title}</h2>
           </div>
           {filters && (
-            <div
-              className={`flex items-center gap-4 mt-1.5 ${onBack ? "ml-9" : ""}`}
-            >
+            <div className={`flex flex-wrap items-center gap-4 mt-1.5 ${onBack ? "ml-9" : ""}`}>
               {filters}
             </div>
           )}

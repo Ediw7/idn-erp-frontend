@@ -47,15 +47,8 @@ export const SptMasaFormView: React.FC<FormViewProps> = ({
       <div className="bg-slate-800 px-6 py-4 border-b border-slate-700 flex justify-between items-center shrink-0">
         <div className="flex flex-col">
           <div className="flex items-center gap-4">
-            <button
-              onClick={onClose}
-              className="text-slate-300 hover:text-white transition-colors"
-              title="Kembali ke Daftar"
-            >
-              <ArrowLeft size={20} />
-            </button>
             <h2 className="text-lg font-semibold text-white">
-              SPT Masa PPN 1111
+              Formulir SPT Masa PPN 1111
             </h2>
           </div>
         </div>
@@ -169,11 +162,7 @@ export const SptMasaFormView: React.FC<FormViewProps> = ({
                 <Lock size={12} /> LOCKED
               </span>
             )}
-            {!form.is_locked && (
-              <span className="px-3 py-1 bg-green-100 text-green-700 font-bold text-xs rounded-sm border border-green-200">
-                OPEN
-              </span>
-            )}
+
           </div>
         </div>
 

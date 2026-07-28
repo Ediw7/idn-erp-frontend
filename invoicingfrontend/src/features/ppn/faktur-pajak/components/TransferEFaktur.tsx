@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import axiosClient from "../../../../lib/axiosClient";
 import toast from "react-hot-toast";
+import { PageLayout } from "../../../../components/layouts/PageLayout";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -144,50 +145,50 @@ const TransferEFakturForm: React.FC = () => {
   };
 
   const inputClass =
-    "w-full px-3 py-2 border border-slate-300 bg-white rounded-sm text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all disabled:opacity-50";
+    "w-full px-3 py-2 border border-slate-300 bg-white rounded-md text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors disabled:opacity-50";
+  const labelClass = "col-span-12 md:col-span-4 text-sm font-semibold text-slate-700";
 
   return (
-    <div className="w-full h-full bg-white rounded-none flex flex-col shadow-sm border border-slate-300">
-      {/* 2. Header Banner Gelap (Full Width) */}
-      <div className="p-6 bg-slate-900 w-full rounded-none flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-white tracking-wide">
-            Transfer ke Program e-Faktur
-          </h2>
-          <p className="text-sm text-slate-300 mt-1">
-            Ekspor data faktur pajak ke format CSV (Skema Impor e-Faktur DJP)
-          </p>
+    <PageLayout title="Transfer Data ke Program e-Faktur" contentClassName="flex-1 p-8 overflow-y-auto bg-slate-50 flex justify-center items-start">
+      <div className="w-full max-w-3xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow rounded-xl overflow-hidden mt-4">
+        
+        <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-800">Ekspor Data e-Faktur</h2>
+            <p className="text-sm text-slate-500 mt-1">
+              Ekspor data faktur pajak ke format CSV sesuai Skema Impor DJP
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleBatal}
+              disabled={isLoading}
+              className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
+            >
+              Reset
+            </button>
+            <button
+              onClick={handleExport}
+              disabled={isLoading}
+              className="px-4 py-2 bg-blue-600 rounded-lg text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+            >
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : null}
+              Mulai Ekspor
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleBatal}
-            disabled={isLoading}
-            className="px-5 py-2 bg-transparent border border-slate-600 rounded-sm text-sm font-bold text-slate-300 hover:bg-slate-800 transition-colors shadow-sm disabled:opacity-50"
-          >
-            Batal
-          </button>
-          <button
-            onClick={handleExport}
-            disabled={isLoading}
-            className="px-5 py-2 bg-blue-600 border border-blue-700 rounded-sm text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
-          >
-            {isLoading ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : null}
-            Proses Ekspor
-          </button>
-        </div>
-      </div>
 
-      {/* 3. Body Form Area (Putih Bersih) */}
-      <div className="p-6 bg-white space-y-4">
+        <div className="p-8 space-y-6">
+
         <div className="grid grid-cols-12 gap-4 items-center">
-          <label className="col-span-3 text-sm font-medium text-gray-700">
+          <label className={labelClass}>
             Jenis Pajak
           </label>
-          <div className="col-span-9">
+          <div className="col-span-12 md:col-span-8">
             <select
-              className={`${inputClass} w-full md:w-1/2 lg:w-1/3`}
+              className={inputClass}
               value={form.jenis_pajak}
               onChange={(e) =>
                 setForm({ ...form, jenis_pajak: e.target.value })
@@ -204,13 +205,13 @@ const TransferEFakturForm: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-12 gap-4 items-center">
-          <label className="col-span-3 text-sm font-medium text-gray-700">
+          <label className={labelClass}>
             Tahun
           </label>
-          <div className="col-span-9">
+          <div className="col-span-12 md:col-span-8">
             <input
               type="number"
-              className={`${inputClass} w-full md:w-1/3 lg:w-1/4`}
+              className={inputClass}
               value={form.tahun}
               onChange={(e) =>
                 setForm({ ...form, tahun: Number(e.target.value) })
@@ -221,12 +222,12 @@ const TransferEFakturForm: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-12 gap-4 items-center">
-          <label className="col-span-3 text-sm font-medium text-gray-700">
+          <label className={labelClass}>
             Bulan
           </label>
-          <div className="col-span-9">
+          <div className="col-span-12 md:col-span-8">
             <select
-              className={`${inputClass} w-full md:w-1/3 lg:w-1/4`}
+              className={inputClass}
               value={form.bulan}
               onChange={(e) => setForm({ ...form, bulan: e.target.value })}
               disabled={isLoading}
@@ -241,13 +242,13 @@ const TransferEFakturForm: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-12 gap-4 items-center">
-          <label className="col-span-3 text-sm font-medium text-gray-700">
+          <label className={labelClass}>
             Pembetulan
           </label>
-          <div className="col-span-9">
+          <div className="col-span-12 md:col-span-8">
             <input
               type="number"
-              className={`${inputClass} w-full md:w-1/4 lg:w-1/5`}
+              className={inputClass}
               value={form.pembetulan}
               onChange={(e) =>
                 setForm({ ...form, pembetulan: Number(e.target.value) })
@@ -258,16 +259,16 @@ const TransferEFakturForm: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-full h-px bg-slate-100 my-4"></div>
+        <div className="w-full h-px bg-slate-100 my-6"></div>
 
         <div className="grid grid-cols-12 gap-4 items-center">
-          <label className="col-span-3 text-sm font-medium text-gray-700">
+          <label className={labelClass}>
             No FP Awal
           </label>
-          <div className="col-span-9">
+          <div className="col-span-12 md:col-span-8">
             <input
               type="text"
-              className={`${inputClass} font-mono w-full md:w-1/2 lg:w-1/3`}
+              className={`${inputClass} font-mono`}
               value={form.fp_awal}
               onChange={(e) => setForm({ ...form, fp_awal: e.target.value })}
               placeholder="13 digit terakhir"
@@ -277,13 +278,13 @@ const TransferEFakturForm: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-12 gap-4 items-center">
-          <label className="col-span-3 text-sm font-medium text-gray-700">
+          <label className={labelClass}>
             No FP Akhir
           </label>
-          <div className="col-span-9">
+          <div className="col-span-12 md:col-span-8">
             <input
               type="text"
-              className={`${inputClass} font-mono w-full md:w-1/2 lg:w-1/3`}
+              className={`${inputClass} font-mono`}
               value={form.fp_akhir}
               onChange={(e) => setForm({ ...form, fp_akhir: e.target.value })}
               placeholder="13 digit terakhir"
@@ -292,24 +293,25 @@ const TransferEFakturForm: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-full h-px bg-slate-100 my-4"></div>
+        <div className="w-full h-px bg-slate-100 my-6"></div>
 
         {/* Generated File Output Name (Read-Only) */}
         <div className="grid grid-cols-12 gap-4 items-center">
-          <label className="col-span-3 text-sm font-medium text-gray-700">
+          <label className={labelClass}>
             Nama File Output
           </label>
-          <div className="col-span-9">
+          <div className="col-span-12 md:col-span-8">
             <input
               type="text"
               readOnly
-              className="w-full md:w-2/3 lg:w-1/2 px-3 py-2 border border-slate-200 bg-gray-50 text-gray-500 rounded-sm text-sm font-semibold focus:outline-none font-mono"
+              className="w-full px-3 py-2 border border-slate-200 bg-slate-50 text-slate-500 rounded-md text-sm font-semibold focus:outline-none font-mono"
               value={outputFileName}
             />
           </div>
         </div>
       </div>
     </div>
+    </PageLayout>
   );
 };
 
