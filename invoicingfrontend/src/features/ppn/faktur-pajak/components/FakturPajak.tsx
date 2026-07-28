@@ -16,6 +16,7 @@ const FakturPajak: React.FC = () => {
           <FakturPajakListView
             dataList={logic.dataList}
             pelanggans={logic.pelanggans}
+            mataUangs={logic.mataUangs}
             periode={logic.periode}
             setPeriode={logic.setPeriode}
             onOpenForm={logic.handleOpenForm}
