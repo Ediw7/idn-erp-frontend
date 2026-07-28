@@ -76,7 +76,11 @@ export const FakturPajakListView: React.FC<FakturPajakListViewProps> = ({
             <input
               type="month"
               className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400"
-              value={periode ? `${periode.substring(0, 4)}-${periode.substring(4, 6)}` : ""}
+              value={
+                periode
+                  ? `${periode.substring(0, 4)}-${periode.substring(4, 6)}`
+                  : ""
+              }
               onChange={(e) => setPeriode(e.target.value.replace("-", ""))}
             />
           </div>
