@@ -945,7 +945,6 @@ export const setupApi = {
     );
   },
 
-
   getJenisPajak: async (): Promise<JenisPajakData[]> => {
     const response = await axiosClient.post("/api/setup/jenis_pajak/get", {
       jsonrpc: "2.0",
