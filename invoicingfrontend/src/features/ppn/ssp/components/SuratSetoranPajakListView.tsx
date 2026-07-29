@@ -49,39 +49,38 @@ export const SuratSetoranPajakListView: React.FC<ListViewProps> = ({
           <h2 className="text-lg font-semibold text-white">
             Surat Setoran Pajak (SSP)
           </h2>
-          <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center gap-4 mt-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium w-24">
+              <span className="text-xs text-slate-300 font-medium">
                 Masa Pajak:
               </span>
               <input
                 type="month"
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-32"
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-32"
                 value={searchPeriode}
                 onChange={(e) => setSearchPeriode(e.target.value)}
               />
             </div>
+            <div className="h-4 w-px bg-slate-600"></div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-300 font-medium">
                 Jenis Pajak:
               </span>
               <input
                 type="text"
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-32"
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-28"
                 value={searchJenisPajak}
                 onChange={(e) => setSearchJenisPajak(e.target.value)}
                 placeholder="Kode MAP..."
               />
             </div>
-          </div>
-          <div className="flex items-center gap-4 mt-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium w-24">
+              <span className="text-xs text-slate-300 font-medium">
                 Jenis Setoran:
               </span>
               <input
                 type="text"
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-32"
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-0.5 outline-none focus:border-slate-400 w-28"
                 value={searchJenisSetoran}
                 onChange={(e) => setSearchJenisSetoran(e.target.value)}
                 placeholder="Kode Setoran..."
