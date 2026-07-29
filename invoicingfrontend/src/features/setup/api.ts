@@ -945,18 +945,6 @@ export const setupApi = {
     );
   },
 
-  getTandaTangan: async (): Promise<any[]> => {
-    const response = await axiosClient.post("/api/setup/tandatangan/get", {
-      jsonrpc: "2.0",
-      params: {},
-    });
-    if (response.data.result && response.data.result.status === "success") {
-      return response.data.result.data;
-    }
-    throw new Error(
-      response.data.result?.message || "Failed to fetch tanda tangan",
-    );
-  },
 
   getJenisPajak: async (): Promise<JenisPajakData[]> => {
     const response = await axiosClient.post("/api/setup/jenis_pajak/get", {
