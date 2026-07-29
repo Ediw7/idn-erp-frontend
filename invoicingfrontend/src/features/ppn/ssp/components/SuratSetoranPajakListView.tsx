@@ -17,16 +17,15 @@ export const SuratSetoranPajakListView: React.FC<ListViewProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const [searchTahun, setSearchTahun] = useState(
-    new Date().getFullYear().toString(),
-  );
-  const [searchBulan, setSearchBulan] = useState("");
+  const [searchPeriode, setSearchPeriode] = useState("");
   const [searchJenisPajak, setSearchJenisPajak] = useState("");
   const [searchJenisSetoran, setSearchJenisSetoran] = useState("");
 
   const filteredData = dataList.filter((item) => {
-    if (searchTahun && !item.tahun.includes(searchTahun)) return false;
-    if (searchBulan && item.bulan !== searchBulan) return false;
+    if (searchPeriode) {
+      const [y, m] = searchPeriode.split("-");
+      if (item.tahun !== y || item.bulan !== m) return false;
+    }
     if (searchJenisPajak && !item.kode_jenis_pajak.includes(searchJenisPajak))
       return false;
     if (
@@ -52,14 +51,14 @@ export const SuratSetoranPajakListView: React.FC<ListViewProps> = ({
           </h2>
           <div className="flex items-center gap-4 mt-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium w-16">
-                Tahun:
+              <span className="text-xs text-slate-300 font-medium w-24">
+                Masa Pajak:
               </span>
               <input
-                type="text"
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-20"
-                value={searchTahun}
-                onChange={(e) => setSearchTahun(e.target.value)}
+                type="month"
+                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-32"
+                value={searchPeriode}
+                onChange={(e) => setSearchPeriode(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2">
@@ -77,27 +76,7 @@ export const SuratSetoranPajakListView: React.FC<ListViewProps> = ({
           </div>
           <div className="flex items-center gap-4 mt-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium w-16">
-                Bulan:
-              </span>
-              <select
-                className="text-xs bg-slate-700 text-white border border-slate-600 rounded-sm px-2 py-1 outline-none focus:border-slate-400 w-20"
-                value={searchBulan}
-                onChange={(e) => setSearchBulan(e.target.value)}
-              >
-                <option value="">Semua</option>
-                {Array.from({ length: 12 }, (_, i) => {
-                  const m = (i + 1).toString().padStart(2, "0");
-                  return (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-300 font-medium">
+              <span className="text-xs text-slate-300 font-medium w-24">
                 Jenis Setoran:
               </span>
               <input
